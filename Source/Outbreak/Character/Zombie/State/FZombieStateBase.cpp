@@ -2,8 +2,10 @@
 
 
 #include "FZombieStateBase.h"
-
 #include "Kismet/GameplayStatics.h"
+#include "Outbreak/Character/Player/CharacterPlayer.h"
+#include "Outbreak/Character/Zombie/CharacterZombie.h"
+#include "Outbreak/Util/Define.h"
 
 FZombieStateBase::~FZombieStateBase()
 {

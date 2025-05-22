@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
 #include "CoreMinimal.h"
 #include "FZombieStateBase.h"
+#include "Outbreak/Util/Define.h"
 
 class OUTBREAK_API FZombieChaseState : public FZombieStateBase
 {

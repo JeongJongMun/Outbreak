@@ -65,4 +65,5 @@ bool ACharacterBase::IsDead() const
 
 void ACharacterBase::Die()
 {
+	// TODO : Implement death logic
 }

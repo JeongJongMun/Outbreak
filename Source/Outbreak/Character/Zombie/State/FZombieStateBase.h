@@ -4,9 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "ZombieAI.h"
-#include "Outbreak/Character/CharacterPlayer.h"
+#include "Outbreak/Character/CharacterBase.h"
 #include "Outbreak/Core/TStateMachine.h"
-#include "Outbreak/Zombie/CharacterZombie.h"
 
 class OUTBREAK_API FZombieStateBase : public TState<EZombieState>
 {

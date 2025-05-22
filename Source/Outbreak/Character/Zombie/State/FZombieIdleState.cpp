@@ -1,4 +1,5 @@
 ﻿#include "FZombieIdleState.h"
+#include "Outbreak/Character/Zombie/CharacterZombie.h"
 
 void FZombieIdleState::Enter(EZombieState PreviousState)
 {

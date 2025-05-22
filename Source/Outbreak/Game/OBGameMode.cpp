@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OBGameMode.h"
-#include "Outbreak/Character/CharacterPlayer.h"
-#include "Outbreak/Zombie/ZombieSpawnManager.h"
+#include "Outbreak/Character/Player/CharacterPlayer.h"
+#include "Outbreak/Character/Zombie/ZombieSpawnManager.h"
 
 AOBGameMode::AOBGameMode()
 {

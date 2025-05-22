@@ -1,5 +1,5 @@
 #include "FPSAnimInstance.h"
-#include "Outbreak/Character/FPSCharacter.h"
+#include "Outbreak/Character/Player/FPSCharacter.h"
 
 void UFPSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {

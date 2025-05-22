@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "FZombieChaseState.h"
+#include "Outbreak/Character/Zombie/CharacterZombie.h"
+#include "Outbreak/Util/Define.h"
 
 void FZombieChaseState::Enter(EZombieState PreviousState)
 {

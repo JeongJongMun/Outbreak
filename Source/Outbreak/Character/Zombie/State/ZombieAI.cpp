@@ -1,10 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ZombieAI.h"
+
+#include "FZombieAttackState.h"
 #include "FZombieChaseState.h"
 #include "FZombieIdleState.h"
 #include "FZombieStateMachine.h"
 #include "FZombieWanderState.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/Util/Define.h"
 
@@ -19,7 +22,7 @@ AZombieAI::AZombieAI()
 	// Aggro Distance
 	SightConfig->SightRadius = 800.f;
 	SightConfig->LoseSightRadius = 850.f;
-	SightConfig->PeripheralVisionAngleDegrees = 90.f;
+	SightConfig->PeripheralVisionAngleDegrees = 180.f;
 	SightConfig->SetMaxAge(5.f);
 
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
@@ -35,6 +38,12 @@ void AZombieAI::BeginPlay()
 	Super::BeginPlay();
 
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AZombieAI::OnTargetPerceptionUpdated);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+	{
+		DrawDebugSphere(GetWorld(), OwnerZombie->GetCharacterMovement()->GetActorLocation(), SightConfig->SightRadius, 12, FColor::Red, false, 1.0f);
+	}, 3.0f, true);
 }
 
 void AZombieAI::Tick(float DeltaTime)
@@ -55,7 +64,7 @@ void AZombieAI::InitializeStateMachine(ACharacterZombie* InZombie)
 	StateMachine->AddState(EZombieState::Wander, MakeShared<FZombieWanderState>(StateMachine, this, OwnerZombie));
 	// StateMachine->AddState(EZombieState::Alert, MakeShared<FZombieAlertState>(StateMachine, this, OwnerZombie));
 	StateMachine->AddState(EZombieState::Chase, MakeShared<FZombieChaseState>(StateMachine, this, OwnerZombie));
-	// StateMachine->AddState(EZombieState::Attack, MakeShared<FZombieAttackState>(StateMachine, this, OwnerZombie));
+	StateMachine->AddState(EZombieState::Attack, MakeShared<FZombieAttackState>(StateMachine, this, OwnerZombie));
 	// StateMachine->AddState(EZombieState::Stun, MakeShared<FZombieStunState>(StateMachine, this, OwnerZombie));
 	// StateMachine->AddState(EZombieState::Die, MakeShared<FZombieDieState>(StateMachine, this, OwnerZombie));
 	

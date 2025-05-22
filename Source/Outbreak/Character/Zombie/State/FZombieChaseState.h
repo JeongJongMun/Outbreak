@@ -16,4 +16,7 @@ public:
 	virtual void Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 	virtual void Execute(EZombieState CurrentState, float DeltaTime) override;
 	virtual void Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
+
+private:
+	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 };

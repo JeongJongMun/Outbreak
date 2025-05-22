@@ -13,6 +13,7 @@ enum class EZombieAnimationType : uint8
 	Idle	UMETA(DisplayName = "Idle"),
 	Walk	UMETA(DisplayName = "Walk"),
 	Run 	UMETA(DisplayName = "Run"),
+	Attack	UMETA(DisplayName = "Attack"),
 };
 
 UENUM()

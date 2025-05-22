@@ -16,7 +16,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void InitializeZombieData(FZombieData* InData);
-
+	FZombieData* GetZombieData() { return &ZombieData; }
 
 	void PlayAnimation(EZombieAnimationType AnimType, bool bLoop = true)
 	{
@@ -29,7 +29,7 @@ public:
 			}
 			else
 			{
-				UE_LOG(LogTemp, Error, TEXT("Animation is nullptr"));
+				UE_LOG(LogTemp, Error, TEXT("[%s] Animation is nullptr", CURRENT_CONTEXT));
 			}
 		}
 	}
@@ -45,4 +45,5 @@ private:
 	TObjectPtr<UAnimSequence> IdleAnimation;
 	TObjectPtr<UAnimSequence> WalkAnimation;
 	TObjectPtr<UAnimSequence> RunAnimation;
+	TObjectPtr<UAnimSequence> AttackAnimation;
 };

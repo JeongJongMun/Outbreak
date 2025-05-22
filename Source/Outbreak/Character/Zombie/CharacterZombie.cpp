@@ -29,6 +29,12 @@ ACharacterZombie::ACharacterZombie()
 		RunAnimation = RunAnim.Object;
 		AnimationMap.Add(EZombieAnimationType::Run, RunAnimation);
 	}
+	ConstructorHelpers::FObjectFinder<UAnimSequence> AttackAnim(TEXT("/Script/Engine.AnimSequence'/Game/Gruesome_Zombie_AnimSet/Animation/UE5/attack01.attack01'"));
+	if (AttackAnim.Succeeded())
+	{
+		AttackAnimation = AttackAnim.Object;
+		AnimationMap.Add(EZombieAnimationType::Attack, AttackAnimation);
+	}
 }
 
 void ACharacterZombie::BeginPlay()

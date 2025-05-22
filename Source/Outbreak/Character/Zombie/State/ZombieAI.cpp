@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ZombieAI.h"
-
 #include "FZombieChaseState.h"
 #include "FZombieIdleState.h"
 #include "FZombieStateMachine.h"
@@ -43,14 +42,6 @@ void AZombieAI::InitializeStateMachine(ACharacterZombie* InZombie)
 	// StateMachine->AddState(EZombieState::Die, MakeShared<FZombieDieState>(StateMachine, this, OwnerZombie));
 	
 	StateMachine->ChangeState(EZombieState::Idle);
-}
-
-void AZombieAI::ChangeState(EZombieState NewState)
-{
-	if (StateMachine.IsValid())
-	{
-		StateMachine->ChangeState(NewState);
-	}
 }
 
 EZombieState AZombieAI::GetCurrentState() const

@@ -1,5 +1,5 @@
 #include "FPSAnimInstance.h"
-#include "Outbreak/Character/Player/FPSCharacter.h"
+#include "Outbreak/Character/Player/CharacterPlayer.h"
 
 void UFPSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -8,7 +8,7 @@ void UFPSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	APawn* OwningPawn = TryGetPawnOwner();
 	if (!OwningPawn) return;
 
-	AFPSCharacter* Character = Cast<AFPSCharacter>(OwningPawn);
+	ACharacterPlayer* Character = Cast<ACharacterPlayer>(OwningPawn);
 	if (!Character) return;
 
 	FVector Velocity = Character->GetVelocity();

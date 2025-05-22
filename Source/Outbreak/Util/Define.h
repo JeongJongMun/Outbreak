@@ -28,6 +28,13 @@ enum class EZombieState : uint8
 	Die 	UMETA(DisplayName = "사망"),
 };
 
+UENUM(BlueprintType)
+enum class ECameraMode : uint8
+{
+	FPS,
+	TopView
+};
+
 UENUM()
 enum class EPlayerControlType : uint8
 {

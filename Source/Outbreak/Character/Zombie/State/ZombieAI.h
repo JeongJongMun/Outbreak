@@ -21,7 +21,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void InitializeStateMachine(class ACharacterZombie* InZombie);
-	void ChangeState(EZombieState NewState);
 	EZombieState GetCurrentState() const;
 	
 public:

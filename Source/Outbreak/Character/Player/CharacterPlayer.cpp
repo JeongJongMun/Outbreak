@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterPlayer.h"
-#include "PlayerControlData.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Outbreak/Character/PlayerControlData.h"
 
 ACharacterPlayer::ACharacterPlayer()
 {
@@ -87,7 +87,7 @@ void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	EnhancedInputComponent->BindAction(TopMoveAction, ETriggerEvent::Triggered, this, &ACharacterPlayer::TopMove);
 }
 
-void ACharacterPlayer::SetCharacterControlData(const class UPlayerControlData* ControlData)
+void ACharacterPlayer::SetCharacterControlData(const UPlayerControlData* ControlData)
 {
 	// Pawn
 	bUseControllerRotationYaw = ControlData->bUseControllerRotationYaw;

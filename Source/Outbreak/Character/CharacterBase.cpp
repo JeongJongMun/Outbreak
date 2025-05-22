@@ -8,6 +8,8 @@
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	// Pawn
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;

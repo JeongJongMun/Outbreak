@@ -53,6 +53,8 @@ ACharacterPlayer::ACharacterPlayer()
 	WeaponClass = AWeaponAR::StaticClass();
 
 	auto CM = GetCharacterMovement();
+	CM->MaxStepHeight = 50.f;
+	CM->SetWalkableFloorAngle(55.f);
 	CM->bUseControllerDesiredRotation = true;
 	CM->bOrientRotationToMovement = true;
 

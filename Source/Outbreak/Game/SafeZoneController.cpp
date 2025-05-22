@@ -11,19 +11,13 @@ ASafeZoneController::ASafeZoneController()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	// 시작 지점 Collision 컴포넌트 생성 및 설정
-	StartSafeZoneCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("StartSafeZone"));
-	RootComponent = StartSafeZoneCollision;
-	StartSafeZoneCollision->InitBoxExtent(FVector(500.f, 500.f, 300.f)); // 가로, 세로, 높이 설정
-	StartSafeZoneCollision->SetCollisionProfileName(TEXT("Trigger"));
-	StartSafeZoneCollision->SetGenerateOverlapEvents(true);
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
-	// 종료 지점 Collision 컴포넌트 생성 및 설정
+	StartSafeZoneCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("StartSafeZone"));
+	StartSafeZoneCollision->SetupAttachment(RootComponent);
+
 	EndSafeZoneCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("EndSafeZone"));
-	RootComponent = EndSafeZoneCollision;
-	EndSafeZoneCollision->InitBoxExtent(FVector(500.f, 500.f, 300.f)); // 가로, 세로, 높이 설정
-	EndSafeZoneCollision->SetCollisionProfileName(TEXT("Trigger"));
-	EndSafeZoneCollision->SetGenerateOverlapEvents(true);
+	EndSafeZoneCollision->SetupAttachment(RootComponent);
 }
 
 void ASafeZoneController::BeginPlay()
@@ -31,9 +25,15 @@ void ASafeZoneController::BeginPlay()
 	Super::BeginPlay();
 
 	// 플레이어가 콜리전에 들어오거나 나갈때 실행할 함수 지정
-	StartSafeZoneCollision->OnComponentEndOverlap.AddDynamic(this, &ASafeZoneController::OnStartZoneExit);
-	EndSafeZoneCollision->OnComponentBeginOverlap.AddDynamic(this, &ASafeZoneController::OnEndZoneEnter);
+	if (StartSafeZoneCollision)
+	{
+		StartSafeZoneCollision->OnComponentEndOverlap.AddDynamic(this, &ASafeZoneController::OnStartZoneExit);
+	}
+	if (EndSafeZoneCollision)
+	{
+		EndSafeZoneCollision->OnComponentBeginOverlap.AddDynamic(this, &ASafeZoneController::OnEndZoneEnter);
 
+	}
 	InGameModeRef = Cast<AInGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
@@ -43,6 +43,8 @@ void ASafeZoneController::OnEndZoneEnter(UPrimitiveComponent* OverlappedComp, AA
 {
 	if (ACharacter* Character = Cast<ACharacter>(OtherActor))
 	{
+		UE_LOG(LogTemp, Log, TEXT("[SafeZone] 캐릭터 %s 종료 존에 진입"), *Character->GetName());
+
 		PlayersInEndZone.Add(Character); // 들어온 캐릭터 목록에 추가
 
 		int32 TotalPlayers = UGameplayStatics::GetNumPlayerControllers(GetWorld());
@@ -65,6 +67,8 @@ void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, A
 {
 	if (ACharacter* Character = Cast<ACharacter>(OtherActor))
 	{
+		UE_LOG(LogTemp, Log, TEXT("[SafeZone] 캐릭터 %s 시작 존에서 이탈"), *Character->GetName());
+
 		PlayersInStartZone.Remove(Character);
 		if (PlayersInStartZone.Num() == 0)
 		{

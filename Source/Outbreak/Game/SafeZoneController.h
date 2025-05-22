@@ -21,10 +21,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(VisibleAnywhere, Category = "SafeZone")
+	UPROPERTY(EditInstanceOnly, Category = "SafeZone")
 	UBoxComponent* StartSafeZoneCollision;
 
-	UPROPERTY(VisibleAnywhere, Category = "SafeZone")
+	UPROPERTY(EditInstanceOnly, Category = "SafeZone")
 	UBoxComponent* EndSafeZoneCollision;
 
 	// 플레이어가 콜리전 박스 안으로 들어왔을 때 호출

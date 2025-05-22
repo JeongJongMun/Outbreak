@@ -5,17 +5,17 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "Containers/Set.h"
+#include "Outbreak/Character/Player/CharacterPlayer.h"
 
+
+AInGameMode::AInGameMode()
+{
+	DefaultPawnClass = ACharacterPlayer::StaticClass();
+}
 void AInGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	PrimaryActorTick.bCanEverTick = true;
 	UE_LOG(LogTemp, Warning, TEXT("게임 시작됨"));
-}
-
-void AInGameMode::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 // 레벨 전환 함수

@@ -7,14 +7,14 @@ enum class EZombieState : uint8;
 class FZombieIdleState : public FZombieStateBase
 {
 public:
-	FZombieIdleState(const TSharedPtr<TStateMachine<EZombieState>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
+	FZombieIdleState(const TSharedPtr<TStateMachine<EZombieState, ACharacterPlayer>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
 		: FZombieStateBase(InFsm, EZombieState::Idle, InOwner, InCharacter)
 	{
 	}
 
-	virtual void Enter(EZombieState PreviousState) override;
+	virtual void Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 	virtual void Execute(EZombieState CurrentState, float DeltaTime) override;
-	virtual void Exit(EZombieState NextState) override;
+	virtual void Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 
 private:
 	float MinIdleTime = 3.0f;

@@ -5,18 +5,36 @@
 #include "FZombieIdleState.h"
 #include "FZombieStateMachine.h"
 #include "FZombieWanderState.h"
+#include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/Util/Define.h"
 
 AZombieAI::AZombieAI()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	CurrentTarget = nullptr;
+
+	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
+	SetPerceptionComponent(*AIPerception);
+
+	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
+	// Aggro Distance
+	SightConfig->SightRadius = 800.f;
+	SightConfig->LoseSightRadius = 850.f;
+	SightConfig->PeripheralVisionAngleDegrees = 90.f;
+	SightConfig->SetMaxAge(5.f);
+
+	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
+	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+
+	AIPerception->ConfigureSense(*SightConfig);
+	AIPerception->SetDominantSense(SightConfig->GetSenseImplementation());
 }
 
 void AZombieAI::BeginPlay()
 {
 	Super::BeginPlay();
 
+	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AZombieAI::OnTargetPerceptionUpdated);
 }
 
 void AZombieAI::Tick(float DeltaTime)
@@ -51,4 +69,19 @@ EZombieState AZombieAI::GetCurrentState() const
 		return StateMachine->GetCurrentState();
 	}
 	return EZombieState::None;
+}
+
+void AZombieAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
+{
+	const TObjectPtr<ACharacterPlayer> TargetPlayer = Cast<ACharacterPlayer>(Actor);
+	if (Stimulus.WasSuccessfullySensed())
+	{
+		StateMachine->ChangeState(EZombieState::Chase, TargetPlayer);
+		UE_LOG(LogTemp, Warning, TEXT("%s의 시야에서 플레이어 감지됨: %s"), *OwnerZombie->GetName(), *Actor->GetName());
+	}
+	else
+	{
+		StateMachine->ChangeState(EZombieState::Wander, TargetPlayer);
+		UE_LOG(LogTemp, Warning, TEXT("%s의 시야에서 플레이어 사라짐: %s"), *OwnerZombie->GetName(), *Actor->GetName());
+	}
 }

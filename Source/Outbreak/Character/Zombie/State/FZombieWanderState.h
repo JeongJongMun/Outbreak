@@ -7,14 +7,14 @@ enum class EZombieState : uint8;
 class FZombieWanderState : public FZombieStateBase
 {
 public:
-	FZombieWanderState(const TSharedPtr<TStateMachine<EZombieState>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
+	FZombieWanderState(const TSharedPtr<TStateMachine<EZombieState, ACharacterPlayer>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
 	: FZombieStateBase(InFsm, EZombieState::Wander, InOwner, InCharacter)
 	{
 	}
 
-	virtual void Enter(EZombieState PreviousState) override;
+	virtual void Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 	virtual void Execute(EZombieState CurrentState, float DeltaTime) override;
-	virtual void Exit(EZombieState NextState) override;
+	virtual void Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 
 private:
 	float WanderRadius = 500.0f;

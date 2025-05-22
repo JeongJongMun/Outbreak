@@ -1,9 +1,9 @@
 ﻿#include "FZombieIdleState.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 
-void FZombieIdleState::Enter(EZombieState PreviousState)
+void FZombieIdleState::Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	Super::Enter(PreviousState);
+	Super::Enter(PreviousState, TargetPlayer);
 	
 	Owner->StopMovement();
 
@@ -28,8 +28,8 @@ void FZombieIdleState::Execute(EZombieState CurrentState, float DeltaTime)
 	// TODO : Player Detection Logic
 }
 
-void FZombieIdleState::Exit(EZombieState NextState)
+void FZombieIdleState::Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	Super::Exit(NextState);
+	Super::Exit(NextState, TargetPlayer);
 	
 }

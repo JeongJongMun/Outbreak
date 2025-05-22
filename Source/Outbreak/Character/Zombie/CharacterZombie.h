@@ -18,14 +18,14 @@ public:
 	virtual void InitializeZombieData(FZombieData* InData);
 
 
-	void PlayAnimation(EZombieAnimationType AnimType)
+	void PlayAnimation(EZombieAnimationType AnimType, bool bLoop = true)
 	{
 		if (AnimationMap.Contains(AnimType))
 		{
 			TObjectPtr<UAnimSequence> Anim = AnimationMap[AnimType];
 			if (Anim)
 			{
-				GetMesh()->PlayAnimation(Anim, true);
+				GetMesh()->PlayAnimation(Anim, bLoop);
 			}
 			else
 			{
@@ -33,6 +33,7 @@ public:
 			}
 		}
 	}
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
 	FZombieData ZombieData;

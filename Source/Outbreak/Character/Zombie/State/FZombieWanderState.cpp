@@ -5,9 +5,9 @@
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/Util/Define.h"
 
-void FZombieWanderState::Enter(EZombieState PreviousState)
+void FZombieWanderState::Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	Super::Enter(PreviousState);
+	Super::Enter(PreviousState, TargetPlayer);
 	
 	if (Zombie && Zombie->GetCharacterMovement())
 	{
@@ -43,9 +43,9 @@ void FZombieWanderState::Execute(EZombieState CurrentState, float DeltaTime)
 	
 }
 
-void FZombieWanderState::Exit(EZombieState NextState)
+void FZombieWanderState::Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	Super::Exit(NextState);
+	Super::Exit(NextState, TargetPlayer);
 	
 	Owner->StopMovement();
 }

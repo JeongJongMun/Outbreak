@@ -15,11 +15,12 @@ AInGameMode::AInGameMode()
 void AInGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	StartMatch();
 	UE_LOG(LogTemp, Warning, TEXT("게임 시작됨"));
 }
 
 // 레벨 전환 함수
-void AInGameMode::ProceedToNextLevel()
+void AInGameMode::ProceedToNextLevel() const
 {
 	if (!HasAuthority()) return;
 

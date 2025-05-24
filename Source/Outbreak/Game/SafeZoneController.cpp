@@ -3,9 +3,12 @@
 
 #include "SafeZoneController.h"
 #include "Components/BoxComponent.h"
-#include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
+#include "CutsceneManager.h"
 #include "InGameMode.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/Character.h"
+
 
 ASafeZoneController::ASafeZoneController()
 {
@@ -23,7 +26,7 @@ ASafeZoneController::ASafeZoneController()
 void ASafeZoneController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	// 플레이어가 콜리전에 들어오거나 나갈때 실행할 함수 지정
 	if (StartSafeZoneCollision)
 	{
@@ -35,6 +38,8 @@ void ASafeZoneController::BeginPlay()
 
 	}
 	InGameModeRef = Cast<AInGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	CutsceneManager = NewObject<UCutsceneManager>();
+	CutsceneManager->Init(GetWorld());
 }
 
 void ASafeZoneController::OnEndZoneEnter(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -74,9 +79,9 @@ void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, A
 		{
 			// TODO : 좀비 AI 및 스폰 활성화 코드 작성
 			// 단, 컷씬 추가시 활성화 시간을 컷씬 종료시에 해야함
-			if (InGameModeRef && !InGameModeRef->HasMatchStarted())
+			if (CutsceneManager)
 			{
-				InGameModeRef->StartMatch();
+				CutsceneManager->PlayCutscene(CutsceneSequence);
 			}
 		}
 	}

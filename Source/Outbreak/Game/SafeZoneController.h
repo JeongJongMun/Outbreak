@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CutsceneManager.h"
 #include "GameFramework/Actor.h"
+#include "LevelSequence.h"
 #include "SafeZoneController.generated.h"
 
 
@@ -45,4 +47,9 @@ private:
 
 	UPROPERTY()
 	AInGameMode* InGameModeRef;
+	
+	UPROPERTY()
+	UCutsceneManager* CutsceneManager;
+	UPROPERTY(EditAnywhere, Category = "Cutscene")
+	ULevelSequence* CutsceneSequence;
 };

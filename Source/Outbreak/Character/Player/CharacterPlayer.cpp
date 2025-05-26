@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Animation/FPSAnimInstance.h"
 #include "Outbreak/Weapon/WeaponAR.h"
+#include "Outbreak/Weapon/WeaponSMG.h"
 
 ACharacterPlayer::ACharacterPlayer()
 {
@@ -42,16 +43,11 @@ ACharacterPlayer::ACharacterPlayer()
 	FirstPersonMesh->CastShadow = false;
 
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
-	static ConstructorHelpers::FClassFinder<UFPSAnimInstance> GunAnimInstance(TEXT("/Script/Engine.AnimBlueprint'/Game/FPS_Weapon_Pack/Animation/AR02/ABP_AR02.ABP_AR02_C'"));
-	if (GunAnimInstance.Succeeded())
-	{
-		GunMesh->SetAnimInstanceClass(GunAnimInstance.Class);
-	}
 	GunMesh->SetOnlyOwnerSee(true);
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
 
-	WeaponClass = AWeaponAR::StaticClass();
+	WeaponClass = AWeaponSMG::StaticClass();
 
 	auto CM = GetCharacterMovement();
 	CM->bUseControllerDesiredRotation = true;
@@ -251,6 +247,12 @@ void ACharacterPlayer::Move(const FInputActionValue& Value)
 		AddMovementInput(RightDirection, MovementVector.X);    // A/D
 	}
 }
+
+void ACharacterPlayer::ChangeArm()
+{
+
+}
+
 
 void ACharacterPlayer::Look(const FInputActionValue& Value)
 {

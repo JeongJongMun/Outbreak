@@ -33,5 +33,5 @@ protected:
 	USoundBase* ARShotSound;
 
 	UPROPERTY(VisibleAnywhere, Category="Weapon")
-	float FireFrequency = 0.3f; // 발사 간격
+	float FireFrequency = 0.1f; // 발사 간격
 };

@@ -37,6 +37,7 @@ protected:
 	void OnFirePressed();
 	void OnFireReleased();
 	void OnToggleFireMode();
+	void ChangeArm();
 	
 	bool bIsAutoFire = false;
 	

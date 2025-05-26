@@ -37,6 +37,5 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="Weapon")
 	USkeletalMeshComponent* WeaponMesh; // 무기 메시
 
-	UPROPERTY(VisibleAnywhere, Category="Weapon")
-	float FireFrequency = 0.1f; // 발사 간격
+
 };

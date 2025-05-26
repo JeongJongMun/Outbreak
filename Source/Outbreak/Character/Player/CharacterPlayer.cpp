@@ -34,8 +34,9 @@ ACharacterPlayer::ACharacterPlayer()
 	{
 		FirstPersonMesh->SetAnimInstanceClass(FPSAnimInstanceRef.Class);
 	}
-	
 	FirstPersonMesh->SetupAttachment(FirstPersonCamera);
+	FirstPersonMesh->SetRelativeLocation(FVector(20.f, 10.f, -20.f));
+	FirstPersonMesh->SetRelativeRotation(FRotator(0.f,-90.f,0.f));
 	FirstPersonMesh->SetOnlyOwnerSee(true);
 	FirstPersonMesh->bCastDynamicShadow = false;
 	FirstPersonMesh->CastShadow = false;

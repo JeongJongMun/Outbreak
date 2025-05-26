@@ -3,6 +3,7 @@
 
 #include "OutBreakGameState.h"
 #include "Net/UnrealNetwork.h"
+#include "Outbreak/UI/OB_HUD.h"
 
 AOutBreakGameState::AOutBreakGameState()
 {
@@ -63,8 +64,18 @@ void AOutBreakGameState::OnRep_AnnouncementMessage()
 
 void AOutBreakGameState::OnRep_ObjectMessage()
 {
-	UE_LOG(LogTemp, Log, TEXT("게임 목표 : %s"), *ObjectiveMessage);
-	// TODO: HUD 또는 UI 업데이트 함수 호출
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		{
+			HUD->DisplayObjectiveMessage(ObjectiveMessage);
+		}
+	}
+}
+void AOutBreakGameState::SetObjectiveMessage(const FString& NewMessage)
+{
+	ObjectiveMessage = NewMessage;
+	OnRep_ObjectMessage();
 }
 
 void AOutBreakGameState::OnRep_EventAlertMessage()

@@ -2,15 +2,20 @@
 
 
 #include "InGameMode.h"
+
+#include "OutBreakGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "Containers/Set.h"
 #include "Outbreak/Character/Player/CharacterPlayer.h"
+#include "Outbreak/UI/OB_HUD.h"
 
 
 AInGameMode::AInGameMode()
 {
 	DefaultPawnClass = ACharacterPlayer::StaticClass();
+	HUDClass = AOB_HUD::StaticClass();
+	GameStateClass = AOutBreakGameState::StaticClass();
 }
 void AInGameMode::BeginPlay()
 {

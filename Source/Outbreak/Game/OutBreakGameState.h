@@ -43,6 +43,9 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_EventAlertMessage, BlueprintReadOnly, Category="UI")
 	FString EventAlertMessage; // 경고 UI
 
+	UFUNCTION(BlueprintCallable)
+	void SetObjectiveMessage(const FString& NewMessage);
+
 protected:
 	UFUNCTION()
 	void OnRep_MatchTime();

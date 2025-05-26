@@ -39,6 +39,7 @@ void ASafeZoneController::BeginPlay()
 	}
 	InGameModeRef = Cast<AInGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	CutsceneManager = NewObject<UCutsceneManager>();
+	CutsceneManager->AddToRoot();
 	CutsceneManager->Init(GetWorld());
 }
 
@@ -81,7 +82,14 @@ void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, A
 			// 단, 컷씬 추가시 활성화 시간을 컷씬 종료시에 해야함
 			if (CutsceneManager)
 			{
-				CutsceneManager->PlayCutscene(CutsceneSequence);
+				FString CurrentLevel = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
+				FString ObjectiveMessage;
+				if (CurrentLevel == TEXT("FirstPhase")) ObjectiveMessage = TEXT("목표 : 숲을 탈출하라 !!");
+				else if (CurrentLevel == TEXT("SecondPhase")) ObjectiveMessage = TEXT("목표 : 마을을 탈출하라 !!");
+				else if (CurrentLevel == TEXT("ThirdPhase")) ObjectiveMessage = TEXT("목표 : 건물 10층에 도달하라 !!");
+				else ObjectiveMessage = TEXT("목표 : 보스를 처치하고 탈출하라 !");
+
+				CutsceneManager->PlayCutscene(CutsceneSequence, ObjectiveMessage);
 			}
 		}
 	}

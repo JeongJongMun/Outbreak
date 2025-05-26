@@ -13,6 +13,7 @@
 				"CoreUObject",
 				"EngineCameras",
 				"AIModule",
+				"UMG"
 			]
 		}
 	],

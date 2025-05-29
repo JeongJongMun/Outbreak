@@ -11,7 +11,7 @@ ACharacterZombie::ACharacterZombie()
 	
 	bIsAggressive = false;
 
-	ConstructorHelpers::FObjectFinder<UAnimMontage> ZombieAnimationMontage(TEXT("/Script/Engine.AnimMontage'/Game/Animations/Montage_Zombie.Montage_Zombie'"));
+	ConstructorHelpers::FObjectFinder<UAnimMontage> ZombieAnimationMontage(TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/Montage_Zombie.Montage_Zombie'"));
 	if (ZombieAnimationMontage.Succeeded())
 	{
 		AnimMontage = ZombieAnimationMontage.Object;

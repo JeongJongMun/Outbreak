@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "NormalZombie.h"
-#include "RunnerZombie.generated.h"
+#include "WalkerZombie.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OUTBREAK_API ARunnerZombie : public ANormalZombie
+class OUTBREAK_API AWalkerZombie : public ANormalZombie
 {
 	GENERATED_BODY()
 

@@ -9,8 +9,6 @@ ACharacterZombie::ACharacterZombie()
 	AIControllerClass = AZombieAI::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
-	bIsAggressive = false;
-
 	ConstructorHelpers::FObjectFinder<UAnimMontage> ZombieAnimationMontage(TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/Montage_Zombie.Montage_Zombie'"));
 	if (ZombieAnimationMontage.Succeeded())
 	{
@@ -20,7 +18,7 @@ ACharacterZombie::ACharacterZombie()
 
 	MontageSectionNameMap.Add(EZombieStateType::Idle, IdleSectionName);
 	MontageSectionNameMap.Add(EZombieStateType::Wander, WanderSectionName);
-	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseSectionName);
+	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseRunSectionName);
 	MontageSectionNameMap.Add(EZombieStateType::Attack, AttackSectionName);
 	MontageSectionNameMap.Add(EZombieStateType::Die, DieSectionName);
 }

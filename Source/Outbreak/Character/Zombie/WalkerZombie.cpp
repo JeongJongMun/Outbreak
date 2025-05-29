@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "RunnerZombie.h"
+#include "WalkerZombie.h"
 
-void ARunnerZombie::BeginPlay()
+void AWalkerZombie::BeginPlay()
 {
 	Super::BeginPlay();
 
 	MontageSectionNameMap.Remove(EZombieStateType::Chase);
-	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseRunSectionName);
+	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseWalkSectionName);
 }

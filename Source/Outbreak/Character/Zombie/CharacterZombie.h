@@ -32,23 +32,20 @@ protected:
 // --------------------
 // Variables
 // --------------------
-public:
-	bool bIsDead = false;
-	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
 	FZombieData ZombieData;
 	
-	bool bIsAggressive;
-	
-private:
-	TObjectPtr<AZombieAI> ZombieAIController;
 	TMap<EZombieStateType, FName> MontageSectionNameMap;
-	TObjectPtr<UAnimMontage> AnimMontage;
 	FName CurrentSection = "Idle";
 	FName IdleSectionName = "Idle";
 	FName WanderSectionName = "Wander";
-	FName ChaseSectionName = "Chase";
+	FName ChaseWalkSectionName = "ChaseWalk";
+	FName ChaseRunSectionName = "ChaseRun";
 	FName AttackSectionName = "Attack";
 	FName DieSectionName = "Die";
+	
+private:
+	TObjectPtr<AZombieAI> ZombieAIController;
+	TObjectPtr<UAnimMontage> AnimMontage;
 };

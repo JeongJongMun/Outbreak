@@ -8,7 +8,6 @@ void FZombieDieState::Enter(EZombieStateType PreviousState, TObjectPtr<ACharacte
 	FZombieBaseState::Enter(PreviousState, TargetPlayer);
 	
 	Zombie->GetController()->StopMovement();
-	Zombie->bIsDead = true;
 	Zombie->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Zombie->SetLifeSpan(10.0f);
 	

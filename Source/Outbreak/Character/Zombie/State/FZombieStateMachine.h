@@ -7,5 +7,5 @@ enum class EZombieStateType : uint8;
 class FZombieStateMachine : public TStateMachine<EZombieStateType, ACharacterPlayer>
 {
 public:
-	
+	virtual void ChangeState(EZombieStateType Key, TObjectPtr<ACharacterPlayer> Context = nullptr) override;
 };

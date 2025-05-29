@@ -27,10 +27,14 @@ public:
 
 protected:
 	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
+	virtual void Die() override;
 
 // --------------------
 // Variables
 // --------------------
+public:
+	bool bIsDead = false;
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
 	FZombieData ZombieData;
@@ -46,4 +50,5 @@ private:
 	FName WanderSectionName = "Wander";
 	FName ChaseSectionName = "Chase";
 	FName AttackSectionName = "Attack";
+	FName DieSectionName = "Die";
 };

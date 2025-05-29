@@ -4,6 +4,7 @@
 
 #include "FZombieAttackState.h"
 #include "FZombieChaseState.h"
+#include "FZombieDieState.h"
 #include "FZombieIdleState.h"
 #include "FZombieStateMachine.h"
 #include "FZombieWanderState.h"
@@ -62,11 +63,11 @@ void AZombieAI::InitializeStateMachine(ACharacterZombie* InZombie)
 	StateMachine = MakeShared<FZombieStateMachine>();
 	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, this, OwnerZombie));
 	StateMachine->AddState(EZombieStateType::Wander, MakeShared<FZombieWanderState>(StateMachine, this, OwnerZombie));
-	// StateMachine->AddState(EZombieState::Alert, MakeShared<FZombieAlertState>(StateMachine, this, OwnerZombie));
+	// StateMachine->AddState(EZombieStateType::Alert, MakeShared<FZombieAlertState>(StateMachine, this, OwnerZombie));
 	StateMachine->AddState(EZombieStateType::Chase, MakeShared<FZombieChaseState>(StateMachine, this, OwnerZombie));
 	StateMachine->AddState(EZombieStateType::Attack, MakeShared<FZombieAttackState>(StateMachine, this, OwnerZombie));
-	// StateMachine->AddState(EZombieState::Stun, MakeShared<FZombieStunState>(StateMachine, this, OwnerZombie));
-	// StateMachine->AddState(EZombieState::Die, MakeShared<FZombieDieState>(StateMachine, this, OwnerZombie));
+	// StateMachine->AddState(EZombieStateType::Stun, MakeShared<FZombieStunState>(StateMachine, this, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Die, MakeShared<FZombieDieState>(StateMachine, this, OwnerZombie));
 	
 	StateMachine->ChangeState(EZombieStateType::Idle);
 }

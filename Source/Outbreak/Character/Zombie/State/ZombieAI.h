@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "FZombieStateMachine.h"
 #include "Outbreak/Character/Player/CharacterPlayer.h"
-#include "Outbreak/Core/TStateMachine.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISenseConfig_Damage.h"
@@ -33,7 +33,7 @@ protected:
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 	
 public:
-	TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>> StateMachine;
+	TSharedPtr<FZombieStateMachine> StateMachine;
 	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 
 protected:

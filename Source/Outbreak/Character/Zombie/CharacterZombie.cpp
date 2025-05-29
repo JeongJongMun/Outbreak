@@ -22,6 +22,7 @@ ACharacterZombie::ACharacterZombie()
 	MontageSectionNameMap.Add(EZombieStateType::Wander, WanderSectionName);
 	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseSectionName);
 	MontageSectionNameMap.Add(EZombieStateType::Attack, AttackSectionName);
+	MontageSectionNameMap.Add(EZombieStateType::Die, DieSectionName);
 }
 
 void ACharacterZombie::BeginPlay()
@@ -73,6 +74,13 @@ void ACharacterZombie::ChangeZombieState(EZombieStateType NewState, TObjectPtr<A
 	return;
 
 	ZombieAIController->StateMachine->ChangeState(NewState, TargetPlayer);
+}
+
+void ACharacterZombie::Die()
+{
+	Super::Die();
+
+	ChangeZombieState(EZombieStateType::Die);
 }
 
 void ACharacterZombie::OnAttackEnd()

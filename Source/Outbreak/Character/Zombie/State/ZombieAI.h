@@ -13,7 +13,7 @@
 #include "ZombieAI.generated.h"
 
 struct FAIStimulus;
-enum class EZombieState : uint8;
+enum class EZombieStateType : uint8;
 
 UCLASS()
 class OUTBREAK_API AZombieAI : public AAIController
@@ -25,14 +25,15 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	void InitializeStateMachine(class ACharacterZombie* InZombie);
-	EZombieState GetCurrentState() const;
+	EZombieStateType GetCurrentState() const;
 	
 protected:
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 	
 public:
-	TSharedPtr<TStateMachine<EZombieState, ACharacterPlayer>> StateMachine;
+	TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>> StateMachine;
+	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 
 protected:
 	TObjectPtr<class ACharacterZombie> OwnerZombie;

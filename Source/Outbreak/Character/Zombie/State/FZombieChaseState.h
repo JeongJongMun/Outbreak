@@ -2,21 +2,23 @@
 
 #pragma once
 #include "CoreMinimal.h"
-#include "FZombieStateBase.h"
+#include "FZombieBaseState.h"
 #include "Outbreak/Util/Define.h"
 
-class OUTBREAK_API FZombieChaseState : public FZombieStateBase
+class OUTBREAK_API FZombieChaseState : public FZombieBaseState
 {
 public:
-	FZombieChaseState(const TSharedPtr<TStateMachine<EZombieState, ACharacterPlayer>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
-		: FZombieStateBase(InFsm, EZombieState::Chase, InOwner, InCharacter)
+	FZombieChaseState(const TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
+		: FZombieBaseState(InFsm, EZombieStateType::Chase, InOwner, InCharacter)
 	{
 	}
 
-	virtual void Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
-	virtual void Execute(EZombieState CurrentState, float DeltaTime) override;
-	virtual void Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
+	virtual void Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
+	virtual void Execute(EZombieStateType CurrentState, float DeltaTime) override;
+	virtual void Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 
 private:
 	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
+	FDelegateHandle DelegateHandle;
+	float ChaseSpeed = 500.0f;
 };

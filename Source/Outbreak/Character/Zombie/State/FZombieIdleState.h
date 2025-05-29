@@ -1,20 +1,20 @@
 ﻿#pragma once
-#include "FZombieStateBase.h"
+#include "FZombieBaseState.h"
 #include "Outbreak/Util/Define.h"
 
-enum class EZombieState : uint8;
+enum class EZombieStateType : uint8;
 
-class FZombieIdleState : public FZombieStateBase
+class FZombieIdleState : public FZombieBaseState
 {
 public:
-	FZombieIdleState(const TSharedPtr<TStateMachine<EZombieState, ACharacterPlayer>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
-		: FZombieStateBase(InFsm, EZombieState::Idle, InOwner, InCharacter)
+	FZombieIdleState(const TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
+		: FZombieBaseState(InFsm, EZombieStateType::Idle, InOwner, InCharacter)
 	{
 	}
 
-	virtual void Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
-	virtual void Execute(EZombieState CurrentState, float DeltaTime) override;
-	virtual void Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
+	virtual void Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
+	virtual void Execute(EZombieStateType CurrentState, float DeltaTime) override;
+	virtual void Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 
 private:
 	float MinIdleTime = 3.0f;

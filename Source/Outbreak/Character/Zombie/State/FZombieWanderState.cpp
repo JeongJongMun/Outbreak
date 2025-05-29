@@ -5,7 +5,7 @@
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/Util/Define.h"
 
-void FZombieWanderState::Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer)
+void FZombieWanderState::Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
 	Super::Enter(PreviousState, TargetPlayer);
 	
@@ -16,10 +16,9 @@ void FZombieWanderState::Enter(EZombieState PreviousState, TObjectPtr<ACharacter
 
 	WanderTimer = FMath::RandRange(MinWanderTime, MaxWanderTime);
 	StartWandering();
-	Zombie->PlayAnimation(EZombieAnimationType::Walk);
 }
 
-void FZombieWanderState::Execute(EZombieState CurrentState, float DeltaTime)
+void FZombieWanderState::Execute(EZombieStateType CurrentState, float DeltaTime)
 {
 	Super::Execute(CurrentState, DeltaTime);
 	
@@ -30,7 +29,7 @@ void FZombieWanderState::Execute(EZombieState CurrentState, float DeltaTime)
 		float RandomValue = FMath::FRand();
 		if (RandomValue < 0.3f)
 		{
-			ChangeState(EZombieState::Idle);
+			ChangeState(EZombieStateType::Idle);
 		}
 		else
 		{
@@ -38,12 +37,9 @@ void FZombieWanderState::Execute(EZombieState CurrentState, float DeltaTime)
 			StartWandering();
 		}
 	}
-
-	// TODO : Player Detection Logic
-	
 }
 
-void FZombieWanderState::Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> TargetPlayer)
+void FZombieWanderState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
 	Super::Exit(NextState, TargetPlayer);
 	
@@ -53,10 +49,7 @@ void FZombieWanderState::Exit(EZombieState NextState, TObjectPtr<ACharacterPlaye
 void FZombieWanderState::StartWandering()
 {
 	if (!Zombie)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[%s] Zombie is nullptr"), CURRENT_CONTEXT);
 		return;
-	}
     
 	FVector RandomLocation;
 	if (FindRandomWanderLocation(RandomLocation))
@@ -67,23 +60,14 @@ void FZombieWanderState::StartWandering()
 
 bool FZombieWanderState::FindRandomWanderLocation(FVector& OutLocation)
 {
-	if (!Zombie)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[%s] Zombie is nullptr"), CURRENT_CONTEXT);
-		return false;
-	}
-    
 	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(Owner->GetWorld());
-	if (!NavSystem)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[%s] Navigation system is nullptr"), CURRENT_CONTEXT);
+	if (!Zombie || !NavSystem)
 		return false;
-	}
     
-	FVector Origin = Zombie->GetActorLocation();
+	FVector OriginPosition = Zombie->GetActorLocation();
     
 	FNavLocation RandomPoint;
-	bool bFound = NavSystem->GetRandomReachablePointInRadius(Origin, WanderRadius, RandomPoint);
+	bool bFound = NavSystem->GetRandomReachablePointInRadius(OriginPosition, WanderRadius, RandomPoint);
     
 	if (bFound)
 	{

@@ -1,18 +1,18 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "FZombieStateBase.h"
+#include "FZombieBaseState.h"
 #include "Outbreak/Util/Define.h"
-class OUTBREAK_API FZombieAttackState : public FZombieStateBase
+
+class OUTBREAK_API FZombieAttackState : public FZombieBaseState
 {
 public:
-	FZombieAttackState(const TSharedPtr<TStateMachine<EZombieState, ACharacterPlayer>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
-		: FZombieStateBase(InFsm, EZombieState::Attack, InOwner, InCharacter)
+	FZombieAttackState(const TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
+		: FZombieBaseState(InFsm, EZombieStateType::Attack, InOwner, InCharacter)
 	{
 	}
 
-	virtual void Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> Context = nullptr) override;
-	virtual void Execute(EZombieState CurrentState, float DeltaTime) override;
-	virtual void Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> Context = nullptr) override;
-	
+	virtual void Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> Context = nullptr) override;
+	virtual void Execute(EZombieStateType CurrentState, float DeltaTime) override;
+	virtual void Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> Context = nullptr) override;
 };

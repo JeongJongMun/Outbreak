@@ -3,7 +3,9 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Outbreak/Character/CharacterBase.h"
+#include "Outbreak/Character/Player/CharacterPlayer.h"
 #include "Outbreak/Util/Define.h"
+#include "State/ZombieAI.h"
 #include "CharacterZombie.generated.h"
 
 UCLASS()
@@ -11,29 +13,24 @@ class OUTBREAK_API ACharacterZombie : public ACharacterBase
 {
 	GENERATED_BODY()
 
+// --------------------
+// Functions
+// --------------------
 public:
 	ACharacterZombie();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void InitializeZombieData(FZombieData* InData);
+	virtual void OnAttackEnd();
 	FZombieData* GetZombieData() { return &ZombieData; }
+	void PlayAnimation(EZombieStateType AnimType);
 
-	void PlayAnimation(EZombieAnimationType AnimType, bool bLoop = true)
-	{
-		if (AnimationMap.Contains(AnimType))
-		{
-			TObjectPtr<UAnimSequence> Anim = AnimationMap[AnimType];
-			if (Anim)
-			{
-				GetMesh()->PlayAnimation(Anim, bLoop);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("[%s] Animation is nullptr", CURRENT_CONTEXT));
-			}
-		}
-	}
-	
+protected:
+	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
+
+// --------------------
+// Variables
+// --------------------
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
 	FZombieData ZombieData;
@@ -41,9 +38,12 @@ protected:
 	bool bIsAggressive;
 	
 private:
-	TMap<EZombieAnimationType, TObjectPtr<UAnimSequence>> AnimationMap;
-	TObjectPtr<UAnimSequence> IdleAnimation;
-	TObjectPtr<UAnimSequence> WalkAnimation;
-	TObjectPtr<UAnimSequence> RunAnimation;
-	TObjectPtr<UAnimSequence> AttackAnimation;
+	TObjectPtr<AZombieAI> ZombieAIController;
+	TMap<EZombieStateType, FName> MontageSectionNameMap;
+	TObjectPtr<UAnimMontage> AnimMontage;
+	FName CurrentSection = "Idle";
+	FName IdleSectionName = "Idle";
+	FName WanderSectionName = "Wander";
+	FName ChaseSectionName = "Chase";
+	FName AttackSectionName = "Attack";
 };

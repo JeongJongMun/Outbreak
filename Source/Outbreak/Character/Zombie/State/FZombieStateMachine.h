@@ -2,9 +2,9 @@
 #include "Outbreak/Character/Player/CharacterPlayer.h"
 #include "Outbreak/Core/TStateMachine.h"
 
-enum class EZombieState : uint8;
+enum class EZombieStateType : uint8;
 
-class FZombieStateMachine : public TStateMachine<EZombieState, ACharacterPlayer>
+class FZombieStateMachine : public TStateMachine<EZombieStateType, ACharacterPlayer>
 {
 public:
 	

@@ -7,17 +7,7 @@
 #define CURRENT_CONTEXT *FString(__FUNCTION__)
 
 UENUM()
-enum class EZombieAnimationType : uint8
-{
-	None	UMETA(DisplayName = "None"),
-	Idle	UMETA(DisplayName = "Idle"),
-	Walk	UMETA(DisplayName = "Walk"),
-	Run 	UMETA(DisplayName = "Run"),
-	Attack	UMETA(DisplayName = "Attack"),
-};
-
-UENUM()
-enum class EZombieState : uint8
+enum class EZombieStateType : uint8
 {
 	None	UMETA(DisplayName = "None"),
 	Idle	UMETA(DisplayName = "휴면"),

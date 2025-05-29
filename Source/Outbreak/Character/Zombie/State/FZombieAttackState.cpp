@@ -1,20 +1,18 @@
 ﻿#include "FZombieAttackState.h"
-
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 
-void FZombieAttackState::Enter(EZombieState PreviousState, TObjectPtr<ACharacterPlayer> Context)
+void FZombieAttackState::Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> Context)
 {
-	FZombieStateBase::Enter(PreviousState, Context);
-
-	Zombie->PlayAnimation(EZombieAnimationType::Attack, false);
+	FZombieBaseState::Enter(PreviousState, Context);
+	
 }
 
-void FZombieAttackState::Execute(EZombieState CurrentState, float DeltaTime)
+void FZombieAttackState::Execute(EZombieStateType CurrentState, float DeltaTime)
 {
-	FZombieStateBase::Execute(CurrentState, DeltaTime);
+	FZombieBaseState::Execute(CurrentState, DeltaTime);
 }
 
-void FZombieAttackState::Exit(EZombieState NextState, TObjectPtr<ACharacterPlayer> Context)
+void FZombieAttackState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> Context)
 {
-	FZombieStateBase::Exit(NextState, Context);
+	FZombieBaseState::Exit(NextState, Context);
 }

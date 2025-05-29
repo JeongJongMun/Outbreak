@@ -24,6 +24,7 @@ public:
 	/*
 	 * Called when the state is entered.
 	 * @param PreviousState The state that was active before this one.
+	 * @param Context Optional context object that can be passed to the state.
 	 */
 	virtual void Enter(T PreviousState, TObjectPtr<ContextType> Context = nullptr) = 0;
 
@@ -37,6 +38,7 @@ public:
 	/*
 	 * Called when the state is exited.
 	 * @param NextState The state that will be active next.
+	 * @param Context Optional context object that can be passed to the state.
 	 */
 	virtual void Exit(T NextState, TObjectPtr<ContextType> Context = nullptr) = 0;
 

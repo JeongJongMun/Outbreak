@@ -60,37 +60,42 @@ void AZombieAI::InitializeStateMachine(ACharacterZombie* InZombie)
 	OwnerZombie = InZombie;
 	
 	StateMachine = MakeShared<FZombieStateMachine>();
-	StateMachine->AddState(EZombieState::Idle, MakeShared<FZombieIdleState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieState::Wander, MakeShared<FZombieWanderState>(StateMachine, this, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, this, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Wander, MakeShared<FZombieWanderState>(StateMachine, this, OwnerZombie));
 	// StateMachine->AddState(EZombieState::Alert, MakeShared<FZombieAlertState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieState::Chase, MakeShared<FZombieChaseState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieState::Attack, MakeShared<FZombieAttackState>(StateMachine, this, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Chase, MakeShared<FZombieChaseState>(StateMachine, this, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Attack, MakeShared<FZombieAttackState>(StateMachine, this, OwnerZombie));
 	// StateMachine->AddState(EZombieState::Stun, MakeShared<FZombieStunState>(StateMachine, this, OwnerZombie));
 	// StateMachine->AddState(EZombieState::Die, MakeShared<FZombieDieState>(StateMachine, this, OwnerZombie));
 	
-	StateMachine->ChangeState(EZombieState::Idle);
+	StateMachine->ChangeState(EZombieStateType::Idle);
 }
 
-EZombieState AZombieAI::GetCurrentState() const
+EZombieStateType AZombieAI::GetCurrentState() const
 {
 	if (StateMachine.IsValid())
 	{
 		return StateMachine->GetCurrentState();
 	}
-	return EZombieState::None;
+	return EZombieStateType::None;
 }
 
 void AZombieAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	UE_LOG(LogTemp, Log, TEXT("[%s] Actor=%s, WasSuccessfullySensed=%s"), CURRENT_CONTEXT, *Actor->GetName(), Stimulus.WasSuccessfullySensed() ? TEXT("True") : TEXT("False"));
+	
 	const TObjectPtr<ACharacterPlayer> TargetPlayer = Cast<ACharacterPlayer>(Actor);
+	CurrentTargetPlayer = TargetPlayer;
+	
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		StateMachine->ChangeState(EZombieState::Chase, TargetPlayer);
-		UE_LOG(LogTemp, Warning, TEXT("%s의 시야에서 플레이어 감지됨: %s"), *OwnerZombie->GetName(), *Actor->GetName());
+		if (GetCurrentState() == EZombieStateType::Idle || GetCurrentState() == EZombieStateType::Wander)
+		{
+			StateMachine->ChangeState(EZombieStateType::Chase, TargetPlayer);
+		}
 	}
 	else
 	{
-		StateMachine->ChangeState(EZombieState::Wander, TargetPlayer);
-		UE_LOG(LogTemp, Warning, TEXT("%s의 시야에서 플레이어 사라짐: %s"), *OwnerZombie->GetName(), *Actor->GetName());
+		StateMachine->ChangeState(EZombieStateType::Wander);
 	}
 }

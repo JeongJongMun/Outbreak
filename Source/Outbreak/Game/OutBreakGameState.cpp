@@ -2,15 +2,16 @@
 
 
 #include "OutBreakGameState.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Outbreak/UI/OB_HUD.h"
 
 AOutBreakGameState::AOutBreakGameState()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	
 	// 오류 방지를 위해 값 초기화
-	MatchTime = 0.f;
-	CurrentPhase = 0;
 	TotalZombieKills = 0;
 	AlivePlayerCount = 0;
 	DeadPlayerCount = 0;
@@ -20,16 +21,51 @@ AOutBreakGameState::AOutBreakGameState()
 	EventAlertMessage = TEXT("");
 }
 
-void AOutBreakGameState::OnRep_MatchTime()
+void AOutBreakGameState::BeginPlay()
 {
-	UE_LOG(LogTemp, Log, TEXT("게임 시간 변경: %f"), MatchTime);
-	// TODO: HUD 또는 UI 업데이트 함수 호출
+	Super::BeginPlay();
+
+	FString CurrentLevel = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
+	if (CurrentLevel == TEXT("FirstPhase")) CurrentPhase = "LEVEL 1 : Lush Forest";
+	else if (CurrentLevel == TEXT("SecondPhase")) CurrentPhase = "LEVEL 2 : Devastated Village";
+	else if (CurrentLevel == TEXT("ThirdPhase")) CurrentPhase = "LEVEL 3 : Skyscrapers";
+	else if (CurrentLevel == TEXT("LastPhase")) CurrentPhase = "LEVEL 4 : Last Forest";
 }
 
-void AOutBreakGameState::OnRep_CurrentPhase()
+void AOutBreakGameState::Tick(float DeltaTime)
 {
-	UE_LOG(LogTemp, Log, TEXT("현재 페이즈 변경: %d"), CurrentPhase);
-	// TODO: HUD 또는 UI 업데이트 함수 호출
+	Super::Tick(DeltaTime);
+
+	if (HasAuthority())
+	{
+		MatchTime += DeltaTime; // 게임 시간 업데이트
+
+		// 생존 플레이어 수 표시
+		int32 AliveCount = 0;
+		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		{
+			if (APlayerController* PC = It->Get())
+			{
+				APawn* Pawn = PC->GetPawn();
+				if (Pawn && !Pawn->IsPendingKillPending())
+				{
+					AliveCount++;
+				}
+			}
+		}
+		if (AlivePlayerCount != AliveCount)
+		{
+			AlivePlayerCount = AliveCount;
+			OnRep_AlivePlayerCount();
+		}
+
+		// 모든 플레이어 사망 시 알림 메시지
+		if (AlivePlayerCount == 0 && AnnouncementMessage.IsEmpty())
+		{
+			AnnouncementMessage = TEXT("All Players are dead!!");
+			OnRep_AnnouncementMessage();
+		} 
+	}
 }
 
 void AOutBreakGameState::OnRep_TotalZombieKills()
@@ -41,7 +77,13 @@ void AOutBreakGameState::OnRep_TotalZombieKills()
 void AOutBreakGameState::OnRep_AlivePlayerCount()
 {
 	UE_LOG(LogTemp, Log, TEXT("생존 플레이어 수 변경: %d"), AlivePlayerCount);
-	// TODO: HUD 또는 UI 업데이트 함수 호출
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		{
+			HUD->DisplayAlivePlayerCount(AlivePlayerCount);
+		}
+	}
 }
 
 void AOutBreakGameState::OnRep_DeadPlayerCount()
@@ -59,7 +101,13 @@ void AOutBreakGameState::OnRep_DownedPlayerCount()
 void AOutBreakGameState::OnRep_AnnouncementMessage()
 {
 	UE_LOG(LogTemp, Log, TEXT("알림 : %s"), *AnnouncementMessage);
-	// TODO: HUD 또는 UI 업데이트 함수 호출
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		{
+			HUD->DisplayAnnouncementMessage(ObjectiveMessage);
+		}
+	}
 }
 
 void AOutBreakGameState::OnRep_ObjectMessage()

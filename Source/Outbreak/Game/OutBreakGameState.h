@@ -8,17 +8,21 @@ UCLASS()
 class OUTBREAK_API AOutBreakGameState : public AGameState
 {
 	GENERATED_BODY()
+
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	
 	
 public:
 	AOutBreakGameState();
-
+	
 	// 서버가 가진 데이터를 클라이언트와 자동으로 동기화 하기 위해 ReplicatedUsing 사용 -> Server RPC 방식
 	// 게임 진행 정보
-	UPROPERTY(ReplicatedUsing = OnRep_MatchTime, BlueprintReadOnly, Category ="Game Progress")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category ="Game Progress")
 	float MatchTime; // 게임 진행 시간
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentPhase, BlueprintReadOnly, Category ="Game Progress")
-	int32 CurrentPhase; // 현재 페이즈
+	UPROPERTY(Replicated, BlueprintReadOnly, Category ="Game Progress")
+	FString CurrentPhase; // 현재 페이즈
 
 	// 전체 통계 정보
 	UPROPERTY(ReplicatedUsing = OnRep_TotalZombieKills, BlueprintReadOnly, Category ="Statistics")
@@ -43,15 +47,13 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_EventAlertMessage, BlueprintReadOnly, Category="UI")
 	FString EventAlertMessage; // 경고 UI
 
+	FORCEINLINE float GetMatchTime() const { return MatchTime; }
+	FORCEINLINE FString GetCurrentPhase() const { return CurrentPhase; }
+	
 	UFUNCTION(BlueprintCallable)
 	void SetObjectiveMessage(const FString& NewMessage);
 
 protected:
-	UFUNCTION()
-	void OnRep_MatchTime();
-
-	UFUNCTION()
-	void OnRep_CurrentPhase();
 
 	UFUNCTION()
 	void OnRep_TotalZombieKills();

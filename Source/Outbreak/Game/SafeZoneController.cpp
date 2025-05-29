@@ -80,7 +80,7 @@ void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, A
 		{
 			// TODO : 좀비 AI 및 스폰 활성화 코드 작성
 			// 단, 컷씬 추가시 활성화 시간을 컷씬 종료시에 해야함
-			if (CutsceneManager)
+			if (CutsceneManager && !CutsceneManager->bHasPlayedCutscene)
 			{
 				FString CurrentLevel = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
 				FString ObjectiveMessage;
@@ -90,6 +90,8 @@ void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, A
 				else ObjectiveMessage = TEXT("목표 : 보스를 처치하고 탈출하라 !");
 
 				CutsceneManager->PlayCutscene(CutsceneSequence, ObjectiveMessage);
+				CutsceneManager->bHasPlayedCutscene = true;
+				StartSafeZoneCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			}
 		}
 	}

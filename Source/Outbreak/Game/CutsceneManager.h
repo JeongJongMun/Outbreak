@@ -17,6 +17,8 @@ public:
 
 	void PlayCutscene(ULevelSequence* Sequence, const FString& InObjectiveMessage);
 
+	bool bHasPlayedCutscene = false;
+
 private:
 	UPROPERTY()
 	UWorld* WorldRef;

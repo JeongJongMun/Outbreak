@@ -14,11 +14,12 @@ class OUTBREAK_API AOB_HUD : public AHUD
 
 public:
 	virtual void BeginPlay() override;
-
+	
+	void DisplayAlivePlayerCount(int32 AlivePlayerCount);
 	void DisplayObjectiveMessage(const FString& Message);
-
+	void DisplayAnnouncementMessage(const FString& Message);
 
 private:
 	UPROPERTY()
-	class UObjectiveWidget* ObjectiveWidget;
+	class UOB_Widget* OB_Widget;
 };

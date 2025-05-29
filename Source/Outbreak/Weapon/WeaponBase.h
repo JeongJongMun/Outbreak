@@ -18,6 +18,7 @@ public:
 
 	virtual void StartFire();
 	virtual void StopFire();
+	virtual void Reload();
 
 	void ApplyCameraShake();
 	FORCEINLINE FName GetMuzzleSocketName() const { return MuzzleSocketName; }

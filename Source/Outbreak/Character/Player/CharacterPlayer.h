@@ -38,6 +38,7 @@ protected:
 	void OnFireReleased();
 	void OnToggleFireMode();
 	void ChangeArm();
+	void OnReload();
 	
 	bool bIsAutoFire = false;
 	
@@ -87,6 +88,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> CrouchAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ReloadAction;
 
 	// Data
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")

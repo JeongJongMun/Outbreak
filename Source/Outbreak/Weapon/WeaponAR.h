@@ -15,11 +15,12 @@ public:
 	
 	virtual void StartFire() override;
 	virtual void StopFire() override;
+	virtual void Reload() override;
 	
 protected:
 
 	void MakeShot();
-
+	void FinishReload();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float TraceMaxDistance = 5000.0f;
@@ -28,10 +29,25 @@ protected:
 	float BulletSpread = 3.0f; 
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
+	FTimerHandle ReloadTimerHandle;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Weapon|Sound")
 	USoundBase* ARShotSound;
 
 	UPROPERTY(VisibleAnywhere, Category="Weapon")
 	float FireFrequency = 0.1f; // 발사 간격
+
+	UPROPERTY(EditDefaultsOnly, Category="Weapon|Ammo")
+	int32 MagazineCapacity = 30;
+
+	UPROPERTY(EditAnywhere, Category="Weapon|Ammo")
+	int32 TotalAmmo = 120;
+
+	UPROPERTY(VisibleAnywhere, Category="Weapon|Ammo")
+	int32 CurrentAmmo;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Weapon|Ammo")
+	float ReloadDuration = 1.5f;
+	
+	bool bIsReloading = false;
 };

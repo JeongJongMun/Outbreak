@@ -30,11 +30,6 @@ ACharacterPlayer::ACharacterPlayer()
 	{
 		FirstPersonMesh->SetSkeletalMesh(FirstPersonMeshRef.Object);
 	}
-	static ConstructorHelpers::FClassFinder<UFPSAnimInstance> FPSAnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/FPS_Weapon_Pack/Animation/Arms/AR02/ABP_Arms_AR02.ABP_Arms_AR02_C'"));
-	if (FPSAnimInstanceRef.Succeeded())
-	{
-		FirstPersonMesh->SetAnimInstanceClass(FPSAnimInstanceRef.Class);
-	}
 	FirstPersonMesh->SetupAttachment(FirstPersonCamera);
 	FirstPersonMesh->SetRelativeLocation(FVector(20.f, 10.f, -20.f));
 	FirstPersonMesh->SetRelativeRotation(FRotator(0.f,-90.f,0.f));
@@ -47,7 +42,8 @@ ACharacterPlayer::ACharacterPlayer()
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
 
-	WeaponClass = AWeaponSMG::StaticClass();
+	WeaponClass = AWeaponAR::StaticClass();
+	ChangeArm();
 
 	auto CM = GetCharacterMovement();
 	CM->bUseControllerDesiredRotation = true;
@@ -101,6 +97,12 @@ ACharacterPlayer::ACharacterPlayer()
 	{
 		ChangeFireModeAction = InputActionChangeFireModeRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionReloadRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Inputs/IA_Reload.IA_Reload'"));
+	if (InputActionReloadRef.Object)
+	{
+		ReloadAction = InputActionReloadRef.Object;
+	}
 	
 	CurrentCharacterControlType = EPlayerControlType::Top;
 }
@@ -136,6 +138,8 @@ void ACharacterPlayer::BeginPlay()
 	}
 	CurrentWeapon->SetOwner(this);
 	CurrentWeapon->SetInstigator(this);
+
+	ChangeArm();
 }
 
 void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -157,6 +161,8 @@ void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	
 	EnhancedInputComponent->BindAction(ChangeFireModeAction, ETriggerEvent::Completed, this, &ACharacterPlayer::OnToggleFireMode);
 	EnhancedInputComponent->BindAction(ChangeCameraAction, ETriggerEvent::Triggered, this, &ACharacterPlayer::ToggleCameraMode);
+
+	EnhancedInputComponent->BindAction(ReloadAction,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnReload);
 }
 
 void ACharacterPlayer::ToggleCameraMode()
@@ -173,6 +179,12 @@ void ACharacterPlayer::ToggleCameraMode()
 		TopViewCamera->SetActive(false);
 		FirstPersonCamera->SetActive(true);
 	}
+}
+void ACharacterPlayer::OnReload()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
+	FString::Printf(TEXT("Reload Pressed")));
+	CurrentWeapon->Reload();
 }
 
 void ACharacterPlayer::OnFirePressed()
@@ -250,8 +262,24 @@ void ACharacterPlayer::Move(const FInputActionValue& Value)
 
 void ACharacterPlayer::ChangeArm()
 {
+	UClass* AnimClass = nullptr;
 
+	if (WeaponClass == AWeaponAR::StaticClass())
+	{
+		AnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/AR02/ABP_Arms_AR02.ABP_Arms_AR02_C"));
+	}
+	else if (WeaponClass == AWeaponSMG::StaticClass())
+	{
+		AnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/MP2/ABP_Arms_MP2.ABP_Arms_MP2_C"));
+		FirstPersonMesh->SetRelativeRotation(FRotator(0.f,-90.f,15.f));
+	}
+
+	if (AnimClass)
+	{
+		FirstPersonMesh->SetAnimInstanceClass(AnimClass);
+	}
 }
+
 
 
 void ACharacterPlayer::Look(const FInputActionValue& Value)

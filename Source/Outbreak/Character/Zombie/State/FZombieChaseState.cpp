@@ -13,13 +13,19 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 	if (!TargetPlayer)
 		return;
 
-	if (Zombie && Zombie->GetCharacterMovement())
+	const TObjectPtr<UCharacterMovementComponent> MovementComp = Zombie->GetCharacterMovement();
+	const FZombieData* ZombieData = Zombie->GetZombieData();
+	
+	if (Zombie && MovementComp)
 	{
-		Zombie->GetCharacterMovement()->MaxWalkSpeed = ChaseSpeed;
+		if (ZombieData->bIsCanRun)
+			MovementComp->MaxWalkSpeed = ZombieData->MaxRunSpeed;
+		else
+			MovementComp->MaxWalkSpeed = ZombieData->MaxWalkSpeed;
 	}
 	
 	CurrentTargetPlayer = TargetPlayer;
-	float AcceptanceRadius = Zombie->GetZombieData()->AttackRange;
+	float AcceptanceRadius = ZombieData->AttackRange;
 
 	DelegateHandle = Owner->GetPathFollowingComponent()->OnRequestFinished.AddLambda([this](FAIRequestID RequestID, const FPathFollowingResult& Result)
 	{

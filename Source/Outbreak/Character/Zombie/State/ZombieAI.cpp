@@ -26,8 +26,8 @@ AZombieAI::AZombieAI()
 	SightConfig->SetMaxAge(5.f);
 
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
-	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
-	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
+	SightConfig->DetectionByAffiliation.bDetectNeutrals = false;
 
 	AIPerception->ConfigureSense(*SightConfig);
 	AIPerception->SetDominantSense(SightConfig->GetSenseImplementation());
@@ -82,8 +82,6 @@ EZombieStateType AZombieAI::GetCurrentState() const
 
 void AZombieAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	UE_LOG(LogTemp, Log, TEXT("[%s] Actor=%s, WasSuccessfullySensed=%s"), CURRENT_CONTEXT, *Actor->GetName(), Stimulus.WasSuccessfullySensed() ? TEXT("True") : TEXT("False"));
-	
 	const TObjectPtr<ACharacterPlayer> TargetPlayer = Cast<ACharacterPlayer>(Actor);
 	CurrentTargetPlayer = TargetPlayer;
 	

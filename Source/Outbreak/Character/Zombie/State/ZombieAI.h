@@ -24,6 +24,7 @@ public:
 	AZombieAI();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 	void InitializeStateMachine(class ACharacterZombie* InZombie);
 	EZombieStateType GetCurrentState() const;
 	
@@ -41,4 +42,5 @@ protected:
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
 	TObjectPtr<UAISenseConfig_Hearing> HearingConfig;
 	TObjectPtr<UAISenseConfig_Damage> DamageConfig;
+	FGenericTeamId TeamId = 1;
 };

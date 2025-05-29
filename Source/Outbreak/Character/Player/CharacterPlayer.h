@@ -2,6 +2,7 @@
 
 #pragma once
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
 #include "Camera/CameraComponent.h"
@@ -11,10 +12,13 @@
 #include "CharacterPlayer.generated.h"
 
 UCLASS()
-class OUTBREAK_API ACharacterPlayer : public ACharacterBase
+class OUTBREAK_API ACharacterPlayer : public ACharacterBase, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
+// --------------------
+// Functions
+// --------------------
 public:
 	ACharacterPlayer();
 	virtual void InitializePlayerData(FPlayerData* InData);
@@ -28,15 +32,39 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 	void SetCharacterControl(EPlayerControlType NewCharacterControlType);
 	void ToggleCameraMode();
 	
-	// Weapon
-	TSubclassOf<AWeaponBase> WeaponClass;
-	TObjectPtr<AWeaponBase> CurrentWeapon;
 	void OnFirePressed();
 	void OnFireReleased();
 	void OnToggleFireMode();
+
+	// Movement
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void StartSprinting();
+
+	UFUNCTION()
+	void StopSprinting();
+
+	UFUNCTION()
+	void BeginCrouch();
+
+	UFUNCTION()
+	void EndCrouch();
+
+// --------------------
+// Variables
+// --------------------
+protected:
+	FGenericTeamId TeamId = 0;
+
+	// Weapon
+	TSubclassOf<AWeaponBase> WeaponClass;
+	TObjectPtr<AWeaponBase> CurrentWeapon;
 	
 	bool bIsAutoFire = false;
 	
@@ -93,10 +121,6 @@ protected:
 	
 	EPlayerControlType CurrentCharacterControlType;
 
-	// Movement
-	void Move(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float WalkSpeed = 600.f;
 
@@ -111,16 +135,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	bool bIsCrouching = false;
-
-	UFUNCTION()
-	void StartSprinting();
-
-	UFUNCTION()
-	void StopSprinting();
-
-	UFUNCTION()
-	void BeginCrouch();
-
-	UFUNCTION()
-	void EndCrouch();
 };

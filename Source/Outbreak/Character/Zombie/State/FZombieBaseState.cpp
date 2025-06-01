@@ -12,7 +12,7 @@ FZombieBaseState::~FZombieBaseState()
 void FZombieBaseState::Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
 	Zombie->PlayAnimation(StateKey);
-	UE_LOG(LogTemp, Log, TEXT("[%s] Entering state: %s"), CURRENT_CONTEXT, *UEnum::GetValueAsString(StateKey));
+	// UE_LOG(LogTemp, Log, TEXT("[%s] Entering state: %s"), CURRENT_CONTEXT, *UEnum::GetValueAsString(StateKey));
 }
 
 void FZombieBaseState::Execute(EZombieStateType CurrentState, float DeltaTime)
@@ -21,5 +21,5 @@ void FZombieBaseState::Execute(EZombieStateType CurrentState, float DeltaTime)
 
 void FZombieBaseState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	UE_LOG(LogTemp, Log, TEXT("[%s] Exiting state: %s"), CURRENT_CONTEXT, *UEnum::GetValueAsString(StateKey));
+	// UE_LOG(LogTemp, Log, TEXT("[%s] Exiting state: %s"), CURRENT_CONTEXT, *UEnum::GetValueAsString(StateKey));
 }

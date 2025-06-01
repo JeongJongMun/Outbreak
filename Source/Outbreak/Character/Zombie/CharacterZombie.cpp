@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterZombie.h"
+
+#include "Outbreak/Util/MeshLoadHelper.h"
 #include "State/FZombieIdleState.h"
 
 ACharacterZombie::ACharacterZombie()
@@ -80,6 +82,39 @@ void ACharacterZombie::Die()
 
 	ChangeZombieState(EZombieStateType::Die);
 }
+
+void ACharacterZombie::SetMesh(EZombieMeshType MeshType)
+{
+	UE_LOG(LogTemp, Log, TEXT("[%s] SetMesh called with MeshType: %s"), CURRENT_CONTEXT, *MeshLoadHelper::ZombieMeshTypeToString(MeshType));
+	
+	const FString MeshTypeString = MeshLoadHelper::ZombieMeshTypeToString(MeshType);
+	
+	// TODO : Zombie Mesh Data Manage
+	int NormalMesh = 20;
+	int MuscleMesh = 6;
+	int FatMesh = 6;
+
+	int MeshCount = 0;
+	switch (MeshType)
+	{
+		case EZombieMeshType::Normal:
+			MeshCount = NormalMesh;
+			break;
+		case EZombieMeshType::Muscle:
+			MeshCount = MuscleMesh;
+			break;
+		case EZombieMeshType::Fat:
+			MeshCount = FatMesh;
+			break;
+	}
+	
+	const TObjectPtr<USkeletalMesh> ZombieMesh = MeshLoadHelper::GetRandomZombieMesh(BaseMeshRef, BaseMeshName, MeshTypeString, MeshCount);
+	if (ZombieMesh)
+	{
+		GetMesh()->SetSkeletalMesh(ZombieMesh);
+	}
+}
+
 
 void ACharacterZombie::OnAttackEnd()
 {

@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ZombieFactory.h"
+
+#include "FatZombie.h"
 #include "NormalZombie.h"
 #include "RunnerZombie.h"
 #include "WalkerZombie.h"
@@ -38,9 +40,9 @@ TSubclassOf<ACharacterZombie> UZombieFactory::GetZombieClassFromSubType(EZombieS
         case EZombieSubType::Runner:
             ZombieClass = ARunnerZombie::StaticClass();
             break;
-        // case EZombieSubType::Fat:
-        //     ZombieClass = AFatZombie::StaticClass();
-        //     break;
+        case EZombieSubType::Fat:
+            ZombieClass = AFatZombie::StaticClass();
+            break;
         // case EZombieSubType::Soldier:
         //     ZombieClass = ASoldierZombie::StaticClass();
         //     break;

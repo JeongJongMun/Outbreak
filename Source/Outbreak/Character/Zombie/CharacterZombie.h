@@ -18,16 +18,17 @@ class OUTBREAK_API ACharacterZombie : public ACharacterBase
 // --------------------
 public:
 	ACharacterZombie();
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
 	virtual void InitializeZombieData(FZombieData* InData);
 	virtual void OnAttackEnd();
 	FZombieData* GetZombieData() { return &ZombieData; }
 	void PlayAnimation(EZombieStateType AnimType);
 
 protected:
-	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	virtual void Die() override;
+	virtual void SetMesh(EZombieMeshType MeshType);
+	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
 
 // --------------------
 // Variables
@@ -44,6 +45,12 @@ protected:
 	FName ChaseRunSectionName = "ChaseRun";
 	FName AttackSectionName = "Attack";
 	FName DieSectionName = "Die";
+
+	FString BaseMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/Meshes/Zombie");
+	FString BaseMeshName = TEXT("SKM_Zombie");
+	int NormalMeshCount = 20;
+	int MuscleMeshCount = 6;
+	int FatMeshCount = 6;
 	
 private:
 	TObjectPtr<AZombieAI> ZombieAIController;

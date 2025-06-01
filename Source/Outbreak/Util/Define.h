@@ -7,6 +7,14 @@
 #define CURRENT_CONTEXT *FString(__FUNCTION__)
 
 UENUM()
+enum class EZombieMeshType : uint8
+{
+	Normal,
+	Muscle,
+	Fat,
+};
+
+UENUM()
 enum class EZombieStateType : uint8
 {
 	None	UMETA(DisplayName = "None"),

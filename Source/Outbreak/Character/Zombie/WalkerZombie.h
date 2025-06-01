@@ -6,13 +6,15 @@
 #include "NormalZombie.h"
 #include "WalkerZombie.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class OUTBREAK_API AWalkerZombie : public ANormalZombie
 {
 	GENERATED_BODY()
 
+public:
+	AWalkerZombie();
+	
+protected:
 	virtual void BeginPlay() override;
+	virtual void SetMesh(EZombieMeshType MeshType = EZombieMeshType::Normal) override;
 };

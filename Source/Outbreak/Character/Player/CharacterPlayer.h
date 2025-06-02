@@ -24,6 +24,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	bool IsSprinting() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	bool IsShooting() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	bool GetFireMode() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	bool IsReloading() const;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -116,6 +125,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	bool bIsCrouching = false;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	bool bIsShooting = false;
+	
 
 	UFUNCTION()
 	void StartSprinting();

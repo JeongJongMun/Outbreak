@@ -42,7 +42,7 @@ ACharacterPlayer::ACharacterPlayer()
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
 
-	WeaponClass = AWeaponAR::StaticClass();
+	WeaponClass = AWeaponSMG::StaticClass();
 	ChangeArm();
 
 	auto CM = GetCharacterMovement();
@@ -193,11 +193,14 @@ void ACharacterPlayer::OnFirePressed()
 
 	if (bIsAutoFire)
 	{
+		bIsShooting = true;
 		CurrentWeapon->StartFire();
 	}
 	else
 	{
+		bIsShooting = true;
 		CurrentWeapon->StartFire();
+		bIsShooting = false;
 		CurrentWeapon->StopFire();
 	}
 }
@@ -207,6 +210,7 @@ void ACharacterPlayer::OnFireReleased()
 	if (bIsAutoFire && CurrentWeapon)
 	{
 		CurrentWeapon->StopFire();
+		bIsShooting = false;
 	}
 }
 
@@ -262,21 +266,27 @@ void ACharacterPlayer::Move(const FInputActionValue& Value)
 
 void ACharacterPlayer::ChangeArm()
 {
-	UClass* AnimClass = nullptr;
+	UClass* ArmAnimClass = nullptr;
+	UClass* WeaponAnimClass = nullptr;
 
 	if (WeaponClass == AWeaponAR::StaticClass())
 	{
-		AnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/AR02/ABP_Arms_AR02.ABP_Arms_AR02_C"));
+		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/AR02/ABP_Arms_AR02.ABP_Arms_AR02_C"));
 	}
 	else if (WeaponClass == AWeaponSMG::StaticClass())
 	{
-		AnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/MP2/ABP_Arms_MP2.ABP_Arms_MP2_C"));
+		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/MP2/ABP_Arms_MP2.ABP_Arms_MP2_C"));
+		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/SMG02/ABP_SMG02.ABP_SMG02_C"));
 		FirstPersonMesh->SetRelativeRotation(FRotator(0.f,-90.f,15.f));
 	}
 
-	if (AnimClass)
+	if (ArmAnimClass)
 	{
-		FirstPersonMesh->SetAnimInstanceClass(AnimClass);
+		FirstPersonMesh->SetAnimInstanceClass(ArmAnimClass);
+	}
+	if (WeaponAnimClass)
+	{
+		GunMesh->SetAnimInstanceClass(ArmAnimClass);
 	}
 }
 
@@ -321,3 +331,20 @@ bool ACharacterPlayer::IsSprinting() const
 {
 	return bIsSprinting; 
 }
+
+bool ACharacterPlayer::IsShooting() const
+{
+	return bIsShooting;
+}
+
+bool ACharacterPlayer::GetFireMode() const
+{
+	return bIsAutoFire;
+}
+
+bool ACharacterPlayer::IsReloading() const
+{
+	return bIsReloading;
+}
+
+

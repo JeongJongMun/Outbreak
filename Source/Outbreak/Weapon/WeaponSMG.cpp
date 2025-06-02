@@ -151,3 +151,9 @@ void AWeaponSMG::MakeShot()
         );
     }
 }
+
+bool AWeaponSMG::IsReloading()
+{
+    return bIsReloading;
+}
+

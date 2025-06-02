@@ -15,7 +15,7 @@ public:
 	virtual void StartFire() override;
 	virtual void StopFire() override;
 	virtual void Reload() override;
-
+	bool IsReloading();
 protected:
 	void MakeShot();
 	void FinishReload();

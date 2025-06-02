@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterZombie.h"
+
+#include "Outbreak/Util/MeshLoadHelper.h"
 #include "State/FZombieIdleState.h"
 
 ACharacterZombie::ACharacterZombie()
@@ -9,41 +11,26 @@ ACharacterZombie::ACharacterZombie()
 	AIControllerClass = AZombieAI::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
-	bIsAggressive = false;
+	ConstructorHelpers::FObjectFinder<UAnimMontage> ZombieAnimationMontage(TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/Montage_Zombie.Montage_Zombie'"));
+	if (ZombieAnimationMontage.Succeeded())
+	{
+		AnimMontage = ZombieAnimationMontage.Object;
+		CurrentSection = IdleSectionName;
+	}
 
-	ConstructorHelpers::FObjectFinder<UAnimSequence> IdleAnim(TEXT("/Script/Engine.AnimSequence'/Game/Gruesome_Zombie_AnimSet/Animation/UE5/idle.idle'"));
-	if (IdleAnim.Succeeded())
-	{
-		IdleAnimation = IdleAnim.Object;
-		AnimationMap.Add(EZombieAnimationType::Idle, IdleAnimation);
-	}
-	ConstructorHelpers::FObjectFinder<UAnimSequence> WalkAnim(TEXT("/Script/Engine.AnimSequence'/Game/Gruesome_Zombie_AnimSet/Animation/UE5/move_walk_normal01.move_walk_normal01'"));
-	if (WalkAnim.Succeeded())
-	{
-		WalkAnimation = WalkAnim.Object;
-		AnimationMap.Add(EZombieAnimationType::Walk, WalkAnimation);
-	}
-	ConstructorHelpers::FObjectFinder<UAnimSequence> RunAnim(TEXT("/Script/Engine.AnimSequence'/Game/Gruesome_Zombie_AnimSet/Animation/UE5/move_offensive01_run_front.move_offensive01_run_front'"));
-	if (RunAnim.Succeeded())
-	{
-		RunAnimation = RunAnim.Object;
-		AnimationMap.Add(EZombieAnimationType::Run, RunAnimation);
-	}
+	MontageSectionNameMap.Add(EZombieStateType::Idle, IdleSectionName);
+	MontageSectionNameMap.Add(EZombieStateType::Wander, WanderSectionName);
+	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseRunSectionName);
+	MontageSectionNameMap.Add(EZombieStateType::Attack, AttackSectionName);
+	MontageSectionNameMap.Add(EZombieStateType::Die, DieSectionName);
 }
 
 void ACharacterZombie::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AZombieAI* ZombieAIController = Cast<AZombieAI>(GetController());
-	if (ZombieAIController)
-	{
-		ZombieAIController->InitializeStateMachine(this);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Zombie AI Controller is not set!"));
-	}
+	ZombieAIController = CastChecked<AZombieAI>(GetController());
+	ZombieAIController->InitializeStateMachine(this);
 }
 
 void ACharacterZombie::Tick(float DeltaTime)
@@ -57,4 +44,79 @@ void ACharacterZombie::InitializeZombieData(FZombieData* InData)
 	ZombieData = *InData;
 	CurrentHealth = ZombieData.MaxHealth;
 	CurrentExtraHealth = 0;
+}
+
+void ACharacterZombie::PlayAnimation(EZombieStateType AnimType)
+{
+	if (!AnimMontage)
+		return;
+
+	TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance)
+		return;
+	
+	const FName SectionPrefix = MontageSectionNameMap[AnimType];
+	const FName SectionName = FName(*FString::Printf(TEXT("%s%d"), *SectionPrefix.ToString(), 0));
+	if (AnimInstance->Montage_IsPlaying(AnimMontage))
+	{
+		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage);
+	}
+	else
+	{
+		AnimInstance->Montage_Play(AnimMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage);
+	}
+}
+
+void ACharacterZombie::ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer)
+{
+	if (!ZombieAIController->StateMachine.IsValid())
+	return;
+
+	ZombieAIController->StateMachine->ChangeState(NewState, TargetPlayer);
+}
+
+void ACharacterZombie::Die()
+{
+	Super::Die();
+
+	ChangeZombieState(EZombieStateType::Die);
+}
+
+void ACharacterZombie::SetMesh(EZombieMeshType MeshType)
+{
+	UE_LOG(LogTemp, Log, TEXT("[%s] SetMesh called with MeshType: %s"), CURRENT_CONTEXT, *MeshLoadHelper::ZombieMeshTypeToString(MeshType));
+	
+	const FString MeshTypeString = MeshLoadHelper::ZombieMeshTypeToString(MeshType);
+	
+	// TODO : Zombie Mesh Data Manage
+	int NormalMesh = 20;
+	int MuscleMesh = 6;
+	int FatMesh = 6;
+
+	int MeshCount = 0;
+	switch (MeshType)
+	{
+		case EZombieMeshType::Normal:
+			MeshCount = NormalMesh;
+			break;
+		case EZombieMeshType::Muscle:
+			MeshCount = MuscleMesh;
+			break;
+		case EZombieMeshType::Fat:
+			MeshCount = FatMesh;
+			break;
+	}
+	
+	const TObjectPtr<USkeletalMesh> ZombieMesh = MeshLoadHelper::GetRandomZombieMesh(BaseMeshRef, BaseMeshName, MeshTypeString, MeshCount);
+	if (ZombieMesh)
+	{
+		GetMesh()->SetSkeletalMesh(ZombieMesh);
+	}
+}
+
+
+void ACharacterZombie::OnAttackEnd()
+{
+	ChangeZombieState(EZombieStateType::Chase, ZombieAIController->CurrentTargetPlayer);
 }

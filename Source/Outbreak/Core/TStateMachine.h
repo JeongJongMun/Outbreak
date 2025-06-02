@@ -4,17 +4,14 @@
 #include "CoreMinimal.h"
 #include "TState.h"
 
-template<class T>
-class TState;
-
-template<class T>
+template<typename T, typename ContextType = UObject>
 class TStateMachine
 {
 public:
 	TStateMachine() = default;
-	~TStateMachine() { StateMap.Empty(); }
+	virtual ~TStateMachine() { StateMap.Empty(); }
 	
-	void AddState(T Key, TSharedPtr<TState<T>> State)
+	virtual void AddState(T Key, TSharedPtr<TState<T, ContextType>> State)
 	{
 		if (StateMap.Contains(Key))
 		{
@@ -25,7 +22,7 @@ public:
 		StateMap.Add(Key, State);
 	}
 
-	void ChangeState(T Key)
+	virtual void ChangeState(T Key, TObjectPtr<ContextType> Context = nullptr)
 	{ 
 		if (CurrentKey == Key) return;
 		
@@ -36,28 +33,28 @@ public:
 		}
 		if (CurrentState.IsValid())
 		{
-			CurrentState->Exit(Key);
+			CurrentState->Exit(Key, Context);
 			PreviousState = CurrentState;
 			PreviousKey = CurrentKey;
 		}
 		CurrentKey = Key;
 		CurrentState = StateMap[Key];
-		CurrentState->Enter(PreviousKey);
+		CurrentState->Enter(PreviousKey, Context);
 	}
 
-	void Release()
+	virtual void Release()
 	{
 		StateMap.Empty();
 		CurrentState.Reset();
 		PreviousState.Reset();
 	}
 
-	void Execute(float DeltaTime)
+	virtual void Execute(float DeltaTime)
 	{
 		CurrentState->Execute(CurrentKey, DeltaTime);
 	}
 
-	T GetCurrentState() const
+	virtual T GetCurrentState() const
 	{
 		if (CurrentState.IsValid())
 		{
@@ -66,7 +63,7 @@ public:
 		return T();
 	}
 
-	TSharedPtr<TState<T>> GetState(const T& Key) const
+	virtual TSharedPtr<TState<T, ContextType>> GetState(const T& Key) const
 	{
 		if (StateMap.Contains(Key))
 		{
@@ -75,15 +72,15 @@ public:
 		return nullptr;
 	}
 	
-	bool IsInState(T Key) const
+	virtual bool IsInState(T Key) const
 	{
 		return CurrentKey == Key;
 	}
 
 private:
-	TMap<T, TSharedPtr<TState<T>>> StateMap;
+	TMap<T, TSharedPtr<TState<T, ContextType>>> StateMap;
 	T CurrentKey;
 	T PreviousKey;
-	TSharedPtr<TState<T>> CurrentState;
-	TSharedPtr<TState<T>> PreviousState;
+	TSharedPtr<TState<T, ContextType>> CurrentState;
+	TSharedPtr<TState<T, ContextType>> PreviousState;
 };

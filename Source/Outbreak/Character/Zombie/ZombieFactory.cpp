@@ -1,11 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ZombieFactory.h"
+
+#include "FatZombie.h"
 #include "NormalZombie.h"
 #include "RunnerZombie.h"
+#include "WalkerZombie.h"
 
 ACharacterZombie* UZombieFactory::CreateZombie(UWorld* World, const EZombieSubType ZombieSubType,
-    const FVector& SpawnLocation, const FRotator& SpawnRotation)
+                                               const FVector& SpawnLocation, const FRotator& SpawnRotation)
 {
     TSubclassOf<ACharacterZombie> ZombieClass = GetZombieClassFromSubType(ZombieSubType);
 
@@ -27,19 +30,19 @@ ACharacterZombie* UZombieFactory::CreateZombie(UWorld* World, const EZombieSubTy
 
 TSubclassOf<ACharacterZombie> UZombieFactory::GetZombieClassFromSubType(EZombieSubType ZombieSubType) const
 {
-    TSubclassOf<ACharacterZombie> ZombieClass = nullptr;
+    TSubclassOf<ACharacterZombie> ZombieClass;
     
     switch (ZombieSubType)
     {
-        // case EZombieSubType::Walker:
-        //     ZombieClass = AWalkerZombie::StaticClass();
-        //     break;
+        case EZombieSubType::Walker:
+            ZombieClass = AWalkerZombie::StaticClass();
+            break;
         case EZombieSubType::Runner:
             ZombieClass = ARunnerZombie::StaticClass();
             break;
-        // case EZombieSubType::Fat:
-        //     ZombieClass = AFatZombie::StaticClass();
-        //     break;
+        case EZombieSubType::Fat:
+            ZombieClass = AFatZombie::StaticClass();
+            break;
         // case EZombieSubType::Soldier:
         //     ZombieClass = ASoldierZombie::StaticClass();
         //     break;

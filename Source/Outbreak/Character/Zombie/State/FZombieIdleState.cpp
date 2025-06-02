@@ -1,19 +1,17 @@
 ﻿#include "FZombieIdleState.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 
-void FZombieIdleState::Enter(EZombieState PreviousState)
+void FZombieIdleState::Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	Super::Enter(PreviousState);
+	Super::Enter(PreviousState, TargetPlayer);
 	
 	Owner->StopMovement();
 
 	IdleTime = FMath::RandRange(MinIdleTime, MaxIdleTime);
 	IdleTimer = 0.0f;
-
-	Zombie->PlayAnimation(EZombieAnimationType::Idle);
 }
 
-void FZombieIdleState::Execute(EZombieState CurrentState, float DeltaTime)
+void FZombieIdleState::Execute(EZombieStateType CurrentState, float DeltaTime)
 {
 	Super::Execute(CurrentState, DeltaTime);
 	
@@ -21,15 +19,12 @@ void FZombieIdleState::Execute(EZombieState CurrentState, float DeltaTime)
 
 	if (IdleTimer >= IdleTime)
 	{
-		Owner->StateMachine->ChangeState(EZombieState::Wander);
-		return;
+		Owner->StateMachine->ChangeState(EZombieStateType::Wander);
 	}
-
-	// TODO : Player Detection Logic
 }
 
-void FZombieIdleState::Exit(EZombieState NextState)
+void FZombieIdleState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	Super::Exit(NextState);
+	Super::Exit(NextState, TargetPlayer);
 	
 }

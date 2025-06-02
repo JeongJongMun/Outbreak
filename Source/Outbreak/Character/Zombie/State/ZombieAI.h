@@ -4,10 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Outbreak/Core/TStateMachine.h"
+#include "FZombieStateMachine.h"
+#include "Outbreak/Character/Player/CharacterPlayer.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISenseConfig_Sight.h"
+#include "Perception/AISenseConfig_Damage.h"
+#include "Perception/AISenseConfig_Hearing.h"
 #include "ZombieAI.generated.h"
 
-enum class EZombieState : uint8;
+struct FAIStimulus;
+enum class EZombieStateType : uint8;
 
 UCLASS()
 class OUTBREAK_API AZombieAI : public AAIController
@@ -16,17 +22,25 @@ class OUTBREAK_API AZombieAI : public AAIController
 
 public:
 	AZombieAI();
-
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
+	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 	void InitializeStateMachine(class ACharacterZombie* InZombie);
-	EZombieState GetCurrentState() const;
+	EZombieStateType GetCurrentState() const;
+	
+protected:
+	UFUNCTION()
+	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 	
 public:
-	TSharedPtr<TStateMachine<EZombieState>> StateMachine;
+	TSharedPtr<FZombieStateMachine> StateMachine;
+	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 
 protected:
-	TObjectPtr<ACharacterZombie> OwnerZombie;
-	AActor* CurrentTarget;
+	TObjectPtr<class ACharacterZombie> OwnerZombie;
+	TObjectPtr<UAIPerceptionComponent> AIPerception;
+	TObjectPtr<UAISenseConfig_Sight> SightConfig;
+	TObjectPtr<UAISenseConfig_Hearing> HearingConfig;
+	TObjectPtr<UAISenseConfig_Damage> DamageConfig;
+	FGenericTeamId TeamId = 1;
 };

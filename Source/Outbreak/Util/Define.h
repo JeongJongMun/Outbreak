@@ -7,16 +7,15 @@
 #define CURRENT_CONTEXT *FString(__FUNCTION__)
 
 UENUM()
-enum class EZombieAnimationType : uint8
+enum class EZombieMeshType : uint8
 {
-	None	UMETA(DisplayName = "None"),
-	Idle	UMETA(DisplayName = "Idle"),
-	Walk	UMETA(DisplayName = "Walk"),
-	Run 	UMETA(DisplayName = "Run"),
+	Normal,
+	Muscle,
+	Fat,
 };
 
 UENUM()
-enum class EZombieState : uint8
+enum class EZombieStateType : uint8
 {
 	None	UMETA(DisplayName = "None"),
 	Idle	UMETA(DisplayName = "휴면"),
@@ -95,28 +94,28 @@ struct FCharacterData : public FTableRowBase
 {
 	GENERATED_BODY()
     
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "CharacterData")
 	ECharacterType CharacterType;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "CharacterData")
 	int MaxWalkSpeed;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "CharacterData")
 	int MaxRunSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "CharacterData")
 	uint8 bIsCanRun;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "CharacterData")
 	float AttackRate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "CharacterData")
 	int RegenRate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "CharacterData")
 	int MaxHealth;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "CharacterData")
 	int MaxExtraHealth;
 };
 
@@ -125,10 +124,10 @@ struct FPlayerData : public FCharacterData
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "PlayerData")
 	EPlayerType PlayerType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "PlayerData")
 	int BottomHealth;
 };
 
@@ -136,25 +135,33 @@ USTRUCT(BlueprintType)
 struct FZombieData : public FCharacterData
 {
 	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	float MaxWanderSpeed;
     
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "ZombieData")
 	EZombieType ZombieType;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "ZombieData")
 	EZombieSubType ZombieSubType;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "ZombieData")
 	float TurnRate;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "ZombieData")
 	float AttackDamage;
     
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "ZombieData")
 	float AttackRange;
     
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	float AggroRange;
+	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	float SightRadius;
 
+	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	float LoseSightRadius;
+
+	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	float PeripheralVisionAngleDegrees;
 };
 
 class OUTBREAK_API Define { };

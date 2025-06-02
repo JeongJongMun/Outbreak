@@ -16,7 +16,9 @@ AZombieSpawnManager::AZombieSpawnManager()
 void AZombieSpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnZombie(EZombieSubType::Runner, 3, FVector(0, 500, 0), FRotator::ZeroRotator);
+	SpawnZombie(EZombieSubType::Runner, 1, FVector(300, 1500, 0), FRotator::ZeroRotator);
+	SpawnZombie(EZombieSubType::Walker, 1, FVector(600, 1500, 0), FRotator::ZeroRotator);
+	SpawnZombie(EZombieSubType::Fat, 1, FVector(900, 1500, 0), FRotator::ZeroRotator);
 }
 
 FZombieData* AZombieSpawnManager::GetZombieData(EZombieSubType InZombieSubType) const

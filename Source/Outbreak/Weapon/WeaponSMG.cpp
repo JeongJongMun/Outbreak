@@ -1,33 +1,56 @@
-// WeaponAR.cpp
-#include "WeaponAR.h"
-#include "UObject/ConstructorHelpers.h"
-#include "ARAmmo.h"
+#include "WeaponSMG.h"
+#include "SMGAmmo.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/PlayerController.h"
-#include "DrawDebugHelpers.h"
-#include "Engine/World.h"
+#include "Engine/Engine.h"
+#include "TimerManager.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogWeaponAR, All, All);
-AWeaponAR::AWeaponAR()
+AWeaponSMG::AWeaponSMG()
 {
-    AmmoClass = AARAmmo::StaticClass();
-    
-    MuzzleSocketName = TEXT("Muzzle_AR");
-    
+    AmmoClass = ASMGAmmo::StaticClass();
+    MuzzleSocketName = TEXT("Muzzle_SMG");
+
+    CurrentAmmo = MagazineCapacity;
+
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshObj(
-        TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));
+        TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/SMG02/SK_weapon_SMG_02.SK_weapon_SMG_02"));
     if (WeaponMeshObj.Succeeded())
     {
         WeaponMesh->SetSkeletalMesh(WeaponMeshObj.Object);
     }
+    
     ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Game/Sounds/AR_Single.AR_Single"));
     if (tempSound.Succeeded()) {
-        ARShotSound = tempSound.Object; 
+        SMGShotSound = tempSound.Object; 
+    }
+}
+
+void AWeaponSMG::StartFire()
+{
+    if (bIsReloading)
+        return;
+
+    if (CurrentAmmo <= 0)
+    {
+        Reload();
+        return;
     }
 
-    
+    MakeShot();
+    GetWorldTimerManager().SetTimer(
+        TimerHandle_TimeBetweenShots,
+        this,
+        &AWeaponSMG::MakeShot,
+        FireFrequency,
+        true
+    );
 }
-void AWeaponAR::Reload()
+
+void AWeaponSMG::StopFire()
+{
+    GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
+void AWeaponSMG::Reload()
 {
     if (bIsReloading || CurrentAmmo == MagazineCapacity || TotalAmmo <= 0)
         return;
@@ -41,13 +64,13 @@ void AWeaponAR::Reload()
     GetWorldTimerManager().SetTimer(
         ReloadTimerHandle,
         this,
-        &AWeaponAR::FinishReload,
+        &AWeaponSMG::FinishReload,
         ReloadDuration,
         false
     );
 }
 
-void AWeaponAR::FinishReload()
+void AWeaponSMG::FinishReload()
 {
     int32 Needed = MagazineCapacity - CurrentAmmo;
     int32 ToReload = FMath::Min(Needed, TotalAmmo);
@@ -64,36 +87,8 @@ void AWeaponAR::FinishReload()
     }
 }
 
-void AWeaponAR::StartFire()
+void AWeaponSMG::MakeShot()
 {
-    if (bIsReloading)
-        return;
-
-    if (CurrentAmmo <= 0)
-    {
-        Reload();
-        return;
-    }
-    
-    MakeShot();
-    GetWorldTimerManager().SetTimer(
-        TimerHandle_TimeBetweenShots,
-        this,
-        &AWeaponAR::MakeShot,
-        FireFrequency,
-        true
-    );
-}
-
-void AWeaponAR::StopFire()
-{
-
-    GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
-}
-
-void AWeaponAR::MakeShot()
-{
-
     if (bIsReloading)
         return;
 
@@ -107,38 +102,22 @@ void AWeaponAR::MakeShot()
     CurrentAmmo--;
 
     ApplyCameraShake();
-    UGameplayStatics::PlaySound2D(GetWorld(), ARShotSound);
-
+    UGameplayStatics::PlaySound2D(GetWorld(), SMGShotSound);
 
     AActor* MyOwner = GetOwner();
-    if (!MyOwner)
-    {
-
-        return;
-    }
-
+    if (!MyOwner) return;
 
     APlayerController* PC = Cast<APlayerController>(MyOwner->GetInstigatorController());
-    if (!PC)
-    {
+    if (!PC) return;
 
-        return;
-    }
-
-    // 1) 카메라 뷰포인트 가져오기
     FVector ViewLocation;
     FRotator ViewRotation;
     PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
 
-    // 2) 분산(스프레드) 적용
     const float HalfRad = FMath::DegreesToRadians(BulletSpread * 0.5f);
     FVector ShotDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
-    
-    // 3) TraceEnd 계산
     FVector TraceEnd = ViewLocation + ShotDirection * TraceMaxDistance;
 
-
-    // 4) 히트 검사
     FHitResult Hit;
     FCollisionQueryParams Params;
     Params.AddIgnoredActor(MyOwner);
@@ -147,19 +126,14 @@ void AWeaponAR::MakeShot()
     bool bHit = GetWorld()->LineTraceSingleByChannel(
         Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
 
-
-    // 5) 총구 소켓 위치
     FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
-
-
     FVector EndPoint = bHit ? Hit.ImpactPoint : TraceEnd;
-    
-    // 7) 디버그 드로잉
+
     DrawDebugLine(
         GetWorld(),
         MuzzleLoc,
         EndPoint,
-        FColor::Red,
+        FColor::Cyan,
         false,
         2.0f,
         SDPG_World,
@@ -173,12 +147,13 @@ void AWeaponAR::MakeShot()
             Hit.ImpactPoint,
             6.0f,
             12,
-            FColor::Yellow,
-            false,
-            2.0f
+            FColor::Yellow
         );
     }
+}
 
-
+bool AWeaponSMG::IsReloading()
+{
+    return bIsReloading;
 }
 

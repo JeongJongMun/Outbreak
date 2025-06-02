@@ -4,6 +4,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Util/Define.h"
+#include "PhysicsEngine/PhysicsAsset.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -54,9 +55,59 @@ ACharacterBase::ACharacterBase()
 	}
 }
 
+void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, int32 BaseDamage)
+{
+	const UPhysicalMaterial* PhysMat = HitResult.PhysMaterial.Get();
+    
+	if (!PhysMat)
+	{
+		ApplyDamage(BaseDamage);
+		return;
+	}
+    
+	EPhysicalSurface SurfaceType = PhysMat->SurfaceType;
+	const float DamageMultiplier = GetDamageMultiplier(SurfaceType);
+	const int32 FinalDamage = FMath::RoundToInt(BaseDamage * DamageMultiplier);
+    
+	ApplyDamage(FinalDamage);
+	ApplyHitEffects(SurfaceType, FinalDamage);
+	
+	UE_LOG(LogTemp, Log, TEXT("[%s] TakeHitDamage called with BaseDamage: %d, SurfaceType: %d, FinalDamage: %d"),
+		*GetName(), BaseDamage, SurfaceType, FinalDamage);
+}
+
+void ACharacterBase::SetPhysicalAsset(ECharacterType CharacterType, ECharacterBodyType BodyType)
+{
+	const FString BasePath = TEXT("/Script/Engine.PhysicsAsset'/Game/Physics/PhysicsAssets/");
+	const FString CharacterTypeStr = UEnum::GetValueAsString(CharacterType).Replace(TEXT("ECharacterType::"), TEXT(""));
+	const FString BodyTypeStr = UEnum::GetValueAsString(BodyType).Replace(TEXT("ECharacterBodyType::"), TEXT(""));
+	const FString AssetName = FString::Printf(TEXT("PA_%s_%s"), *CharacterTypeStr, *BodyTypeStr);
+   
+	FString FullPath = FString::Printf(TEXT("%s%s.%s'"), *BasePath, *AssetName, *AssetName);
+
+	TObjectPtr<USkeletalMeshComponent> MeshComponent = GetMesh();
+	if (!MeshComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] MeshComponent is null, cannot set Physics Asset"), CURRENT_CONTEXT);
+		return;
+	}
+
+	const TObjectPtr<UPhysicsAsset> PhysicsAsset = LoadObject<UPhysicsAsset>(nullptr, *FullPath);
+	if (PhysicsAsset)
+	{
+		MeshComponent->SetPhysicsAsset(nullptr);
+		MeshComponent->SetPhysicsAsset(PhysicsAsset);
+		MeshComponent->RecreatePhysicsState();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] Failed to load Physics Asset: %s"), CURRENT_CONTEXT, *FullPath);
+	}
+}
+
 bool ACharacterBase::IsDead() const
 {
-	if (CurrentHealth <= 0.0f)
+	if (CurrentHealth <= 0)
 	{
 		return true;
 	}
@@ -66,4 +117,58 @@ bool ACharacterBase::IsDead() const
 void ACharacterBase::Die()
 {
 	// TODO : Implement common death logic
+}
+
+float ACharacterBase::GetDamageMultiplier(EPhysicalSurface SurfaceType)
+{
+	switch (SurfaceType)
+	{
+	case SurfaceType1: // Head
+		return HeadDamageMultiplier;
+	case SurfaceType2: // Body  
+		return BodyDamageMultiplier;
+	case SurfaceType3: // Limbs
+		return LimbsDamageMultiplier;
+	default:
+		return 1.0f;
+	}
+}
+
+void ACharacterBase::ApplyDamage(int32 DamageAmount)
+{
+	if (CurrentExtraHealth > 0)
+	{
+		CurrentExtraHealth -= DamageAmount;
+		if (CurrentExtraHealth < 0)
+		{
+			DamageAmount = -CurrentExtraHealth;
+			CurrentExtraHealth = 0;
+		}
+	}
+	
+	CurrentHealth -= DamageAmount;
+
+	if (IsDead())
+	{
+		Die();
+	}
+}
+
+void ACharacterBase::ApplyHitEffects(EPhysicalSurface SurfaceType, int32 DamageAmount)
+{
+	// TODO : Implement hit effects based on surface type and damage amount
+	switch (SurfaceType)
+	{
+		case SurfaceType1: // Head
+			break;
+
+		case SurfaceType2: // Body
+			break;
+
+		case SurfaceType3: // Limbs
+			break;
+		
+		default:
+			break;
+	}
 }

@@ -10,7 +10,7 @@ TObjectPtr<USkeletalMesh> MeshLoadHelper::GetRandomZombieMesh(const FString& Bas
 	// ex : SKM_Zombie_Normal_001
 	const FString MeshAssetName = FString::Printf(TEXT("%s_%s_%s"), *BaseMeshAssetNameRef, *MeshType, *MeshIndexString);
 	// ex : /Script/Engine.SkeletalMesh'/Game/Meshes/Zombie/Normal/SKM_Zombie_Normal_001.SKM_Zombie_Normal_001'
-	const FString MeshPath = FString::Printf(TEXT("%s/%s/%s.%s'"), *BaseMeshRef, *MeshType, *MeshAssetName, *MeshAssetName);
+	const FString MeshPath = FString::Printf(TEXT("%s/%s.%s'"), *BaseMeshRef, *MeshAssetName, *MeshAssetName);
 	
 	TObjectPtr<USkeletalMesh> ZombieMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, *MeshPath));
 	if (!ZombieMesh)
@@ -22,9 +22,9 @@ TObjectPtr<USkeletalMesh> MeshLoadHelper::GetRandomZombieMesh(const FString& Bas
 	return ZombieMesh;
 }
 
-FString MeshLoadHelper::ZombieMeshTypeToString(const EZombieMeshType ZombieMeshType)
+FString MeshLoadHelper::ZombieMeshTypeToString(const ECharacterBodyType ZombieMeshType)
 {
-	const UEnum* EnumPtr = StaticEnum<EZombieMeshType>();
+	const UEnum* EnumPtr = StaticEnum<ECharacterBodyType>();
 	if (!EnumPtr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[%s] Failed to get ZombieMeshType enum"), CURRENT_CONTEXT);

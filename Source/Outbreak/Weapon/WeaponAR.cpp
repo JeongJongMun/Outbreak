@@ -27,10 +27,54 @@ AWeaponAR::AWeaponAR()
 
     
 }
+void AWeaponAR::Reload()
+{
+    if (bIsReloading || CurrentAmmo == MagazineCapacity || TotalAmmo <= 0)
+        return;
 
+    bIsReloading = true;
+    StopFire();
+
+    // 시작 시 리로드 애니메이션 재생 (추가 가능)
+
+    // reload 완료 시점까지 대기
+    GetWorldTimerManager().SetTimer(
+        ReloadTimerHandle,
+        this,
+        &AWeaponAR::FinishReload,
+        ReloadDuration,
+        false
+    );
+}
+
+void AWeaponAR::FinishReload()
+{
+    int32 Needed = MagazineCapacity - CurrentAmmo;
+    int32 ToReload = FMath::Min(Needed, TotalAmmo);
+
+    CurrentAmmo += ToReload;
+    TotalAmmo -= ToReload;
+    bIsReloading = false;
+
+    UE_LOG(LogTemp, Log, TEXT("Reloaded: %d / %d"), CurrentAmmo, TotalAmmo);
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
+            FString::Printf(TEXT("%d / %d"), CurrentAmmo, TotalAmmo));
+    }
+}
 
 void AWeaponAR::StartFire()
 {
+    if (bIsReloading)
+        return;
+
+    if (CurrentAmmo <= 0)
+    {
+        Reload();
+        return;
+    }
+    
     MakeShot();
     GetWorldTimerManager().SetTimer(
         TimerHandle_TimeBetweenShots,
@@ -49,6 +93,19 @@ void AWeaponAR::StopFire()
 
 void AWeaponAR::MakeShot()
 {
+
+    if (bIsReloading)
+        return;
+
+    if (CurrentAmmo <= 0)
+    {
+        StopFire();
+        Reload();
+        return;
+    }
+
+    CurrentAmmo--;
+
     ApplyCameraShake();
     UGameplayStatics::PlaySound2D(GetWorld(), ARShotSound);
 

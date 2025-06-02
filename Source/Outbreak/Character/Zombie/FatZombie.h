@@ -19,5 +19,5 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetMesh(EZombieMeshType MeshType = EZombieMeshType::Fat) override;
+	virtual void SetMesh(ECharacterBodyType MeshType = ECharacterBodyType::Fat) override;
 };

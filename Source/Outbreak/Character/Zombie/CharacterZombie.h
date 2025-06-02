@@ -27,7 +27,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void Die() override;
-	virtual void SetMesh(EZombieMeshType MeshType);
+	virtual void SetMesh(ECharacterBodyType MeshType);
 	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
 
 // --------------------
@@ -46,7 +46,7 @@ protected:
 	FName AttackSectionName = "Attack";
 	FName DieSectionName = "Die";
 
-	FString BaseMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/Meshes/Zombie");
+	FString BaseMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/Meshes/Character");
 	FString BaseMeshName = TEXT("SKM_Zombie");
 	int NormalMeshCount = 20;
 	int MuscleMeshCount = 6;

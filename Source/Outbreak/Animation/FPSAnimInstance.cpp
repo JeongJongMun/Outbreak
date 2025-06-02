@@ -24,5 +24,7 @@ void UFPSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Direction = FMath::RadiansToDegrees(Angle);
 	bIsSprinting = Character->IsSprinting();
 	bIsCrouching = Character->IsCrouching();
+	bIsShooting = Character->IsShooting();
+	bIsAutoFire = Character-> GetFireMode();
 
 }

@@ -10,6 +10,7 @@ ARunnerZombie::ARunnerZombie()
 void ARunnerZombie::BeginPlay()
 {
 	SetMesh();
+	SetPhysicalAsset(ECharacterType::Zombie, ECharacterBodyType::Normal);
 	
 	Super::BeginPlay();
 	
@@ -17,7 +18,7 @@ void ARunnerZombie::BeginPlay()
 	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseRunSectionName);
 }
 
-void ARunnerZombie::SetMesh(EZombieMeshType MeshType)
+void ARunnerZombie::SetMesh(ECharacterBodyType MeshType)
 {
 	Super::SetMesh(MeshType);
 }

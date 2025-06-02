@@ -7,6 +7,10 @@
 
 ACharacterZombie::ACharacterZombie()
 {
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AZombieAI::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -83,7 +87,7 @@ void ACharacterZombie::Die()
 	ChangeZombieState(EZombieStateType::Die);
 }
 
-void ACharacterZombie::SetMesh(EZombieMeshType MeshType)
+void ACharacterZombie::SetMesh(ECharacterBodyType MeshType)
 {
 	UE_LOG(LogTemp, Log, TEXT("[%s] SetMesh called with MeshType: %s"), CURRENT_CONTEXT, *MeshLoadHelper::ZombieMeshTypeToString(MeshType));
 	
@@ -97,13 +101,13 @@ void ACharacterZombie::SetMesh(EZombieMeshType MeshType)
 	int MeshCount = 0;
 	switch (MeshType)
 	{
-		case EZombieMeshType::Normal:
+		case ECharacterBodyType::Normal:
 			MeshCount = NormalMesh;
 			break;
-		case EZombieMeshType::Muscle:
+		case ECharacterBodyType::Muscle:
 			MeshCount = MuscleMesh;
 			break;
-		case EZombieMeshType::Fat:
+		case ECharacterBodyType::Fat:
 			MeshCount = FatMesh;
 			break;
 	}

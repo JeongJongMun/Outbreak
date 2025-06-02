@@ -7,7 +7,7 @@
 #define CURRENT_CONTEXT *FString(__FUNCTION__)
 
 UENUM()
-enum class EZombieMeshType : uint8
+enum class ECharacterBodyType : uint8
 {
 	Normal,
 	Muscle,

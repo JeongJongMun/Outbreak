@@ -346,7 +346,8 @@ bool ACharacterPlayer::GetFireMode() const
 
 bool ACharacterPlayer::IsReloading() const
 {
-	return bIsReloading;
+	// return bIsReloading;
+	return false;
 }
 
 

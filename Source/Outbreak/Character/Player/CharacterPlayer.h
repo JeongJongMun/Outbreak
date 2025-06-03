@@ -152,17 +152,4 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	bool bIsShooting = false;
-	
-
-	UFUNCTION()
-	void StartSprinting();
-
-	UFUNCTION()
-	void StopSprinting();
-
-	UFUNCTION()
-	void BeginCrouch();
-
-	UFUNCTION()
-	void EndCrouch();
 };

@@ -94,12 +94,25 @@ struct FCharacterBaseData : public FTableRowBase
 {
 	GENERATED_BODY()
 	
+	UPROPERTY(VisibleAnywhere)
 	float MaxWalkSpeed;
+	
+	UPROPERTY(VisibleAnywhere)
 	float MaxRunSpeed;
+
+	UPROPERTY(VisibleAnywhere)
 	uint8 bIsCanRun;
+
+	UPROPERTY(VisibleAnywhere)
 	float AttackRate;
+
+	UPROPERTY(VisibleAnywhere)
 	int RegenRate;
+
+	UPROPERTY(VisibleAnywhere)
 	int MaxHealth;
+
+	UPROPERTY(VisibleAnywhere)
 	int MaxExtraHealth;
 };
 
@@ -107,9 +120,14 @@ USTRUCT(BlueprintType)
 struct FPlayerData : public FCharacterBaseData
 {
 	GENERATED_BODY()
-	
+
+	UPROPERTY(VisibleAnywhere)
 	EPlayerType PlayerType;
+	
+	UPROPERTY(VisibleAnywhere)
 	int BottomHealth;
+	
+	UPROPERTY(VisibleAnywhere)
 	float MaxCrouchSpeed;
 };
 
@@ -117,15 +135,32 @@ USTRUCT(BlueprintType)
 struct FZombieData : public FCharacterBaseData
 {
 	GENERATED_BODY()
-	
+
+	UPROPERTY(VisibleAnywhere)
 	EZombieType ZombieType;
+	
+	UPROPERTY(VisibleAnywhere)
 	EZombieSubType ZombieSubType;
+	
+	UPROPERTY(VisibleAnywhere)
 	float MaxWanderSpeed;
+	
+	UPROPERTY(VisibleAnywhere)
 	float AttackDamage;
+	
+	UPROPERTY(VisibleAnywhere)
 	float AttackRange;
+	
+	UPROPERTY(VisibleAnywhere)
 	float SightRadius;
+	
+	UPROPERTY(VisibleAnywhere)
 	float LoseSightRadius;
+	
+	UPROPERTY(VisibleAnywhere)
 	float PeripheralVisionAngleDegrees;
+	
+	UPROPERTY(VisibleAnywhere)
 	float TurnRate;
 };
 

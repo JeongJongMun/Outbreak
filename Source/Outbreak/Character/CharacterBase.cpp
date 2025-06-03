@@ -61,6 +61,7 @@ void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, int32 BaseDamage
     
 	if (!PhysMat)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] %s PhysMaterial is null, applying base damage"), CURRENT_CONTEXT, *GetName());
 		ApplyDamage(BaseDamage);
 		return;
 	}

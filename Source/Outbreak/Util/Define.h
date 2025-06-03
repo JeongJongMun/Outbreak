@@ -52,7 +52,7 @@ enum class ECharacterType : uint8
 UENUM(BlueprintType)
 enum class EPlayerType : uint8
 {
-	// TODO : 캐릭터 4가지 기획 이름으로 변경
+	// TODO : Change Real Player Name
 	None,
 	Player1 UMETA(DisplayName = "플레이어1"),
 	Player2 UMETA(DisplayName = "플레이어2"),
@@ -90,78 +90,78 @@ enum class EZombieSubType : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FCharacterData : public FTableRowBase
+struct FCharacterBaseData : public FTableRowBase
 {
 	GENERATED_BODY()
-    
-	UPROPERTY(EditAnywhere, Category = "CharacterData")
-	ECharacterType CharacterType;
 	
-	UPROPERTY(EditAnywhere, Category = "CharacterData")
-	int MaxWalkSpeed;
+	UPROPERTY(EditAnywhere)
+	float MaxWalkSpeed;
 	
-	UPROPERTY(EditAnywhere, Category = "CharacterData")
-	int MaxRunSpeed;
+	UPROPERTY(EditAnywhere)
+	float MaxRunSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "CharacterData")
+	UPROPERTY(EditAnywhere)
 	uint8 bIsCanRun;
 
-	UPROPERTY(EditAnywhere, Category = "CharacterData")
+	UPROPERTY(EditAnywhere)
 	float AttackRate;
 
-	UPROPERTY(EditAnywhere, Category = "CharacterData")
+	UPROPERTY(EditAnywhere)
 	int RegenRate;
 
-	UPROPERTY(EditAnywhere, Category = "CharacterData")
+	UPROPERTY(EditAnywhere)
 	int MaxHealth;
 
-	UPROPERTY(EditAnywhere, Category = "CharacterData")
+	UPROPERTY(EditAnywhere)
 	int MaxExtraHealth;
 };
 
 USTRUCT(BlueprintType)
-struct FPlayerData : public FCharacterData
+struct FPlayerData : public FCharacterBaseData
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, Category = "PlayerData")
+	UPROPERTY(EditAnywhere)
 	EPlayerType PlayerType;
 
-	UPROPERTY(EditAnywhere, Category = "PlayerData")
+	UPROPERTY(EditAnywhere)
 	int BottomHealth;
+
+	UPROPERTY(EditAnywhere)
+	float MaxCrouchSpeed;
 };
 
 USTRUCT(BlueprintType)
-struct FZombieData : public FCharacterData
+struct FZombieData : public FCharacterBaseData
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, Category = "ZombieData")
-	float MaxWanderSpeed;
-    
-	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	UPROPERTY(EditAnywhere)
 	EZombieType ZombieType;
 	
-	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	UPROPERTY(EditAnywhere)
 	EZombieSubType ZombieSubType;
 	
-	UPROPERTY(EditAnywhere, Category = "ZombieData")
-	float TurnRate;
+	UPROPERTY(EditAnywhere)
+	float MaxWanderSpeed;
 	
-	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	UPROPERTY(EditAnywhere)
 	float AttackDamage;
     
-	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	UPROPERTY(EditAnywhere)
 	float AttackRange;
     
-	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	UPROPERTY(EditAnywhere)
 	float SightRadius;
 
-	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	UPROPERTY(EditAnywhere)
 	float LoseSightRadius;
 
-	UPROPERTY(EditAnywhere, Category = "ZombieData")
+	UPROPERTY(EditAnywhere)
 	float PeripheralVisionAngleDegrees;
+
+	UPROPERTY(EditAnywhere)
+	float TurnRate;
 };
 
 class OUTBREAK_API Define { };

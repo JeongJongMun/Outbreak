@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CutsceneManager.h"
 #include "GameFramework/Actor.h"
+#include "LevelSequence.h"
 #include "SafeZoneController.generated.h"
 
 
@@ -21,10 +23,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(VisibleAnywhere, Category = "SafeZone")
+	UPROPERTY(EditInstanceOnly, Category = "SafeZone")
 	UBoxComponent* StartSafeZoneCollision;
 
-	UPROPERTY(VisibleAnywhere, Category = "SafeZone")
+	UPROPERTY(EditInstanceOnly, Category = "SafeZone")
 	UBoxComponent* EndSafeZoneCollision;
 
 	// 플레이어가 콜리전 박스 안으로 들어왔을 때 호출
@@ -45,4 +47,9 @@ private:
 
 	UPROPERTY()
 	AInGameMode* InGameModeRef;
+	
+	UPROPERTY()
+	UCutsceneManager* CutsceneManager;
+	UPROPERTY(EditAnywhere, Category = "Cutscene")
+	ULevelSequence* CutsceneSequence;
 };

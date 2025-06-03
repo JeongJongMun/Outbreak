@@ -15,6 +15,7 @@ class OUTBREAK_API ALobbyGameMode : public AGameMode
 
 public:
 	virtual void BeginPlay() override;
+	ALobbyGameMode();
 
 	// 대기방 상태 관리 -> 인원 수
     UPROPERTY(BlueprintReadOnly)

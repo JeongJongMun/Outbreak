@@ -25,4 +25,13 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Animation")
 	bool bIsCrouching;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+	bool bIsAutoFire;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+	bool bIsReloading;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+	bool bIsShooting;
 };

@@ -1,6 +1,11 @@
 #include "LobbyGameMode.h"
 #include "Kismet/GameplayStatics.h"
 
+ALobbyGameMode::ALobbyGameMode()
+{
+	bUseSeamlessTravel = true;
+}
+
 void ALobbyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -43,7 +48,7 @@ void ALobbyGameMode::StartMatchIfReady()
 		{
 			StartMatch(); // MatchState = InProgress
 			UE_LOG(LogTemp, Warning, TEXT("매치 시작 조건 만족"));
-			UGameplayStatics::OpenLevel(GetWorld(), TEXT("FirstPhase"), true); // 매치 조건 만족 시 첫 번째 레벨로 이동
+			GetWorld()->ServerTravel("/Game/Maps/FirstPhase?listen", true);
 		}
 	}
 }

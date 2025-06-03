@@ -22,6 +22,11 @@ void AWeaponBase::StopFire()
 {
 	
 }
+
+void AWeaponBase::Reload()
+{
+	
+}
 void AWeaponBase::ApplyCameraShake()
 {
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);

@@ -7,6 +7,7 @@
 AWeaponSMG::AWeaponSMG()
 {
     AmmoClass = ASMGAmmo::StaticClass();
+    
     MuzzleSocketName = TEXT("Muzzle_SMG");
 
     WeaponData.CurrentAmmo = WeaponData.MagazineCapacity;
@@ -29,37 +30,6 @@ AWeaponSMG::AWeaponSMG()
         WeaponDataTable = DT_WeaponData.Object;
     }
 }
-
-void AWeaponSMG::StartFire()
-{
-    if (WeaponData.bIsReloading)
-        return;
-
-    if (WeaponData.CurrentAmmo <= 0)
-    {
-        Reload();
-        return;
-    }
-
-    MakeShot();
-    GetWorldTimerManager().SetTimer(
-        TimerHandle_TimeBetweenShots,
-        this,
-        &AWeaponSMG::MakeShot,
-        WeaponData.FireFrequency,
-        true
-    );
-}
-void AWeaponSMG::InitializeWeaponData(FWeaponData* InData)
-{
-    WeaponData = *InData;
-}
-
-void AWeaponSMG::StopFire()
-{
-    GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
-}
-
 void AWeaponSMG::Reload()
 {
     if (WeaponData.bIsReloading || WeaponData.CurrentAmmo == WeaponData.MagazineCapacity || WeaponData.TotalAmmo <= 0)
@@ -96,6 +66,39 @@ void AWeaponSMG::FinishReload()
             FString::Printf(TEXT("%d / %d"), WeaponData.CurrentAmmo, WeaponData.TotalAmmo));
     }
 }
+void AWeaponSMG::StartFire()
+{
+    if (WeaponData.bIsReloading)
+        return;
+
+    if (WeaponData.CurrentAmmo <= 0)
+    {
+        Reload();
+        return;
+    }
+
+    MakeShot();
+    GetWorldTimerManager().SetTimer(
+        TimerHandle_TimeBetweenShots,
+        this,
+        &AWeaponSMG::MakeShot,
+        WeaponData.FireFrequency,
+        true
+    );
+}
+void AWeaponSMG::InitializeWeaponData(FWeaponData* InData)
+{
+    WeaponData = *InData;
+}
+
+void AWeaponSMG::StopFire()
+{
+    GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
+
+
+
 
 void AWeaponSMG::MakeShot()
 {

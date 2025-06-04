@@ -1,15 +1,9 @@
 // WeaponBase.cpp
 #include "WeaponBase.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Outbreak/Util/CameraShake.h"
 
 AWeaponBase::AWeaponBase()
 {
-	PrimaryActorTick.bCanEverTick = false;
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
-	RootComponent = WeaponMesh;
-	
 	
 }
 
@@ -34,14 +28,4 @@ void AWeaponBase::BeginPlay()
 void AWeaponBase::InitializeWeaponData(FWeaponData* InData)
 {
 	
-}
-
-
-void AWeaponBase::ApplyCameraShake()
-{
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (PlayerController)
-	{
-		PlayerController->ClientStartCameraShake(UCameraShake::StaticClass());
-	}
 }

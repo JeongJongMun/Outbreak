@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WeaponBase.h"
+#include "MainWeapon.h"
+#include "Outbreak/Util/Define.h"
 #include "WeaponAR.generated.h"
 
 UCLASS()
-class OUTBREAK_API AWeaponAR : public AWeaponBase
+class OUTBREAK_API AWeaponAR : public AMainWeapon
 {
 	GENERATED_BODY()
 public:

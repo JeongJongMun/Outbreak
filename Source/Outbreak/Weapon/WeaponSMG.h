@@ -1,12 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WeaponBase.h"
+#include "MainWeapon.h"
 #include "Outbreak/Util/Define.h"
 #include "WeaponSMG.generated.h"
 
 UCLASS()
-class OUTBREAK_API AWeaponSMG : public AWeaponBase
+class OUTBREAK_API AWeaponSMG : public AMainWeapon
 {
 	GENERATED_BODY()
 

@@ -26,7 +26,11 @@ AWeaponAR::AWeaponAR()
     if (tempSound.Succeeded()) {
         WeaponData.ShotSound = tempSound.Object; 
     }
-
+    static ConstructorHelpers::FObjectFinder<UDataTable> DT_WeaponData(TEXT("/Script/Engine.DataTable'/Game/Data/WeaponDataTable.WeaponDataTable'"));
+    if (DT_WeaponData.Succeeded())
+    {
+        WeaponDataTable = DT_WeaponData.Object;
+    }
     
 }
 void AWeaponAR::Reload()

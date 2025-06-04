@@ -62,8 +62,9 @@ void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, const int32 Base
     
 	if (!PhysMat)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] %s PhysMaterial is null, applying base damage"), CURRENT_CONTEXT, *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[%s] %s PhysMaterial is null, applying base damage: %d"), CURRENT_CONTEXT, *GetName(), BaseDamage);
 		ApplyDamage(BaseDamage);
+		// TODO : Apply default hit effects
 		return;
 	}
     
@@ -74,7 +75,7 @@ void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, const int32 Base
 	ApplyDamage(FinalDamage);
 	ApplyHitEffects(SurfaceType, FinalDamage);
 	
-	UE_LOG(LogTemp, Log, TEXT("[%s] BaseDamage: %d, SurfaceType: %d, FinalDamage: %d"), CURRENT_CONTEXT, BaseDamage, SurfaceType, FinalDamage);
+	UE_LOG(LogTemp, Log, TEXT("[%s] On %s, BaseDamage: %d, SurfaceType: %d, FinalDamage: %d"), *GetName(), CURRENT_CONTEXT, BaseDamage, SurfaceType, FinalDamage);
 }
 
 void ACharacterBase::SetPhysicalAsset(const ECharacterType CharacterType, const ECharacterBodyType BodyType)
@@ -146,6 +147,10 @@ void ACharacterBase::ApplyDamage(int32 DamageAmount)
 	if (IsDead())
 	{
 		Die();
+	}
+	else
+	{
+		// TODO : Implement hit reaction logic (maybe animation)
 	}
 }
 

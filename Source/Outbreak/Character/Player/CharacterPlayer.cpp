@@ -167,6 +167,14 @@ void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	EnhancedInputComponent->BindAction(ReloadAction,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnReload);
 }
 
+void ACharacterPlayer::Die()
+{
+	Super::Die();
+
+	// TODO : Implement player death logic
+	UE_LOG(LogTemp, Warning, TEXT("############# Player Die #############"));
+}
+
 void ACharacterPlayer::ToggleCameraMode()
 {
 	if (CurrentCameraMode == ECameraMode::FPS)

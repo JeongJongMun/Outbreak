@@ -41,6 +41,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual void Die() override;
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 	void SetCharacterControl(EPlayerControlType NewCharacterControlType);
 	void ToggleCameraMode();

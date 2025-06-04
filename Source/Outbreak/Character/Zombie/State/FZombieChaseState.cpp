@@ -41,6 +41,7 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 	
 	Owner->MoveToActor(CurrentTargetPlayer, AcceptanceRadius, true);
 
+	// TODO : Delete DebugSphere
 	FTimerHandle TimerHandle;
 	Zombie->GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, AcceptanceRadius]()
 	{

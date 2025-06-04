@@ -123,5 +123,29 @@ void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)
 
 void ACharacterZombie::OnAttackEnd()
 {
+	const FVector Start = GetActorLocation();
+	const FVector End = Start + GetActorForwardVector() * ZombieData.AttackRange;
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	// TODO : Delete DebugLine
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
+	
+	FHitResult Hit;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+	{
+		UE_LOG(LogTemp, Log, TEXT("1"));
+		if (Hit.GetActor() && Hit.GetActor()->IsA(ACharacterPlayer::StaticClass()))
+		{
+			UE_LOG(LogTemp, Log, TEXT("2"));
+			if (ACharacterPlayer* Player = Cast<ACharacterPlayer>(Hit.GetActor()))
+			{
+				UE_LOG(LogTemp, Log, TEXT("3"));
+				Player->TakeHitDamage(Hit, ZombieData.AttackDamage);
+			}
+		}
+	}
+	
 	ChangeZombieState(EZombieStateType::Chase, ZombieAIController->CurrentTargetPlayer);
 }

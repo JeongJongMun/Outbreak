@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "NormalZombie.h"
+#include "Outbreak/Util/Define.h"
 #include "FatZombie.generated.h"
 
 /**

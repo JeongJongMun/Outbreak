@@ -56,10 +56,21 @@ void ACharacterSpawnManager::BeginPlay()
 		FRotator::ZeroRotator,
 		1
 	};
+
+	FCharacterSpawnParam GymZombieSpawnParam =
+	{
+		ECharacterType::Zombie,
+		EPlayerType::None,
+		EZombieSubType::GymRat,
+		FVector(400, 1500, 0),
+		FRotator::ZeroRotator,
+		1
+	};
 	
 	SpawnCharacter(FatZombieSpawnParam);
 	SpawnCharacter(RunnerZombieSpawnParam);
 	SpawnCharacter(WalkerZombieSpawnParam);
+	SpawnCharacter(GymZombieSpawnParam);
 }
 
 FCharacterBaseData* ACharacterSpawnManager::GetCharacterData(ECharacterType CharacterType, const FString& RowName)

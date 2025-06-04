@@ -13,6 +13,8 @@ AWeaponAR::AWeaponAR()
     AmmoClass = AARAmmo::StaticClass();
     
     MuzzleSocketName = TEXT("Muzzle_AR");
+
+    WeaponData.CurrentAmmo = WeaponData.MagazineCapacity;
     
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshObj(
         TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));
@@ -22,17 +24,17 @@ AWeaponAR::AWeaponAR()
     }
     ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Game/Sounds/AR_Single.AR_Single"));
     if (tempSound.Succeeded()) {
-        ARShotSound = tempSound.Object; 
+        WeaponData.ShotSound = tempSound.Object; 
     }
 
     
 }
 void AWeaponAR::Reload()
 {
-    if (bIsReloading || CurrentAmmo == MagazineCapacity || TotalAmmo <= 0)
+    if (WeaponData.bIsReloading || WeaponData.CurrentAmmo == WeaponData.MagazineCapacity || WeaponData.TotalAmmo <= 0)
         return;
 
-    bIsReloading = true;
+    WeaponData.bIsReloading = true;
     StopFire();
 
     // 시작 시 리로드 애니메이션 재생 (추가 가능)
@@ -42,34 +44,34 @@ void AWeaponAR::Reload()
         ReloadTimerHandle,
         this,
         &AWeaponAR::FinishReload,
-        ReloadDuration,
+        WeaponData.ReloadDuration,
         false
     );
 }
 
 void AWeaponAR::FinishReload()
 {
-    int32 Needed = MagazineCapacity - CurrentAmmo;
-    int32 ToReload = FMath::Min(Needed, TotalAmmo);
+    int32 Needed = WeaponData.MagazineCapacity - WeaponData.CurrentAmmo;
+    int32 ToReload = FMath::Min(Needed, WeaponData.TotalAmmo);
 
-    CurrentAmmo += ToReload;
-    TotalAmmo -= ToReload;
-    bIsReloading = false;
+    WeaponData.CurrentAmmo += ToReload;
+    WeaponData.TotalAmmo -= ToReload;
+    WeaponData.bIsReloading = false;
 
-    UE_LOG(LogTemp, Log, TEXT("Reloaded: %d / %d"), CurrentAmmo, TotalAmmo);
+    UE_LOG(LogTemp, Log, TEXT("Reloaded: %d / %d"), WeaponData.CurrentAmmo, WeaponData.TotalAmmo);
     if (GEngine)
     {
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
-            FString::Printf(TEXT("%d / %d"), CurrentAmmo, TotalAmmo));
+            FString::Printf(TEXT("%d / %d"), WeaponData.CurrentAmmo, WeaponData.TotalAmmo));
     }
 }
 
 void AWeaponAR::StartFire()
 {
-    if (bIsReloading)
+    if (WeaponData.bIsReloading)
         return;
 
-    if (CurrentAmmo <= 0)
+    if (WeaponData.CurrentAmmo <= 0)
     {
         Reload();
         return;
@@ -80,7 +82,7 @@ void AWeaponAR::StartFire()
         TimerHandle_TimeBetweenShots,
         this,
         &AWeaponAR::MakeShot,
-        FireFrequency,
+        WeaponData.FireFrequency,
         true
     );
 }
@@ -94,20 +96,20 @@ void AWeaponAR::StopFire()
 void AWeaponAR::MakeShot()
 {
 
-    if (bIsReloading)
+    if (WeaponData.bIsReloading)
         return;
 
-    if (CurrentAmmo <= 0)
+    if (WeaponData.CurrentAmmo <= 0)
     {
         StopFire();
         Reload();
         return;
     }
 
-    CurrentAmmo--;
+    WeaponData.CurrentAmmo--;
 
     ApplyCameraShake();
-    UGameplayStatics::PlaySound2D(GetWorld(), ARShotSound);
+    UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
 
 
     AActor* MyOwner = GetOwner();
@@ -131,11 +133,11 @@ void AWeaponAR::MakeShot()
     PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
 
     // 2) 분산(스프레드) 적용
-    const float HalfRad = FMath::DegreesToRadians(BulletSpread * 0.5f);
+    const float HalfRad = FMath::DegreesToRadians(WeaponData.BulletSpread * 0.5f);
     FVector ShotDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
     
     // 3) TraceEnd 계산
-    FVector TraceEnd = ViewLocation + ShotDirection * TraceMaxDistance;
+    FVector TraceEnd = ViewLocation + ShotDirection * WeaponData.TraceMaxDistance;
 
 
     // 4) 히트 검사
@@ -181,4 +183,37 @@ void AWeaponAR::MakeShot()
 
 
 }
+
+void AWeaponAR::InitializeWeaponData(FWeaponData* InData)
+{
+    WeaponData = *InData;
+}
+
+bool AWeaponAR::IsReloading()
+{
+    return WeaponData.bIsReloading;
+}
+
+void AWeaponAR::BeginPlay()
+{
+    Super::BeginPlay();
+    
+    if (WeaponDataTable)
+    {
+        static const FString ContextString(TEXT("WeaponAR DataTable Initialization"));
+        
+        FWeaponData* FoundRow = WeaponDataTable->FindRow<FWeaponData>(FName(TEXT("WeaponAR")), ContextString, /*bWarnIfNotFound=*/ true);
+        if (FoundRow)
+            InitializeWeaponData(FoundRow);
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[WeaponAR] WeaponDataTable에서 'WeaponAR' 행을 찾지 못했습니다."));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[WeaponAR] WeaponDataTable이 에디터에 연결되지 않았습니다."));
+    }
+}
+
 

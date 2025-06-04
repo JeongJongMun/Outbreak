@@ -164,4 +164,40 @@ struct FZombieData : public FCharacterData
 	float PeripheralVisionAngleDegrees;
 };
 
+USTRUCT(BlueprintType)
+struct FWeaponData : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float TraceMaxDistance;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Weapon|Recoil")
+	float BulletSpread;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Weapon|Sound")
+	USoundBase* ShotSound;
+
+	UPROPERTY(VisibleAnywhere, Category="Weapon")
+	float FireFrequency;
+
+	UPROPERTY(EditDefaultsOnly, Category="Weapon|Ammo")
+	int32 MagazineCapacity;
+
+	UPROPERTY(EditAnywhere, Category="Weapon|Ammo")
+	int32 TotalAmmo;
+
+	UPROPERTY(VisibleAnywhere, Category="Weapon|Ammo")
+	int32 CurrentAmmo;
+
+	UPROPERTY(VisibleAnywhere, Category="Weapon|Ammo")
+	int32 MaxAmmo;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Weapon|Ammo")
+	float ReloadDuration;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Weapon|Ammo")
+	bool bIsReloading = false;
+};
+
 class OUTBREAK_API Define { };

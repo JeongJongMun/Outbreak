@@ -9,7 +9,7 @@ AWeaponSMG::AWeaponSMG()
     AmmoClass = ASMGAmmo::StaticClass();
     MuzzleSocketName = TEXT("Muzzle_SMG");
 
-    CurrentAmmo = MagazineCapacity;
+    WeaponData.CurrentAmmo = WeaponData.MagazineCapacity;
 
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshObj(
         TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/SMG02/SK_weapon_SMG_02.SK_weapon_SMG_02"));
@@ -20,16 +20,22 @@ AWeaponSMG::AWeaponSMG()
     
     ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Game/Sounds/AR_Single.AR_Single"));
     if (tempSound.Succeeded()) {
-        SMGShotSound = tempSound.Object; 
+        WeaponData.ShotSound = tempSound.Object; 
+    }
+
+    static ConstructorHelpers::FObjectFinder<UDataTable> DT_WeaponData(TEXT("/Script/Engine.DataTable'/Game/Data/WeaponDataTable.WeaponDataTable'"));
+    if (DT_WeaponData.Succeeded())
+    {
+        WeaponDataTable = DT_WeaponData.Object;
     }
 }
 
 void AWeaponSMG::StartFire()
 {
-    if (bIsReloading)
+    if (WeaponData.bIsReloading)
         return;
 
-    if (CurrentAmmo <= 0)
+    if (WeaponData.CurrentAmmo <= 0)
     {
         Reload();
         return;
@@ -40,9 +46,13 @@ void AWeaponSMG::StartFire()
         TimerHandle_TimeBetweenShots,
         this,
         &AWeaponSMG::MakeShot,
-        FireFrequency,
+        WeaponData.FireFrequency,
         true
     );
+}
+void AWeaponSMG::InitializeWeaponData(FWeaponData* InData)
+{
+    WeaponData = *InData;
 }
 
 void AWeaponSMG::StopFire()
@@ -52,10 +62,10 @@ void AWeaponSMG::StopFire()
 
 void AWeaponSMG::Reload()
 {
-    if (bIsReloading || CurrentAmmo == MagazineCapacity || TotalAmmo <= 0)
+    if (WeaponData.bIsReloading || WeaponData.CurrentAmmo == WeaponData.MagazineCapacity || WeaponData.TotalAmmo <= 0)
         return;
 
-    bIsReloading = true;
+    WeaponData.bIsReloading = true;
     StopFire();
 
     // 시작 시 리로드 애니메이션 재생 (추가 가능)
@@ -65,44 +75,44 @@ void AWeaponSMG::Reload()
         ReloadTimerHandle,
         this,
         &AWeaponSMG::FinishReload,
-        ReloadDuration,
+        WeaponData.ReloadDuration,
         false
     );
 }
 
 void AWeaponSMG::FinishReload()
 {
-    int32 Needed = MagazineCapacity - CurrentAmmo;
-    int32 ToReload = FMath::Min(Needed, TotalAmmo);
+    int32 Needed = WeaponData.MagazineCapacity - WeaponData.CurrentAmmo;
+    int32 ToReload = FMath::Min(Needed, WeaponData.TotalAmmo);
 
-    CurrentAmmo += ToReload;
-    TotalAmmo -= ToReload;
-    bIsReloading = false;
+    WeaponData.CurrentAmmo += ToReload;
+    WeaponData.TotalAmmo -= ToReload;
+    WeaponData.bIsReloading = false;
 
-    UE_LOG(LogTemp, Log, TEXT("Reloaded: %d / %d"), CurrentAmmo, TotalAmmo);
+    UE_LOG(LogTemp, Log, TEXT("Reloaded: %d / %d"), WeaponData.CurrentAmmo, WeaponData.TotalAmmo);
     if (GEngine)
     {
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
-            FString::Printf(TEXT("%d / %d"), CurrentAmmo, TotalAmmo));
+            FString::Printf(TEXT("%d / %d"), WeaponData.CurrentAmmo, WeaponData.TotalAmmo));
     }
 }
 
 void AWeaponSMG::MakeShot()
 {
-    if (bIsReloading)
+    if (WeaponData.bIsReloading)
         return;
 
-    if (CurrentAmmo <= 0)
+    if (WeaponData.CurrentAmmo <= 0)
     {
         StopFire();
         Reload();
         return;
     }
 
-    CurrentAmmo--;
+    WeaponData.CurrentAmmo--;
 
     ApplyCameraShake();
-    UGameplayStatics::PlaySound2D(GetWorld(), SMGShotSound);
+    UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
 
     AActor* MyOwner = GetOwner();
     if (!MyOwner) return;
@@ -114,9 +124,9 @@ void AWeaponSMG::MakeShot()
     FRotator ViewRotation;
     PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
 
-    const float HalfRad = FMath::DegreesToRadians(BulletSpread * 0.5f);
+    const float HalfRad = FMath::DegreesToRadians(WeaponData.BulletSpread * 0.5f);
     FVector ShotDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
-    FVector TraceEnd = ViewLocation + ShotDirection * TraceMaxDistance;
+    FVector TraceEnd = ViewLocation + ShotDirection * WeaponData.TraceMaxDistance;
 
     FHitResult Hit;
     FCollisionQueryParams Params;
@@ -154,6 +164,34 @@ void AWeaponSMG::MakeShot()
 
 bool AWeaponSMG::IsReloading()
 {
-    return bIsReloading;
+    return WeaponData.bIsReloading;
 }
 
+void AWeaponSMG::BeginPlay()
+{
+    Super::BeginPlay();
+
+    // 1) DataTable이 할당되어 있는지 확인
+    if (WeaponDataTable)
+    {
+        // 디버그용 메시지
+        static const FString ContextString(TEXT("WeaponSMG DataTable Initialization"));
+
+        // 2) “WeaponSMG”라는 행 이름(Row Name)을 기준으로 FWeaponData* 를 찾아온다.
+        //    (에디터의 DataTable에서 Row Name이 정확히 "WeaponSMG" 여야 함)
+        FWeaponData* FoundRow = WeaponDataTable->FindRow<FWeaponData>(FName(TEXT("WeaponSMG")), ContextString, /*bWarnIfNotFound=*/ true);
+        if (FoundRow)
+        {
+            // 3) InitializeWeaponData에 그대로 포인터를 넘겨준다
+            InitializeWeaponData(FoundRow);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[WeaponSMG] WeaponDataTable에서 'WeaponSMG' 행을 찾지 못했습니다."));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[WeaponSMG] WeaponDataTable이 에디터에 연결되지 않았습니다."));
+    }
+}

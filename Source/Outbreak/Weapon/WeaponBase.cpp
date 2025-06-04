@@ -27,6 +27,16 @@ void AWeaponBase::Reload()
 {
 	
 }
+void AWeaponBase::BeginPlay()
+{
+	
+}
+void AWeaponBase::InitializeWeaponData(FWeaponData* InData)
+{
+	
+}
+
+
 void AWeaponBase::ApplyCameraShake()
 {
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);

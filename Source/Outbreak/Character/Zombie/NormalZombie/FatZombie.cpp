@@ -9,16 +9,11 @@ AFatZombie::AFatZombie()
 
 void AFatZombie::BeginPlay()
 {
-	SetMesh();
+	SetMesh(ECharacterBodyType::Fat);
 	SetPhysicalAsset(ECharacterType::Zombie, ECharacterBodyType::Fat);
 	
 	Super::BeginPlay();
 
 	MontageSectionNameMap.Remove(EZombieStateType::Chase);
 	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseWalkSectionName);
-}
-
-void AFatZombie::SetMesh(ECharacterBodyType MeshType)
-{
-	Super::SetMesh(MeshType);
 }

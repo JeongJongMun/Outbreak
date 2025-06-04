@@ -10,7 +10,10 @@ UCLASS(Abstract)
 class OUTBREAK_API ACharacterBase : public ACharacter
 {
 	GENERATED_BODY()
-
+	
+// --------------------
+// Functions
+// --------------------
 public:
 	ACharacterBase();
 	virtual void TakeHitDamage(const FHitResult& HitResult, int32 BaseDamage);
@@ -23,6 +26,10 @@ protected:
 	virtual void ApplyDamage(int32 DamageAmount);
 	virtual void ApplyHitEffects(EPhysicalSurface SurfaceType, int32 DamageAmount);
 	
+// --------------------
+// Variables
+// --------------------
+protected:
 	int32 CurrentHealth;
 	int32 CurrentExtraHealth;
 

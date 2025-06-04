@@ -1,9 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterPlayer.h"
+#include "CharacterPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
+#include "Engine/SceneCapture2D.h"
+#include "PaperSprite.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Animation/FPSAnimInstance.h"
@@ -23,6 +28,32 @@ ACharacterPlayer::ACharacterPlayer()
 	TopViewCamera->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
 	TopViewCamera->bUsePawnControlRotation = false;
 
+	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("SceneCapture2D"));
+	SceneCapture->ProjectionType = ECameraProjectionMode::Type::Orthographic;
+	SceneCapture->OrthoWidth = 4000.f;
+	SceneCapture->SetupAttachment(RootComponent); 
+	SceneCapture->SetRelativeLocation(FVector(0.f, 0.f, 1000.f)); 
+	SceneCapture->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f)); 
+	SceneCapture->bCaptureEveryFrame = true;
+	SceneCapture->bCaptureOnMovement = false;
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTargetRef(TEXT("/Game/UI/MiniMap/RT_Minimap.RT_Minimap"));
+	if (RenderTargetRef.Succeeded())
+	{
+		SceneCapture->TextureTarget = RenderTargetRef.Object;
+	}
+
+	PlayerIconSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("PlayerIconSprite"));
+	PlayerIconSprite->SetupAttachment(GetCapsuleComponent());
+	PlayerIconSprite->SetRelativeLocation(FVector(0.f, 0.f, 800.f));
+	PlayerIconSprite->SetRelativeRotation(FRotator(-180.f, -180.f, -90.f));
+	PlayerIconSprite->SetRelativeScale3D(FVector(0.5f));
+	PlayerIconSprite->SetOwnerNoSee(true);
+	static ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerIconAsset(TEXT("/Game/UI/MiniMap/PlayerIcon_Sprite.PlayerIcon_Sprite"));
+	if (PlayerIconAsset.Succeeded())
+	{
+		PlayerIconSprite->SetSprite(PlayerIconAsset.Object);
+	}
+	
 	GetMesh()->SetHiddenInGame(true);
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> FirstPersonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Pack/SkeletalMeshes/Arms/SK_fps_armRig.SK_fps_armRig'"));
@@ -346,7 +377,8 @@ bool ACharacterPlayer::GetFireMode() const
 
 bool ACharacterPlayer::IsReloading() const
 {
-	return bIsReloading;
+	// return bIsReloading;
+	return false;
 }
 
 

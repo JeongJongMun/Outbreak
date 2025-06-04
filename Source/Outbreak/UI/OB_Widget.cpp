@@ -2,8 +2,26 @@
 
 #include "OB_Widget.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 
+void UOB_Widget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	UTextureRenderTarget2D* RenderTarget = LoadObject<UTextureRenderTarget2D>(nullptr, TEXT("/Game/UI/MiniMap/RT_Minimap.RT_Minimap"));
+	if (RenderTarget && MiniMapImage)
+	{
+		UMaterialInterface* MinimapMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/UI/MiniMap/MiniMapMaterial.MiniMapMaterial"));
+		if (MinimapMaterial)
+		{
+			UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(MinimapMaterial, this);
+			DynMat->SetTextureParameterValue("MinimapTexture", Cast<UTexture>(RenderTarget));
+			MiniMapImage->SetBrushFromMaterial(DynMat);
+		}
+	}
+}
 
 void UOB_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {

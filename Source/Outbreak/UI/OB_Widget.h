@@ -16,6 +16,7 @@ class OUTBREAK_API UOB_Widget : public UUserWidget
 
 public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual void NativeConstruct() override;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetObjectiveText(const FString& Text);
@@ -25,6 +26,9 @@ public:
 	void SetAnnouncementText(FString AnnouncementText);
 	
 protected:
+	UPROPERTY(meta = (BindWidget))
+	class UImage* MiniMapImage;
+	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MatchTimeTextBlock;
 

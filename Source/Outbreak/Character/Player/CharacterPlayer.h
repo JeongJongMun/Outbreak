@@ -6,6 +6,7 @@
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
 #include "Camera/CameraComponent.h"
+#include "PaperSpriteComponent.h"
 #include "Outbreak/Character/CharacterBase.h"
 #include "Outbreak/Util/Define.h"
 #include "Outbreak/Weapon/WeaponBase.h"
@@ -89,6 +90,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	ECameraMode CurrentCameraMode = ECameraMode::FPS;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	USceneCaptureComponent2D* SceneCapture;
+
 	// Mesh
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
@@ -152,17 +156,8 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	bool bIsShooting = false;
-	
 
-	UFUNCTION()
-	void StartSprinting();
-
-	UFUNCTION()
-	void StopSprinting();
-
-	UFUNCTION()
-	void BeginCrouch();
-
-	UFUNCTION()
-	void EndCrouch();
+	// UI & HUD
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
+	UPaperSpriteComponent* PlayerIconSprite;
 };

@@ -49,7 +49,7 @@ void ACharacterZombie::InitializeZombieData(FZombieData* InData)
 	CurrentExtraHealth = 0;
 }
 
-void ACharacterZombie::PlayAnimation(EZombieStateType AnimType)
+void ACharacterZombie::PlayAnimation(const EZombieStateType AnimType)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance || !AnimMontage)
@@ -61,7 +61,7 @@ void ACharacterZombie::PlayAnimation(EZombieStateType AnimType)
 
 	if (AnimInstance->Montage_IsPlaying(AnimMontage))
 	{
-		FName CurrentSection = AnimInstance->Montage_GetCurrentSection(AnimMontage);
+		const FName CurrentSection = AnimInstance->Montage_GetCurrentSection(AnimMontage);
 		if (CurrentSection != NAME_None && CurrentSection != SectionName)
 		{
 			AnimInstance->Montage_Stop(0.5f, AnimMontage);
@@ -76,7 +76,7 @@ void ACharacterZombie::PlayAnimation(EZombieStateType AnimType)
 	}
 }
 
-void ACharacterZombie::ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer)
+void ACharacterZombie::ChangeZombieState(const EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
 	if (!ZombieAIController->StateMachine.IsValid())
 	return;
@@ -91,7 +91,7 @@ void ACharacterZombie::Die()
 	ChangeZombieState(EZombieStateType::Die);
 }
 
-void ACharacterZombie::SetMesh(ECharacterBodyType MeshType)
+void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)
 {
 	const FString MeshTypeString = MeshLoadHelper::ZombieMeshTypeToString(MeshType);
 	
@@ -113,9 +113,8 @@ void ACharacterZombie::SetMesh(ECharacterBodyType MeshType)
 			MeshCount = FatMesh;
 			break;
 	}
-	
-	const TObjectPtr<USkeletalMesh> ZombieMesh = MeshLoadHelper::GetRandomZombieMesh(BaseMeshRef, BaseMeshName, MeshTypeString, MeshCount);
-	if (ZombieMesh)
+
+	if (const TObjectPtr<USkeletalMesh> ZombieMesh = MeshLoadHelper::GetRandomZombieMesh(BaseMeshRef, BaseMeshName, MeshTypeString, MeshCount))
 	{
 		GetMesh()->SetSkeletalMesh(ZombieMesh);
 	}

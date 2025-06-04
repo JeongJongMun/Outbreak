@@ -56,7 +56,7 @@ ACharacterBase::ACharacterBase()
 	}
 }
 
-void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, int32 BaseDamage)
+void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, const int32 BaseDamage)
 {
 	const UPhysicalMaterial* PhysMat = HitResult.PhysMaterial.Get();
     
@@ -77,7 +77,7 @@ void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, int32 BaseDamage
 	UE_LOG(LogTemp, Log, TEXT("[%s] BaseDamage: %d, SurfaceType: %d, FinalDamage: %d"), CURRENT_CONTEXT, BaseDamage, SurfaceType, FinalDamage);
 }
 
-void ACharacterBase::SetPhysicalAsset(ECharacterType CharacterType, ECharacterBodyType BodyType)
+void ACharacterBase::SetPhysicalAsset(const ECharacterType CharacterType, const ECharacterBodyType BodyType)
 {
 	const FString BasePath = TEXT("/Script/Engine.PhysicsAsset'/Game/Physics/PhysicsAssets/");
 	const FString CharacterTypeString = EnumHelper::EnumToString(CharacterType);
@@ -114,7 +114,7 @@ void ACharacterBase::Die()
 	// TODO : Implement common death logic
 }
 
-float ACharacterBase::GetDamageMultiplier(EPhysicalSurface SurfaceType)
+float ACharacterBase::GetDamageMultiplier(const EPhysicalSurface SurfaceType)
 {
 	switch (SurfaceType)
 	{
@@ -149,7 +149,7 @@ void ACharacterBase::ApplyDamage(int32 DamageAmount)
 	}
 }
 
-void ACharacterBase::ApplyHitEffects(EPhysicalSurface SurfaceType, int32 DamageAmount)
+void ACharacterBase::ApplyHitEffects(const EPhysicalSurface SurfaceType, int32 DamageAmount)
 {
 	// TODO : Implement hit effects based on surface type and damage amount
 	switch (SurfaceType)

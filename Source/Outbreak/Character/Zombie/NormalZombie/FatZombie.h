@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "NormalZombie.h"
-#include "Outbreak/Util/Define.h"
 #include "FatZombie.generated.h"
 
 /**
@@ -20,5 +19,4 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetMesh(ECharacterBodyType MeshType = ECharacterBodyType::Fat) override;
 };

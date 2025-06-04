@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterFactory.h"
-#include "FatZombie.h"
-#include "NormalZombie.h"
-#include "RunnerZombie.h"
-#include "WalkerZombie.h"
+#include "NormalZombie/FatZombie.h"
+#include "NormalZombie/RunnerZombie.h"
+#include "NormalZombie/WalkerZombie.h"
 #include "Outbreak/Util/EnumHelper.h"
+#include "SpecialZombie/GymRatZombie.h"
 
 UCharacterFactory::UCharacterFactory()
 {
@@ -39,7 +39,7 @@ void UCharacterFactory::InitializeFactoryMaps()
     ZombieClassMap.Add(EZombieSubType::Runner, ARunnerZombie::StaticClass());
     ZombieClassMap.Add(EZombieSubType::Fat, AFatZombie::StaticClass());
     // ZombieClassMap.Add(EZombieSubType::Soldier, ASoldierZombie::StaticClass());
-    // ZombieClassMap.Add(EZombieSubType::GymRat, AGymRatZombie::StaticClass());
+    ZombieClassMap.Add(EZombieSubType::GymRat, AGymRatZombie::StaticClass());
     // ZombieClassMap.Add(EZombieSubType::Radioactive, ARadioactiveZombie::StaticClass());
     // ZombieClassMap.Add(EZombieSubType::Ghost, AGhostZombie::StaticClass());
     // ZombieClassMap.Add(EZombieSubType::Shield, AShieldZombie::StaticClass());

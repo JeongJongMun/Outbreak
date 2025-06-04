@@ -25,9 +25,6 @@ public:
 	virtual void DeactivateAbility() override;
 
 private:
-	virtual float CalculateEnhancedDamage(const float BaseDamage) const;
-
-private:
 	float DamageMultiplier = 2.0f;
 
 };

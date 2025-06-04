@@ -29,11 +29,14 @@ protected:
 // --------------------
 // Variables
 // --------------------
+public:
+	float AttackDamageMultiplier = 1.0f;
+	
 protected:
 	int32 CurrentHealth;
 	int32 CurrentExtraHealth;
 
-	// TODO : Weapon Damage Multiplier Data Table
+	// TODO : Hit Damage Multiplier Data Table
 	float HeadDamageMultiplier = 3.0f;
 	float BodyDamageMultiplier = 1.0f;
 	float LimbsDamageMultiplier = 0.7f;

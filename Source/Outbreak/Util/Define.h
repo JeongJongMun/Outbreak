@@ -107,13 +107,13 @@ struct FCharacterBaseData : public FTableRowBase
 	float AttackRate;
 
 	UPROPERTY(VisibleAnywhere)
-	int RegenRate;
+	int32 RegenRate;
 
 	UPROPERTY(VisibleAnywhere)
-	int MaxHealth;
+	int32 MaxHealth;
 
 	UPROPERTY(VisibleAnywhere)
-	int MaxExtraHealth;
+	int32 MaxExtraHealth;
 };
 
 USTRUCT(BlueprintType)
@@ -125,7 +125,7 @@ struct FPlayerData : public FCharacterBaseData
 	EPlayerType PlayerType;
 	
 	UPROPERTY(VisibleAnywhere)
-	int BottomHealth;
+	int32 BottomHealth;
 	
 	UPROPERTY(VisibleAnywhere)
 	float MaxCrouchSpeed;
@@ -146,7 +146,7 @@ struct FZombieData : public FCharacterBaseData
 	float MaxWanderSpeed;
 	
 	UPROPERTY(VisibleAnywhere)
-	float AttackDamage;
+	int32 AttackDamage;
 	
 	UPROPERTY(VisibleAnywhere)
 	float AttackRange;

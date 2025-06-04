@@ -123,6 +123,10 @@ void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)
 
 void ACharacterZombie::OnAttackEnd()
 {
+	// TODO : 자동으로 공격 데미지 계산하는 구조로 개선
+	const int32 FinalDamage = static_cast<int32>(ZombieData.AttackDamage * AttackDamageMultiplier);
+	UE_LOG(LogTemp, Log, TEXT("%s's Attack Damage: %d, Final Damage: %d"), *GetName(), ZombieData.AttackDamage, FinalDamage);
+	
 	const FVector Start = GetActorLocation();
 	const FVector End = Start + GetActorForwardVector() * ZombieData.AttackRange;
 
@@ -142,7 +146,7 @@ void ACharacterZombie::OnAttackEnd()
 			if (ACharacterPlayer* Player = Cast<ACharacterPlayer>(Hit.GetActor()))
 			{
 				UE_LOG(LogTemp, Log, TEXT("3"));
-				Player->TakeHitDamage(Hit, ZombieData.AttackDamage);
+				Player->TakeHitDamage(Hit, FinalDamage);
 			}
 		}
 	}

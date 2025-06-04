@@ -4,6 +4,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Util/Define.h"
+#include "Outbreak/Util/EnumHelper.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 
 // Sets default values
@@ -73,28 +74,21 @@ void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, int32 BaseDamage
 	ApplyDamage(FinalDamage);
 	ApplyHitEffects(SurfaceType, FinalDamage);
 	
-	UE_LOG(LogTemp, Log, TEXT("[%s] TakeHitDamage called with BaseDamage: %d, SurfaceType: %d, FinalDamage: %d"),
-		*GetName(), BaseDamage, SurfaceType, FinalDamage);
+	UE_LOG(LogTemp, Log, TEXT("[%s] BaseDamage: %d, SurfaceType: %d, FinalDamage: %d"), CURRENT_CONTEXT, BaseDamage, SurfaceType, FinalDamage);
 }
 
 void ACharacterBase::SetPhysicalAsset(ECharacterType CharacterType, ECharacterBodyType BodyType)
 {
 	const FString BasePath = TEXT("/Script/Engine.PhysicsAsset'/Game/Physics/PhysicsAssets/");
-	const FString CharacterTypeStr = UEnum::GetValueAsString(CharacterType).Replace(TEXT("ECharacterType::"), TEXT(""));
-	const FString BodyTypeStr = UEnum::GetValueAsString(BodyType).Replace(TEXT("ECharacterBodyType::"), TEXT(""));
-	const FString AssetName = FString::Printf(TEXT("PA_%s_%s"), *CharacterTypeStr, *BodyTypeStr);
-   
-	FString FullPath = FString::Printf(TEXT("%s%s.%s'"), *BasePath, *AssetName, *AssetName);
+	const FString CharacterTypeString = EnumHelper::EnumToString(CharacterType);
+	const FString BodyTypeString = EnumHelper::EnumToString(BodyType);
+	const FString AssetName = FString::Printf(TEXT("PA_%s_%s"), *CharacterTypeString, *BodyTypeString);
 
-	TObjectPtr<USkeletalMeshComponent> MeshComponent = GetMesh();
-	if (!MeshComponent)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] MeshComponent is null, cannot set Physics Asset"), CURRENT_CONTEXT);
-		return;
-	}
+	const FString FullPath = FString::Printf(TEXT("%s%s.%s'"), *BasePath, *AssetName, *AssetName);
 
-	const TObjectPtr<UPhysicsAsset> PhysicsAsset = LoadObject<UPhysicsAsset>(nullptr, *FullPath);
-	if (PhysicsAsset)
+	const TObjectPtr<USkeletalMeshComponent> MeshComponent = GetMesh();
+
+	if (const TObjectPtr<UPhysicsAsset> PhysicsAsset = LoadObject<UPhysicsAsset>(nullptr, *FullPath))
 	{
 		MeshComponent->SetPhysicsAsset(nullptr);
 		MeshComponent->SetPhysicsAsset(PhysicsAsset);

@@ -14,22 +14,20 @@ UCharacterFactory::UCharacterFactory()
 
 ACharacterBase* UCharacterFactory::CreateCharacter(UWorld* InWorld, const FCharacterSpawnParam& InSpawnParam)
 {
-    TSubclassOf<ACharacterBase> ACharacterClass = GetCharacterClassFromType(InSpawnParam);
+    const TSubclassOf<ACharacterBase> ACharacterClass = GetCharacterClassFromType(InSpawnParam);
 
     if (ACharacterClass && InWorld)
     {
         FActorSpawnParameters SpawnParams;
         SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-        ACharacterBase* SpawnedCharacter = InWorld->SpawnActor<ACharacterBase>(ACharacterClass, InSpawnParam.SpawnLocation, InSpawnParam.SpawnRotation, SpawnParams);
-
-        if (SpawnedCharacter)
+        if (ACharacterBase* SpawnedCharacter = InWorld->SpawnActor<ACharacterBase>(ACharacterClass, InSpawnParam.SpawnLocation, InSpawnParam.SpawnRotation, SpawnParams))
         {
-            UE_LOG(LogTemp, Log, TEXT("[%s] Character Spawned. Type: %s"), CURRENT_CONTEXT, *EnumHelper::EnumToString(InSpawnParam.CharacterType));
+            UE_LOG(LogTemp, Log, TEXT("[%s] %s Character Spawned"), CURRENT_CONTEXT, *EnumHelper::EnumToString(InSpawnParam.CharacterType));
             return SpawnedCharacter;
         }
     }
-    UE_LOG(LogTemp, Log, TEXT("[%s] Character Spawn Failed. Type: %s"), CURRENT_CONTEXT, *EnumHelper::EnumToString(InSpawnParam.CharacterType));
+    UE_LOG(LogTemp, Error, TEXT("[%s] %s Character Spawn Failed"), CURRENT_CONTEXT, *EnumHelper::EnumToString(InSpawnParam.CharacterType));
     return nullptr;
 }
 

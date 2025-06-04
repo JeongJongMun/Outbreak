@@ -93,8 +93,6 @@ void ACharacterZombie::Die()
 
 void ACharacterZombie::SetMesh(ECharacterBodyType MeshType)
 {
-	UE_LOG(LogTemp, Log, TEXT("[%s] SetMesh called with MeshType: %s"), CURRENT_CONTEXT, *MeshLoadHelper::ZombieMeshTypeToString(MeshType));
-	
 	const FString MeshTypeString = MeshLoadHelper::ZombieMeshTypeToString(MeshType);
 	
 	// TODO : Zombie Mesh Data Manage

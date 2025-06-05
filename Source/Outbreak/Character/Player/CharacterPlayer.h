@@ -7,6 +7,7 @@
 #include "InputMappingContext.h"
 #include "Camera/CameraComponent.h"
 #include "PaperSpriteComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Outbreak/Character/CharacterBase.h"
 #include "Outbreak/Util/Define.h"
 #include "Outbreak/Weapon/WeaponBase.h"
@@ -160,4 +161,7 @@ protected:
 	// UI & HUD
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
 	UPaperSpriteComponent* PlayerIconSprite;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
+	UTextRenderComponent* PlayerNameText;
 };

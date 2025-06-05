@@ -18,12 +18,13 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual void NativeConstruct() override;
 	
-	UFUNCTION(BlueprintCallable)
 	void SetObjectiveText(const FString& Text);
 	void SetMatchTimeText(float Time);
 	void SetCurrentPhaseText(FString Phase);
 	void SetAlivePlayerCountText(int32 Count);
 	void SetAnnouncementText(FString AnnouncementText);
+
+	void SetCutsceneMode(bool bEnable);
 	
 protected:
 	UPROPERTY(meta = (BindWidget))

@@ -2,6 +2,7 @@
 
 
 #include "CutsceneManager.h"
+#include "Outbreak/UI/OB_HUD.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
 #include "GameFramework/Character.h"
@@ -27,6 +28,13 @@ void UCutsceneManager::PlayCutscene(ULevelSequence* Sequence, const FString& InO
 	ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(WorldRef, Sequence, Settings, OutActor);
 	if (Player)
 	{
+		if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldRef, 0))
+		{
+			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			{
+				HUD->SetCutsceneMode(true);
+			}
+		}
 		APlayerController* PC = UGameplayStatics::GetPlayerController(WorldRef, 0);
 		if (PC && PC->IsLocalController())
 		{
@@ -62,6 +70,13 @@ void UCutsceneManager::OnShowObjectiveMessage()
 			GS->SetObjectiveMessage(PendingObjectiveMessage);
 		}
 	}
+	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldRef, 0))
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		{
+			HUD->SetCutsceneMode(true);
+		}
+	}
 }
 
 void UCutsceneManager::OnCutSceneFinished()
@@ -83,6 +98,13 @@ void UCutsceneManager::OnCutSceneFinished()
 		if (AOutBreakGameState* GS = WorldRef->GetGameState<AOutBreakGameState>())
 		{
 			GS->SetObjectiveMessage(TEXT(""));
+		}
+	}
+	if (APlayerController* PC2 = UGameplayStatics::GetPlayerController(WorldRef, 0))
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC2->GetHUD()))
+		{
+			HUD->SetCutsceneMode(false);
 		}
 	}
 }

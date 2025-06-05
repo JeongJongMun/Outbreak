@@ -12,9 +12,6 @@ class OUTBREAK_API UMyGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	// 플레이어 닉네임 관리
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	FString PlayerNickname;
 
 	// 게임 그래픽 관리
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)

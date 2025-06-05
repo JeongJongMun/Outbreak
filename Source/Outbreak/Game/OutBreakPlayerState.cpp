@@ -7,6 +7,7 @@
 AOutBreakPlayerState::AOutBreakPlayerState()
 {
 	// 오류 방지를 위해 초기화
+	PlayerNickname = TEXT("Player0");
 	CharacterClass = TEXT("Default");
 	ZombieKills = 0;
 	TotalDamageDealt = 0.f;
@@ -15,6 +16,11 @@ AOutBreakPlayerState::AOutBreakPlayerState()
 	CharacterStatus = ECharacterStatus::Alive;
 	CurrentExp = 0;
 	CharacterLevel = 1;
+}
+void AOutBreakPlayerState::OnRep_PlayerNickname()
+{
+	UE_LOG(LogTemp, Log, TEXT("플레이어 닉네임: %s"), *PlayerNickname);
+	// TODO: HUD 또는 UI 업데이트 함수 호출
 }
 
 
@@ -71,6 +77,7 @@ void AOutBreakPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(AOutBreakPlayerState, PlayerNickname);
 	DOREPLIFETIME(AOutBreakPlayerState, CharacterClass);
 	DOREPLIFETIME(AOutBreakPlayerState, ZombieKills);
 	DOREPLIFETIME(AOutBreakPlayerState, TotalDamageDealt);

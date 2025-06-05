@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterPlayer.h"
-#include "CharacterPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
-#include "Engine/SceneCapture2D.h"
 #include "PaperSprite.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Animation/FPSAnimInstance.h"
+#include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/Weapon/WeaponAR.h"
 #include "Outbreak/Weapon/WeaponSMG.h"
 
@@ -32,7 +32,7 @@ ACharacterPlayer::ACharacterPlayer()
 	SceneCapture->ProjectionType = ECameraProjectionMode::Type::Orthographic;
 	SceneCapture->OrthoWidth = 4000.f;
 	SceneCapture->SetupAttachment(RootComponent); 
-	SceneCapture->SetRelativeLocation(FVector(0.f, 0.f, 1000.f)); 
+	SceneCapture->SetRelativeLocation(FVector(0.f, 0.f, 2100.f)); 
 	SceneCapture->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f)); 
 	SceneCapture->bCaptureEveryFrame = true;
 	SceneCapture->bCaptureOnMovement = false;
@@ -44,7 +44,7 @@ ACharacterPlayer::ACharacterPlayer()
 
 	PlayerIconSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("PlayerIconSprite"));
 	PlayerIconSprite->SetupAttachment(GetCapsuleComponent());
-	PlayerIconSprite->SetRelativeLocation(FVector(0.f, 0.f, 800.f));
+	PlayerIconSprite->SetRelativeLocation(FVector(0.f, 0.f, 2000.f));
 	PlayerIconSprite->SetRelativeRotation(FRotator(-180.f, -180.f, -90.f));
 	PlayerIconSprite->SetRelativeScale3D(FVector(0.5f));
 	PlayerIconSprite->SetOwnerNoSee(true);
@@ -53,6 +53,16 @@ ACharacterPlayer::ACharacterPlayer()
 	{
 		PlayerIconSprite->SetSprite(PlayerIconAsset.Object);
 	}
+	
+	PlayerNameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("PlayerNameText"));
+	PlayerNameText->SetupAttachment(GetCapsuleComponent());
+	PlayerNameText->SetRelativeLocation(FVector(-250.f, 0.f, 2000.f));
+	PlayerNameText->SetRelativeRotation(FRotator(90.f, 180.f, 0.f));
+	PlayerNameText->SetHorizontalAlignment(EHTA_Center);
+	PlayerNameText->SetVerticalAlignment(EVRTA_TextCenter);
+	PlayerNameText->SetWorldSize(200.f); // 텍스트 크기
+	PlayerNameText->SetTextRenderColor(FColor::White);
+	PlayerNameText->SetOwnerNoSee(true);
 	
 	GetMesh()->SetHiddenInGame(true);
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
@@ -143,6 +153,12 @@ ACharacterPlayer::ACharacterPlayer()
 void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(GetPlayerState());
+	if (PS && PlayerNameText)
+	{
+		PlayerNameText->SetText(FText::FromString(PS->PlayerNickname));
+	}
 	
 	SetCharacterControl(CurrentCharacterControlType);
 	if (FirstPersonCamera)

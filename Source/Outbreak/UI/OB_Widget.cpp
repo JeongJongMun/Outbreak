@@ -26,13 +26,24 @@ void UOB_Widget::NativeConstruct()
 void UOB_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-
 	if (const AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
 	{
 		SetMatchTimeText(GS->GetMatchTime());
 		SetCurrentPhaseText(GS->GetCurrentPhase());
 	}
 }
+	
+void UOB_Widget::SetCutsceneMode(bool bEnable)
+{
+	ESlateVisibility NewVisibility = bEnable ? ESlateVisibility::Hidden : ESlateVisibility::Visible;
+
+	if (MiniMapImage) MiniMapImage->SetVisibility(NewVisibility);
+	if (MatchTimeTextBlock) MatchTimeTextBlock->SetVisibility(NewVisibility);
+	if (PhaseTextBlock) PhaseTextBlock->SetVisibility(NewVisibility);
+	if (AlivePlayerCountTextBlock) AlivePlayerCountTextBlock->SetVisibility(NewVisibility);
+	if (AnnouncementTextBlock) AnnouncementTextBlock->SetVisibility(NewVisibility);
+}
+
 
 
 void UOB_Widget::SetMatchTimeText(float Time)

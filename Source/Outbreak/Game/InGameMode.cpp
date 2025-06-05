@@ -4,6 +4,7 @@
 #include "InGameMode.h"
 
 #include "OutBreakGameState.h"
+#include "OutBreakPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "Containers/Set.h"
@@ -16,6 +17,7 @@ AInGameMode::AInGameMode()
 	DefaultPawnClass = ACharacterPlayer::StaticClass();
 	HUDClass = AOB_HUD::StaticClass();
 	GameStateClass = AOutBreakGameState::StaticClass();
+	PlayerStateClass = AOutBreakPlayerState::StaticClass();
 
 	bUseSeamlessTravel = true;
 }

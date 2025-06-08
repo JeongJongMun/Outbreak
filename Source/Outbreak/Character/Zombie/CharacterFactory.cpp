@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterFactory.h"
-#include "FatZombie.h"
-#include "NormalZombie.h"
-#include "RunnerZombie.h"
-#include "WalkerZombie.h"
+#include "NormalZombie/FatZombie.h"
+#include "NormalZombie/RunnerZombie.h"
+#include "NormalZombie/WalkerZombie.h"
 #include "Outbreak/Util/EnumHelper.h"
+#include "SpecialZombie/GymRatZombie.h"
 
 UCharacterFactory::UCharacterFactory()
 {
@@ -14,22 +14,20 @@ UCharacterFactory::UCharacterFactory()
 
 ACharacterBase* UCharacterFactory::CreateCharacter(UWorld* InWorld, const FCharacterSpawnParam& InSpawnParam)
 {
-    TSubclassOf<ACharacterBase> ACharacterClass = GetCharacterClassFromType(InSpawnParam);
+    const TSubclassOf<ACharacterBase> ACharacterClass = GetCharacterClassFromType(InSpawnParam);
 
     if (ACharacterClass && InWorld)
     {
         FActorSpawnParameters SpawnParams;
         SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-        ACharacterBase* SpawnedCharacter = InWorld->SpawnActor<ACharacterBase>(ACharacterClass, InSpawnParam.SpawnLocation, InSpawnParam.SpawnRotation, SpawnParams);
-
-        if (SpawnedCharacter)
+        if (ACharacterBase* SpawnedCharacter = InWorld->SpawnActor<ACharacterBase>(ACharacterClass, InSpawnParam.SpawnLocation, InSpawnParam.SpawnRotation, SpawnParams))
         {
-            UE_LOG(LogTemp, Log, TEXT("[%s] Character Spawned. Type: %s"), CURRENT_CONTEXT, *EnumHelper::EnumToString(InSpawnParam.CharacterType));
+            UE_LOG(LogTemp, Log, TEXT("[%s] %s Character Spawned"), CURRENT_CONTEXT, *EnumHelper::EnumToString(InSpawnParam.CharacterType));
             return SpawnedCharacter;
         }
     }
-    UE_LOG(LogTemp, Log, TEXT("[%s] Character Spawn Failed. Type: %s"), CURRENT_CONTEXT, *EnumHelper::EnumToString(InSpawnParam.CharacterType));
+    UE_LOG(LogTemp, Error, TEXT("[%s] %s Character Spawn Failed"), CURRENT_CONTEXT, *EnumHelper::EnumToString(InSpawnParam.CharacterType));
     return nullptr;
 }
 
@@ -39,7 +37,7 @@ void UCharacterFactory::InitializeFactoryMaps()
     ZombieClassMap.Add(EZombieSubType::Runner, ARunnerZombie::StaticClass());
     ZombieClassMap.Add(EZombieSubType::Fat, AFatZombie::StaticClass());
     // ZombieClassMap.Add(EZombieSubType::Soldier, ASoldierZombie::StaticClass());
-    // ZombieClassMap.Add(EZombieSubType::GymRat, AGymRatZombie::StaticClass());
+    ZombieClassMap.Add(EZombieSubType::GymRat, AGymRatZombie::StaticClass());
     // ZombieClassMap.Add(EZombieSubType::Radioactive, ARadioactiveZombie::StaticClass());
     // ZombieClassMap.Add(EZombieSubType::Ghost, AGhostZombie::StaticClass());
     // ZombieClassMap.Add(EZombieSubType::Shield, AShieldZombie::StaticClass());

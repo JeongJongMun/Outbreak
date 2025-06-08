@@ -10,10 +10,13 @@ UCLASS(Abstract)
 class OUTBREAK_API ACharacterBase : public ACharacter
 {
 	GENERATED_BODY()
-
+	
+// --------------------
+// Functions
+// --------------------
 public:
 	ACharacterBase();
-	virtual void TakeHitDamage(const FHitResult& HitResult, int32 BaseDamage);
+	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	virtual void SetPhysicalAsset(ECharacterType CharacterType, ECharacterBodyType BodyType);
@@ -21,12 +24,19 @@ protected:
 	virtual void Die();
 	virtual float GetDamageMultiplier(EPhysicalSurface SurfaceType);
 	virtual void ApplyDamage(int32 DamageAmount);
-	virtual void ApplyHitEffects(EPhysicalSurface SurfaceType, int32 DamageAmount);
+	virtual void ApplyHitEffects(const int32 DamageAmount, const EPhysicalSurface SurfaceType = EPhysicalSurface::SurfaceType_Default);
 	
-	int32 CurrentHealth;
-	int32 CurrentExtraHealth;
+// --------------------
+// Variables
+// --------------------
+public:
+	float AttackDamageMultiplier = 1.0f;
+	
+protected:
+	int32 CurrentHealth = 100;
+	int32 CurrentExtraHealth = 0;
 
-	// TODO : Weapon Damage Multiplier Data Table
+	// TODO : Hit Damage Multiplier Data Table
 	float HeadDamageMultiplier = 3.0f;
 	float BodyDamageMultiplier = 1.0f;
 	float LimbsDamageMultiplier = 0.7f;

@@ -40,13 +40,6 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 	});
 	
 	Owner->MoveToActor(CurrentTargetPlayer, AcceptanceRadius, true);
-
-	FTimerHandle TimerHandle;
-	Zombie->GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, AcceptanceRadius]()
-	{
-		DrawDebugSphere(Zombie->GetWorld(), Zombie->GetCharacterMovement()->GetActorLocation(), AcceptanceRadius, 12, FColor::Blue, false, 1.0f);
-	}, 3.0f, true);
-	
 }
 
 void FZombieChaseState::Execute(EZombieStateType CurrentState, float DeltaTime)

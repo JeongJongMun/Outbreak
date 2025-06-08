@@ -2,8 +2,10 @@
 
 #include "CharacterBase.h"
 #include "Components/CapsuleComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Util/Define.h"
+#include "Outbreak/Util/EnumHelper.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 
 // Sets default values
@@ -55,46 +57,42 @@ ACharacterBase::ACharacterBase()
 	}
 }
 
-void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, int32 BaseDamage)
+float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	const UPhysicalMaterial* PhysMat = HitResult.PhysMaterial.Get();
-    
-	if (!PhysMat)
+	const float DamageAmount = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	if (DamageEvent.IsOfType((FPointDamageEvent::ClassID)))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] %s PhysMaterial is null, applying base damage"), CURRENT_CONTEXT, *GetName());
-		ApplyDamage(BaseDamage);
-		return;
+		const auto PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
+		const FHitResult& HitResult = PointDamageEvent->HitInfo;
+		const UPhysicalMaterial* PhysMat = HitResult.PhysMaterial.Get();
+
+		const float DamageMultiplier = GetDamageMultiplier(PhysMat->SurfaceType);
+		const int32 FinalDamage = FMath::RoundToInt(DamageAmount * DamageMultiplier);
+		ApplyDamage(FinalDamage);
+		ApplyHitEffects(FinalDamage, PhysMat->SurfaceType);
+
+		return FinalDamage;
 	}
-    
-	EPhysicalSurface SurfaceType = PhysMat->SurfaceType;
-	const float DamageMultiplier = GetDamageMultiplier(SurfaceType);
-	const int32 FinalDamage = FMath::RoundToInt(BaseDamage * DamageMultiplier);
-    
-	ApplyDamage(FinalDamage);
-	ApplyHitEffects(SurfaceType, FinalDamage);
 	
-	UE_LOG(LogTemp, Log, TEXT("[%s] TakeHitDamage called with BaseDamage: %d, SurfaceType: %d, FinalDamage: %d"),
-		*GetName(), BaseDamage, SurfaceType, FinalDamage);
+	ApplyDamage(DamageAmount);
+	ApplyHitEffects(DamageAmount);
+		
+	return DamageAmount;
 }
 
-void ACharacterBase::SetPhysicalAsset(ECharacterType CharacterType, ECharacterBodyType BodyType)
+void ACharacterBase::SetPhysicalAsset(const ECharacterType CharacterType, const ECharacterBodyType BodyType)
 {
 	const FString BasePath = TEXT("/Script/Engine.PhysicsAsset'/Game/Physics/PhysicsAssets/");
-	const FString CharacterTypeStr = UEnum::GetValueAsString(CharacterType).Replace(TEXT("ECharacterType::"), TEXT(""));
-	const FString BodyTypeStr = UEnum::GetValueAsString(BodyType).Replace(TEXT("ECharacterBodyType::"), TEXT(""));
-	const FString AssetName = FString::Printf(TEXT("PA_%s_%s"), *CharacterTypeStr, *BodyTypeStr);
-   
-	FString FullPath = FString::Printf(TEXT("%s%s.%s'"), *BasePath, *AssetName, *AssetName);
+	const FString CharacterTypeString = EnumHelper::EnumToString(CharacterType);
+	const FString BodyTypeString = EnumHelper::EnumToString(BodyType);
+	const FString AssetName = FString::Printf(TEXT("PA_%s_%s"), *CharacterTypeString, *BodyTypeString);
 
-	TObjectPtr<USkeletalMeshComponent> MeshComponent = GetMesh();
-	if (!MeshComponent)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] MeshComponent is null, cannot set Physics Asset"), CURRENT_CONTEXT);
-		return;
-	}
+	const FString FullPath = FString::Printf(TEXT("%s%s.%s'"), *BasePath, *AssetName, *AssetName);
 
-	const TObjectPtr<UPhysicsAsset> PhysicsAsset = LoadObject<UPhysicsAsset>(nullptr, *FullPath);
-	if (PhysicsAsset)
+	const TObjectPtr<USkeletalMeshComponent> MeshComponent = GetMesh();
+
+	if (const TObjectPtr<UPhysicsAsset> PhysicsAsset = LoadObject<UPhysicsAsset>(nullptr, *FullPath))
 	{
 		MeshComponent->SetPhysicsAsset(nullptr);
 		MeshComponent->SetPhysicsAsset(PhysicsAsset);
@@ -120,7 +118,7 @@ void ACharacterBase::Die()
 	// TODO : Implement common death logic
 }
 
-float ACharacterBase::GetDamageMultiplier(EPhysicalSurface SurfaceType)
+float ACharacterBase::GetDamageMultiplier(const EPhysicalSurface SurfaceType)
 {
 	switch (SurfaceType)
 	{
@@ -137,6 +135,8 @@ float ACharacterBase::GetDamageMultiplier(EPhysicalSurface SurfaceType)
 
 void ACharacterBase::ApplyDamage(int32 DamageAmount)
 {
+	UE_LOG(LogTemp, Log, TEXT("[%s] %s got damage %d, HP %d -> %d "), CURRENT_CONTEXT, *GetName(), DamageAmount, CurrentHealth, CurrentHealth - DamageAmount);
+
 	if (CurrentExtraHealth > 0)
 	{
 		CurrentExtraHealth -= DamageAmount;
@@ -148,14 +148,20 @@ void ACharacterBase::ApplyDamage(int32 DamageAmount)
 	}
 	
 	CurrentHealth -= DamageAmount;
+	if (CurrentHealth < 0)
+		CurrentHealth = 0;
 
 	if (IsDead())
 	{
 		Die();
 	}
+	else
+	{
+		// TODO : Implement hit reaction logic (maybe animation)
+	}
 }
 
-void ACharacterBase::ApplyHitEffects(EPhysicalSurface SurfaceType, int32 DamageAmount)
+void ACharacterBase::ApplyHitEffects(const int32 DamageAmount, const EPhysicalSurface SurfaceType)
 {
 	// TODO : Implement hit effects based on surface type and damage amount
 	switch (SurfaceType)

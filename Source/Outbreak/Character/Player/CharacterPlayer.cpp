@@ -125,18 +125,18 @@ ACharacterPlayer::ACharacterPlayer()
 void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+	if (IsLocallyControlled())
+	{
+		SetCharacterControl(CurrentCharacterControlType);
+		if (FirstPersonCamera)
+		{
+			FirstPersonCamera->SetActive(true);
+		}
+		if (TopViewCamera)
+		{
+			TopViewCamera->SetActive(false);
+		}
 
-	UWorld* World = GetWorld();
-	if (!World) return;
-	
-	SetCharacterControl(CurrentCharacterControlType);
-	if (FirstPersonCamera)
-	{
-		FirstPersonCamera->SetActive(true);
-	}
-	if (TopViewCamera)
-	{
-		TopViewCamera->SetActive(false);
 	}
 	/// 인벤토리 스왑 디버깅용 코드
 	WeaponInventory[0] = AWeaponAR::StaticClass();
@@ -194,6 +194,14 @@ void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	EnhancedInputComponent->BindAction(ReloadAction,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnReload);
 	EnhancedInputComponent->BindAction(SwapSlot1,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnPressedSlot1);
 	EnhancedInputComponent->BindAction(SwapSlot2,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnPressedSlot2);
+}
+
+void ACharacterPlayer::Die()
+{
+	Super::Die();
+
+	// TODO : Implement player death logic
+	UE_LOG(LogTemp, Warning, TEXT("############# Player Die #############"));
 }
 
 void ACharacterPlayer::ToggleCameraMode()

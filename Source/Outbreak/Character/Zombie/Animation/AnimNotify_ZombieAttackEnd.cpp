@@ -14,7 +14,6 @@ void UAnimNotify_ZombieAttackEnd::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		if (ACharacterZombie* Character = Cast<ACharacterZombie>(Owner))
 		{
 			Character->OnAttackEnd();
-			UE_LOG(LogTemp, Log, TEXT("[%s] Notify: Zombie attack ended."), CURRENT_CONTEXT);
 		}
 	}
 }

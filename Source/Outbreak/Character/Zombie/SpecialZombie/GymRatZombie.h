@@ -18,6 +18,9 @@ public:
 	AGymRatZombie();
 
 protected:
-	virtual void BeginPlay() override;	
+	virtual void BeginPlay() override;
+
+private:
+	float BodyScale = 1.5f;
 	
 };

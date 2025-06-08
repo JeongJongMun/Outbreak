@@ -20,4 +20,6 @@ void AGymRatZombie::BeginPlay()
 
 	AbilityComponent->AddAbility(NewObject<UDamageEnhanceAbility>());
 	AbilityComponent->AddAbility(NewObject<UVibrationAbility>());
+
+	SetActorScale3D(FVector(BodyScale, BodyScale, BodyScale));
 }

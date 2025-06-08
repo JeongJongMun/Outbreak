@@ -23,8 +23,8 @@ private:
 private:
 	TObjectPtr<ACharacterBase> CachedOwner;
 	FTimerHandle VibrationTimerHandle;
-	float VibrationInterval = 1.0f;
+	float VibrationInterval = 3.0f;
 	float VibrationDamage = 5.0f;
-	float VibrationIntensity = 0.5f;
+	float VibrationIntensity = 3.0f;
 	float VibrationRange = 1000.0f;
 };

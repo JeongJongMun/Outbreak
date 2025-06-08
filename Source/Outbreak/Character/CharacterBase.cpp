@@ -2,6 +2,7 @@
 
 #include "CharacterBase.h"
 #include "Components/CapsuleComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Util/Define.h"
 #include "Outbreak/Util/EnumHelper.h"
@@ -56,28 +57,28 @@ ACharacterBase::ACharacterBase()
 	}
 }
 
-void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, const int32 BaseDamage)
+float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	/* TODO:
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	UGameplayStatics::ApplyDamage()를 사용 가능
-	*/
-	const UPhysicalMaterial* PhysMat = HitResult.PhysMaterial.Get();
-    
-	if (!PhysMat)
+	const float DamageAmount = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	if (DamageEvent.IsOfType((FPointDamageEvent::ClassID)))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] %s PhysMaterial is null, applying base damage: %d"), CURRENT_CONTEXT, *GetName(), BaseDamage);
-		ApplyDamage(BaseDamage);
-		// TODO : Apply default hit effects
-		return;
+		const auto PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
+		const FHitResult& HitResult = PointDamageEvent->HitInfo;
+		const UPhysicalMaterial* PhysMat = HitResult.PhysMaterial.Get();
+
+		const float DamageMultiplier = GetDamageMultiplier(PhysMat->SurfaceType);
+		const int32 FinalDamage = FMath::RoundToInt(DamageAmount * DamageMultiplier);
+		ApplyDamage(FinalDamage);
+		ApplyHitEffects(FinalDamage, PhysMat->SurfaceType);
+
+		return FinalDamage;
 	}
-    
-	EPhysicalSurface SurfaceType = PhysMat->SurfaceType;
-	const float DamageMultiplier = GetDamageMultiplier(SurfaceType);
-	const int32 FinalDamage = FMath::RoundToInt(BaseDamage * DamageMultiplier);
-    
-	ApplyDamage(FinalDamage);
-	ApplyHitEffects(SurfaceType, FinalDamage);
+	
+	ApplyDamage(DamageAmount);
+	ApplyHitEffects(DamageAmount);
+		
+	return DamageAmount;
 }
 
 void ACharacterBase::SetPhysicalAsset(const ECharacterType CharacterType, const ECharacterBodyType BodyType)
@@ -147,6 +148,8 @@ void ACharacterBase::ApplyDamage(int32 DamageAmount)
 	}
 	
 	CurrentHealth -= DamageAmount;
+	if (CurrentHealth < 0)
+		CurrentHealth = 0;
 
 	if (IsDead())
 	{
@@ -158,7 +161,7 @@ void ACharacterBase::ApplyDamage(int32 DamageAmount)
 	}
 }
 
-void ACharacterBase::ApplyHitEffects(const EPhysicalSurface SurfaceType, int32 DamageAmount)
+void ACharacterBase::ApplyHitEffects(const int32 DamageAmount, const EPhysicalSurface SurfaceType)
 {
 	// TODO : Implement hit effects based on surface type and damage amount
 	switch (SurfaceType)

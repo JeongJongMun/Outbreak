@@ -28,6 +28,7 @@ void UVibrationAbility::OnVibrationAbility()
 {
 	const FVector Origin = CachedOwner->GetActorLocation();
 
+	// TODO : Delete DebugSphere
 	DrawDebugSphere(
 		CachedOwner->GetWorld(),
 		Origin,
@@ -49,8 +50,7 @@ void UVibrationAbility::OnVibrationAbility()
 		const float Distance = FVector::Dist(Player->GetActorLocation(), Origin);
 		if (Distance <= VibrationRange)
 		{
-			// UGameplayStatics::ApplyDamage(Player, VibrationDamage, CachedOwner->GetController(), CachedOwner, nullptr);
-			Player->TakeHitDamage(VibrationDamage);
+			UGameplayStatics::ApplyRadialDamage(CachedOwner->GetWorld(), VibrationDamage, Origin, VibrationRange, nullptr, TArray<AActor*>(), CachedOwner, CachedOwner->GetController(), true);
 
 			if (APlayerController* PC = Cast<APlayerController>(Player->GetController()))
 			{

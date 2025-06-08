@@ -2,6 +2,7 @@
 
 #include "CharacterZombie.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
 #include "State/FZombieIdleState.h"
 
@@ -125,8 +126,6 @@ void ACharacterZombie::OnAttackEnd()
 {
 	// TODO : 자동으로 공격 데미지 계산하는 구조로 개선
 	const int32 FinalDamage = static_cast<int32>(ZombieData.AttackDamage * AttackDamageMultiplier);
-	UE_LOG(LogTemp, Log, TEXT("%s's Attack Damage: %d, Final Damage: %d"), *GetName(), ZombieData.AttackDamage, FinalDamage);
-	
 	const FVector Start = GetActorLocation();
 	const FVector End = Start + GetActorForwardVector() * ZombieData.AttackRange;
 
@@ -139,15 +138,18 @@ void ACharacterZombie::OnAttackEnd()
 	FHitResult Hit;
 	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
 	{
-		UE_LOG(LogTemp, Log, TEXT("1"));
-		if (Hit.GetActor() && Hit.GetActor()->IsA(ACharacterPlayer::StaticClass()))
+		AActor* HitActor = Hit.GetActor();
+		if (HitActor && HitActor->IsA(ACharacterPlayer::StaticClass()))
 		{
-			UE_LOG(LogTemp, Log, TEXT("2"));
-			if (ACharacterPlayer* Player = Cast<ACharacterPlayer>(Hit.GetActor()))
-			{
-				UE_LOG(LogTemp, Log, TEXT("3"));
-				Player->TakeHitDamage(Hit, FinalDamage);
-			}
+			UGameplayStatics::ApplyPointDamage(
+				HitActor,
+				FinalDamage,
+				GetActorForwardVector(),
+				Hit,
+				GetController(),
+				this,
+				UDamageType::StaticClass()
+			);
 		}
 	}
 	

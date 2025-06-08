@@ -16,11 +16,7 @@ class OUTBREAK_API ACharacterBase : public ACharacter
 // --------------------
 public:
 	ACharacterBase();
-	virtual void TakeHitDamage(const FHitResult& HitResult, const int32 BaseDamage);
-	virtual void TakeHitDamage(const int32 BaseDamage)
-	{
-		TakeHitDamage(FHitResult(), BaseDamage);
-	}
+	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	virtual void SetPhysicalAsset(ECharacterType CharacterType, ECharacterBodyType BodyType);
@@ -28,7 +24,7 @@ protected:
 	virtual void Die();
 	virtual float GetDamageMultiplier(EPhysicalSurface SurfaceType);
 	virtual void ApplyDamage(int32 DamageAmount);
-	virtual void ApplyHitEffects(EPhysicalSurface SurfaceType, int32 DamageAmount);
+	virtual void ApplyHitEffects(const int32 DamageAmount, const EPhysicalSurface SurfaceType = EPhysicalSurface::SurfaceType_Default);
 	
 // --------------------
 // Variables

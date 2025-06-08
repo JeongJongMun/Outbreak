@@ -16,7 +16,11 @@ class OUTBREAK_API ACharacterBase : public ACharacter
 // --------------------
 public:
 	ACharacterBase();
-	virtual void TakeHitDamage(const FHitResult& HitResult, int32 BaseDamage);
+	virtual void TakeHitDamage(const FHitResult& HitResult, const int32 BaseDamage);
+	virtual void TakeHitDamage(const int32 BaseDamage)
+	{
+		TakeHitDamage(FHitResult(), BaseDamage);
+	}
 
 protected:
 	virtual void SetPhysicalAsset(ECharacterType CharacterType, ECharacterBodyType BodyType);
@@ -33,8 +37,8 @@ public:
 	float AttackDamageMultiplier = 1.0f;
 	
 protected:
-	int32 CurrentHealth;
-	int32 CurrentExtraHealth;
+	int32 CurrentHealth = 100;
+	int32 CurrentExtraHealth = 0;
 
 	// TODO : Hit Damage Multiplier Data Table
 	float HeadDamageMultiplier = 3.0f;

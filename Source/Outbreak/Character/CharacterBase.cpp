@@ -58,6 +58,10 @@ ACharacterBase::ACharacterBase()
 
 void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, const int32 BaseDamage)
 {
+	/* TODO:
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	UGameplayStatics::ApplyDamage()를 사용 가능
+	*/
 	const UPhysicalMaterial* PhysMat = HitResult.PhysMaterial.Get();
     
 	if (!PhysMat)
@@ -74,8 +78,6 @@ void ACharacterBase::TakeHitDamage(const FHitResult& HitResult, const int32 Base
     
 	ApplyDamage(FinalDamage);
 	ApplyHitEffects(SurfaceType, FinalDamage);
-	
-	UE_LOG(LogTemp, Log, TEXT("[%s] On %s, BaseDamage: %d, SurfaceType: %d, FinalDamage: %d"), *GetName(), CURRENT_CONTEXT, BaseDamage, SurfaceType, FinalDamage);
 }
 
 void ACharacterBase::SetPhysicalAsset(const ECharacterType CharacterType, const ECharacterBodyType BodyType)
@@ -132,6 +134,8 @@ float ACharacterBase::GetDamageMultiplier(const EPhysicalSurface SurfaceType)
 
 void ACharacterBase::ApplyDamage(int32 DamageAmount)
 {
+	UE_LOG(LogTemp, Log, TEXT("[%s] %s got damage %d, HP %d -> %d "), CURRENT_CONTEXT, *GetName(), DamageAmount, CurrentHealth, CurrentHealth - DamageAmount);
+
 	if (CurrentExtraHealth > 0)
 	{
 		CurrentExtraHealth -= DamageAmount;

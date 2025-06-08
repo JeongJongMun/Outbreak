@@ -11,6 +11,7 @@ enum class EAbilityType : uint8
 {
 	None            UMETA(DisplayName = "None"),
 	DamageEnhance	UMETA(DisplayName = "DamageEnhance"),
+	Vibration		UMETA(DisplayName = "Vibration"),
 };
 
 UENUM()

@@ -4,6 +4,7 @@
 #include "GymRatZombie.h"
 
 #include "Outbreak/Ability/DamageEnhanceAbility.h"
+#include "Outbreak/Ability/VibrationAbility.h"
 #include "Outbreak/Component/AbilityComponent.h"
 
 AGymRatZombie::AGymRatZombie()
@@ -17,6 +18,6 @@ void AGymRatZombie::BeginPlay()
 	
 	Super::BeginPlay();
 
-	auto* DamageEnhanceAbility = NewObject<UDamageEnhanceAbility>();
-	AbilityComponent->AddAbility(DamageEnhanceAbility);
+	AbilityComponent->AddAbility(NewObject<UDamageEnhanceAbility>());
+	AbilityComponent->AddAbility(NewObject<UVibrationAbility>());
 }

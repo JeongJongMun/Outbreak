@@ -30,6 +30,19 @@ void ASafeZoneController::BeginPlay()
 	// 플레이어가 콜리전에 들어오거나 나갈때 실행할 함수 지정
 	if (StartSafeZoneCollision)
 	{
+		StartSafeZoneCollision->OnComponentBeginOverlap.AddDynamic(this, &ASafeZoneController::OnStartZoneEnter);
+		UE_LOG(LogTemp, Warning, TEXT("[SafeZone] 시작 존에 진입해서 등록"));
+
+		TArray<AActor*> OverlappingActors;
+		StartSafeZoneCollision->GetOverlappingActors(OverlappingActors, ACharacter::StaticClass());
+		for (AActor* Actor : OverlappingActors)
+		{
+			if (ACharacter* Character = Cast<ACharacter>(Actor))
+			{
+				PlayersInStartZone.Add(Character);
+			}
+		}
+		
 		StartSafeZoneCollision->OnComponentEndOverlap.AddDynamic(this, &ASafeZoneController::OnStartZoneExit);
 	}
 	if (EndSafeZoneCollision)
@@ -67,6 +80,18 @@ void ASafeZoneController::OnEndZoneEnter(UPrimitiveComponent* OverlappedComp, AA
 		}
 	}
 }
+
+void ASafeZoneController::OnStartZoneEnter(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ACharacter* Character = Cast<ACharacter>(OtherActor);
+	if (Character && !PlayersInStartZone.Contains(Character))
+	{
+		PlayersInStartZone.Add(Character);
+		UE_LOG(LogTemp, Warning, TEXT("[SafeZone] %s 시작 존에 진입해서 등록"), *Character->GetName());
+	}
+}
+
 
 void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

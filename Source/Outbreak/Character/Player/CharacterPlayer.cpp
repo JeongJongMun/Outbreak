@@ -112,15 +112,18 @@ ACharacterPlayer::ACharacterPlayer()
 void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	SetCharacterControl(CurrentCharacterControlType);
-	if (FirstPersonCamera)
+	if (IsLocallyControlled())
 	{
-		FirstPersonCamera->SetActive(true);
-	}
-	if (TopViewCamera)
-	{
-		TopViewCamera->SetActive(false);
+		SetCharacterControl(CurrentCharacterControlType);
+		if (FirstPersonCamera)
+		{
+			FirstPersonCamera->SetActive(true);
+		}
+		if (TopViewCamera)
+		{
+			TopViewCamera->SetActive(false);
+		}
+
 	}
 
 	if (WeaponClass)

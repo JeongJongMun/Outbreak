@@ -19,7 +19,6 @@ ACharacterZombie::ACharacterZombie()
 	if (ZombieAnimationMontage.Succeeded())
 	{
 		AnimMontage = ZombieAnimationMontage.Object;
-		CurrentSection = IdleSectionName;
 	}
 
 	MontageSectionNameMap.Add(EZombieStateType::Idle, IdleSectionName);
@@ -52,23 +51,28 @@ void ACharacterZombie::InitializeZombieData(FZombieData* InData)
 
 void ACharacterZombie::PlayAnimation(EZombieStateType AnimType)
 {
-	if (!AnimMontage)
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance || !AnimMontage)
 		return;
 
-	TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance();
-	if (!AnimInstance)
-		return;
-	
+	// TODO : Section Name Manage
 	const FName SectionPrefix = MontageSectionNameMap[AnimType];
 	const FName SectionName = FName(*FString::Printf(TEXT("%s%d"), *SectionPrefix.ToString(), 0));
+
 	if (AnimInstance->Montage_IsPlaying(AnimMontage))
 	{
-		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage);
+		FName CurrentSection = AnimInstance->Montage_GetCurrentSection(AnimMontage);
+		if (CurrentSection != NAME_None && CurrentSection != SectionName)
+		{
+			AnimInstance->Montage_Stop(0.5f, AnimMontage);
+			AnimInstance->Montage_Play(AnimMontage);
+			AnimInstance->Montage_JumpToSection(SectionName, AnimMontage); 
+		}
 	}
 	else
 	{
 		AnimInstance->Montage_Play(AnimMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage); 
 	}
 }
 

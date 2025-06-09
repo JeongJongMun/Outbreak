@@ -3,6 +3,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Engine.h"
 #include "TimerManager.h"
+#include "Outbreak/Character/Zombie/CharacterZombie.h"
 
 AWeaponSMG::AWeaponSMG()
 {
@@ -32,10 +33,10 @@ AWeaponSMG::AWeaponSMG()
 }
 void AWeaponSMG::Reload()
 {
-    if (WeaponData.bIsReloading || WeaponData.CurrentAmmo == WeaponData.MagazineCapacity || WeaponData.TotalAmmo <= 0)
+    if (bIsReloading || WeaponData.CurrentAmmo == WeaponData.MagazineCapacity || WeaponData.TotalAmmo <= 0)
         return;
 
-    WeaponData.bIsReloading = true;
+    bIsReloading = true;
     StopFire();
 
     // 시작 시 리로드 애니메이션 재생 (추가 가능)
@@ -57,7 +58,7 @@ void AWeaponSMG::FinishReload()
 
     WeaponData.CurrentAmmo += ToReload;
     WeaponData.TotalAmmo -= ToReload;
-    WeaponData.bIsReloading = false;
+    bIsReloading = false;
 
     UE_LOG(LogTemp, Log, TEXT("Reloaded: %d / %d"), WeaponData.CurrentAmmo, WeaponData.TotalAmmo);
     if (GEngine)
@@ -68,7 +69,7 @@ void AWeaponSMG::FinishReload()
 }
 void AWeaponSMG::StartFire()
 {
-    if (WeaponData.bIsReloading)
+    if (bIsReloading)
         return;
 
     if (WeaponData.CurrentAmmo <= 0)
@@ -102,7 +103,7 @@ void AWeaponSMG::StopFire()
 
 void AWeaponSMG::MakeShot()
 {
-    if (WeaponData.bIsReloading)
+    if (bIsReloading)
         return;
 
     if (WeaponData.CurrentAmmo <= 0)
@@ -135,7 +136,7 @@ void AWeaponSMG::MakeShot()
     FCollisionQueryParams Params;
     Params.AddIgnoredActor(MyOwner);
     Params.AddIgnoredActor(this);
-
+    Params.bReturnPhysicalMaterial = true;
     bool bHit = GetWorld()->LineTraceSingleByChannel(
         Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
 
@@ -162,12 +163,25 @@ void AWeaponSMG::MakeShot()
             12,
             FColor::Yellow
         );
+
+        AActor* HitActor = Hit.GetActor();
+        if (HitActor && HitActor -> IsA(ACharacterZombie::StaticClass()))
+        {
+            UGameplayStatics::ApplyPointDamage(
+                HitActor,
+                10.0f,
+                GetActorForwardVector(),
+                Hit,
+                PC,
+                this,
+                UDamageType::StaticClass());
+        }
     }
 }
 
 bool AWeaponSMG::IsReloading()
 {
-    return WeaponData.bIsReloading;
+    return bIsReloading;
 }
 
 void AWeaponSMG::BeginPlay()

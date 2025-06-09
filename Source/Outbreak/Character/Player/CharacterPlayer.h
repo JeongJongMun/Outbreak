@@ -52,6 +52,7 @@ protected:
 	void OnToggleFireMode();
 	void ChangeArm();
 	void OnReload();
+	
 
 	// Movement
 	void Move(const FInputActionValue& Value);

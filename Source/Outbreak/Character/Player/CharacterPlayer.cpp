@@ -152,7 +152,7 @@ void ACharacterPlayer::BeginPlay()
 			SpawnParams.Instigator = GetInstigator();
 
 			// 월드에 무기 액터 스폰
-			AWeaponBase* NewWeapon = World->SpawnActor<AWeaponBase>(WeaponInventory[i], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+			AWeaponBase* NewWeapon = GetWorld()->SpawnActor<AWeaponBase>(WeaponInventory[i], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
 			if (NewWeapon)
 			{
 				// 처음에는 모두 비활성 상태로 두거나, 보이지 않게 설정
@@ -168,6 +168,7 @@ void ACharacterPlayer::BeginPlay()
 			WeaponInstances[i] = nullptr;
 		}
 	}
+	SwapToSlot(1);
 	ChangeArm();
 }
 
@@ -334,7 +335,7 @@ void ACharacterPlayer::ChangeArm()
 	}
 	if (WeaponAnimClass)
 	{
-		GunMesh->SetAnimInstanceClass(ArmAnimClass);
+		GunMesh->SetAnimInstanceClass(WeaponAnimClass);
 	}
 }
 
@@ -433,8 +434,8 @@ bool ACharacterPlayer::GetFireMode() const
 
 bool ACharacterPlayer::IsReloading() const
 {
-	// return bIsReloading;
-	return false;
+	if (!CurrentWeapon) return false;
+	return CurrentWeapon -> bIsReloading;
 }
 
 

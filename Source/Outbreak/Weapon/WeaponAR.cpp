@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "Outbreak/Character/Zombie/CharacterZombie.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogWeaponAR, All, All);
 AWeaponAR::AWeaponAR()
@@ -35,10 +36,10 @@ AWeaponAR::AWeaponAR()
 }
 void AWeaponAR::Reload()
 {
-    if (WeaponData.bIsReloading || WeaponData.CurrentAmmo == WeaponData.MagazineCapacity || WeaponData.TotalAmmo <= 0)
+    if (bIsReloading || WeaponData.CurrentAmmo == WeaponData.MagazineCapacity || WeaponData.TotalAmmo <= 0)
         return;
 
-    WeaponData.bIsReloading = true;
+    bIsReloading = true;
     StopFire();
 
     // 시작 시 리로드 애니메이션 재생 (추가 가능)
@@ -60,7 +61,7 @@ void AWeaponAR::FinishReload()
 
     WeaponData.CurrentAmmo += ToReload;
     WeaponData.TotalAmmo -= ToReload;
-    WeaponData.bIsReloading = false;
+    bIsReloading = false;
 
     UE_LOG(LogTemp, Log, TEXT("Reloaded: %d / %d"), WeaponData.CurrentAmmo, WeaponData.TotalAmmo);
     if (GEngine)
@@ -72,7 +73,7 @@ void AWeaponAR::FinishReload()
 
 void AWeaponAR::StartFire()
 {
-    if (WeaponData.bIsReloading)
+    if (bIsReloading)
         return;
 
     if (WeaponData.CurrentAmmo <= 0)
@@ -100,7 +101,7 @@ void AWeaponAR::StopFire()
 void AWeaponAR::MakeShot()
 {
 
-    if (WeaponData.bIsReloading)
+    if (bIsReloading)
         return;
 
     if (WeaponData.CurrentAmmo <= 0)
@@ -149,7 +150,7 @@ void AWeaponAR::MakeShot()
     FCollisionQueryParams Params;
     Params.AddIgnoredActor(MyOwner);
     Params.AddIgnoredActor(this);
-
+    Params.bReturnPhysicalMaterial=true;
     bool bHit = GetWorld()->LineTraceSingleByChannel(
         Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
 
@@ -183,6 +184,18 @@ void AWeaponAR::MakeShot()
             false,
             2.0f
         );
+        AActor* HitActor = Hit.GetActor();
+        if (HitActor && HitActor -> IsA(ACharacterZombie::StaticClass()))
+        {
+            UGameplayStatics::ApplyPointDamage(
+                HitActor,
+                10.0f,
+                GetActorForwardVector(),
+                Hit,
+                PC,
+                this,
+                UDamageType::StaticClass());
+        }
     }
 
 
@@ -195,7 +208,7 @@ void AWeaponAR::InitializeWeaponData(FWeaponData* InData)
 
 bool AWeaponAR::IsReloading()
 {
-    return WeaponData.bIsReloading;
+    return bIsReloading;
 }
 
 void AWeaponAR::BeginPlay()

@@ -21,4 +21,5 @@ public:
 	virtual void Reload();
 	virtual void InitializeWeaponData(FWeaponData* InData);
 	virtual void BeginPlay() override;
+	bool bIsReloading = false;
 };

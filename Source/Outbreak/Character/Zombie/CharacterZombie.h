@@ -25,13 +25,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void InitCharacterData() override;
 	virtual void Die() override;
 	virtual void SetMesh(ECharacterBodyType MeshType);
 	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,class AActor* DamageCauser) override;
-
-private:
-	virtual void InitCharacterData() override;
 
 // --------------------
 // Variables

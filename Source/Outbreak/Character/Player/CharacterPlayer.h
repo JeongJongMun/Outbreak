@@ -42,6 +42,7 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void InitCharacterData() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void Die() override;
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
@@ -80,9 +81,6 @@ protected:
 	UFUNCTION()
 	void OnPressedSlot2();
 
-private:
-	virtual void InitCharacterData() override;
-	
 // --------------------
 // Variables
 // --------------------

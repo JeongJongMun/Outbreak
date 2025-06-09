@@ -7,7 +7,7 @@
 #include "LevelSequencePlayer.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "OutBreakGameState.h"
+#include "Outbreak/Game/OutBreakGameState.h"
 #include "Kismet/GameplayStatics.h"
 
 void UCutsceneManager::Init(UWorld* InWorld)

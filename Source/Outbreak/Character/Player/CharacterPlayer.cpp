@@ -177,14 +177,13 @@ void ACharacterPlayer::BeginPlay()
 		{
 			TopViewCamera->SetActive(false);
 		}
-
+	}
 	AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(GetPlayerState());
 	if (PS && PlayerNameText)
 	{
 		PlayerNameText->SetText(FText::FromString(PS->PlayerNickname));
 	}
-
-	}
+	
 	/// 인벤토리 스왑 디버깅용 코드
 	WeaponInventory[0] = AWeaponAR::StaticClass();
 	WeaponInventory[1] = AWeaponSMG::StaticClass();

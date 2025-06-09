@@ -5,7 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Engine/World.h"
 #include "CutsceneManager.h"
-#include "InGameMode.h"
+#include "Outbreak/Game/InGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 
@@ -26,7 +26,12 @@ ASafeZoneController::ASafeZoneController()
 void ASafeZoneController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	TArray<AActor*> FoundWalls;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInvisibleWall::StaticClass(), FoundWalls);
+	if (FoundWalls.Num() > 0)
+	{
+		InvisibleWall = Cast<AInvisibleWall>(FoundWalls[0]);
+	}
 	// 플레이어가 콜리전에 들어오거나 나갈때 실행할 함수 지정
 	if (StartSafeZoneCollision)
 	{
@@ -107,6 +112,10 @@ void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, A
 			// 단, 컷씬 추가시 활성화 시간을 컷씬 종료시에 해야함
 			if (CutsceneManager && !CutsceneManager->bHasPlayedCutscene)
 			{
+				if (InvisibleWall)
+				{
+					InvisibleWall->DisableWall();
+				}
 				FString CurrentLevel = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
 				FString ObjectiveMessage;
 				if (CurrentLevel == TEXT("FirstPhase")) ObjectiveMessage = TEXT("목표 : 숲을 탈출하라 !!");

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CutsceneManager.h"
+#include "InvisibleWall.h"
 #include "GameFramework/Actor.h"
 #include "LevelSequence.h"
 #include "SafeZoneController.generated.h"
@@ -54,6 +55,9 @@ private:
 
 	UPROPERTY()
 	AInGameMode* InGameModeRef;
+
+	UPROPERTY()
+	AInvisibleWall* InvisibleWall;
 	
 	UPROPERTY()
 	UCutsceneManager* CutsceneManager;

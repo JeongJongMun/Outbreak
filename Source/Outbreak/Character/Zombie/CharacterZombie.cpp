@@ -2,6 +2,7 @@
 
 #include "CharacterZombie.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
 #include "State/FZombieIdleState.h"
 
@@ -19,7 +20,6 @@ ACharacterZombie::ACharacterZombie()
 	if (ZombieAnimationMontage.Succeeded())
 	{
 		AnimMontage = ZombieAnimationMontage.Object;
-		CurrentSection = IdleSectionName;
 	}
 
 	MontageSectionNameMap.Add(EZombieStateType::Idle, IdleSectionName);
@@ -50,29 +50,34 @@ void ACharacterZombie::InitializeZombieData(FZombieData* InData)
 	CurrentExtraHealth = 0;
 }
 
-void ACharacterZombie::PlayAnimation(EZombieStateType AnimType)
+void ACharacterZombie::PlayAnimation(const EZombieStateType AnimType)
 {
-	if (!AnimMontage)
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance || !AnimMontage)
 		return;
 
-	TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance();
-	if (!AnimInstance)
-		return;
-	
+	// TODO : Section Name Manage
 	const FName SectionPrefix = MontageSectionNameMap[AnimType];
 	const FName SectionName = FName(*FString::Printf(TEXT("%s%d"), *SectionPrefix.ToString(), 0));
+
 	if (AnimInstance->Montage_IsPlaying(AnimMontage))
 	{
-		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage);
+		const FName CurrentSection = AnimInstance->Montage_GetCurrentSection(AnimMontage);
+		if (CurrentSection != NAME_None && CurrentSection != SectionName)
+		{
+			AnimInstance->Montage_Stop(0.5f, AnimMontage);
+			AnimInstance->Montage_Play(AnimMontage);
+			AnimInstance->Montage_JumpToSection(SectionName, AnimMontage); 
+		}
 	}
 	else
 	{
 		AnimInstance->Montage_Play(AnimMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage); 
 	}
 }
 
-void ACharacterZombie::ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer)
+void ACharacterZombie::ChangeZombieState(const EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
 	if (!ZombieAIController->StateMachine.IsValid())
 	return;
@@ -87,10 +92,8 @@ void ACharacterZombie::Die()
 	ChangeZombieState(EZombieStateType::Die);
 }
 
-void ACharacterZombie::SetMesh(ECharacterBodyType MeshType)
+void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)
 {
-	UE_LOG(LogTemp, Log, TEXT("[%s] SetMesh called with MeshType: %s"), CURRENT_CONTEXT, *MeshLoadHelper::ZombieMeshTypeToString(MeshType));
-	
 	const FString MeshTypeString = MeshLoadHelper::ZombieMeshTypeToString(MeshType);
 	
 	// TODO : Zombie Mesh Data Manage
@@ -111,9 +114,8 @@ void ACharacterZombie::SetMesh(ECharacterBodyType MeshType)
 			MeshCount = FatMesh;
 			break;
 	}
-	
-	const TObjectPtr<USkeletalMesh> ZombieMesh = MeshLoadHelper::GetRandomZombieMesh(BaseMeshRef, BaseMeshName, MeshTypeString, MeshCount);
-	if (ZombieMesh)
+
+	if (const TObjectPtr<USkeletalMesh> ZombieMesh = MeshLoadHelper::GetRandomZombieMesh(BaseMeshRef, BaseMeshName, MeshTypeString, MeshCount))
 	{
 		GetMesh()->SetSkeletalMesh(ZombieMesh);
 	}
@@ -122,5 +124,34 @@ void ACharacterZombie::SetMesh(ECharacterBodyType MeshType)
 
 void ACharacterZombie::OnAttackEnd()
 {
+	// TODO : 자동으로 공격 데미지 계산하는 구조로 개선
+	const int32 FinalDamage = static_cast<int32>(ZombieData.AttackDamage * AttackDamageMultiplier);
+	const FVector Start = GetActorLocation();
+	const FVector End = Start + GetActorForwardVector() * ZombieData.AttackRange;
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	// TODO : Delete DebugLine
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
+	
+	FHitResult Hit;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+	{
+		AActor* HitActor = Hit.GetActor();
+		if (HitActor && HitActor->IsA(ACharacterPlayer::StaticClass()))
+		{
+			UGameplayStatics::ApplyPointDamage(
+				HitActor,
+				FinalDamage,
+				GetActorForwardVector(),
+				Hit,
+				GetController(),
+				this,
+				UDamageType::StaticClass()
+			);
+		}
+	}
+	
 	ChangeZombieState(EZombieStateType::Chase, ZombieAIController->CurrentTargetPlayer);
 }

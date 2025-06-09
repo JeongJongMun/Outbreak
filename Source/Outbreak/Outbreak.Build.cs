@@ -8,7 +8,24 @@ public class Outbreak : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "MovieScene", "LevelSequence", "MovieSceneTracks", "UMG", "EnhancedInput", "NavigationSystem", "AIModule" });
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"MovieScene", 
+			"LevelSequence", 
+			"MovieSceneTracks", 
+			"UMG", 
+			"EnhancedInput", 
+			"NavigationSystem", 
+			"AIModule",
+			"Sockets",
+			"Networking",
+			"PacketHandler",
+			"OnlineSubsystem",
+			"OnlineSubsystemNull"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "Paper2D" });
 

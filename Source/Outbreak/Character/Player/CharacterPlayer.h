@@ -10,6 +10,7 @@
 #include "Components/TextRenderComponent.h"
 #include "Outbreak/Character/CharacterBase.h"
 #include "Outbreak/Util/Define.h"
+#include "Outbreak/Weapon/MainWeapon.h"
 #include "Outbreak/Weapon/WeaponBase.h"
 #include "CharacterPlayer.generated.h"
 
@@ -43,6 +44,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual void Die() override;
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 	void SetCharacterControl(EPlayerControlType NewCharacterControlType);
 	void ToggleCameraMode();
@@ -52,6 +54,7 @@ protected:
 	void OnToggleFireMode();
 	void ChangeArm();
 	void OnReload();
+	
 
 	// Movement
 	void Move(const FInputActionValue& Value);
@@ -69,6 +72,14 @@ protected:
 	UFUNCTION()
 	void EndCrouch();
 
+	UFUNCTION()
+	void SwapToSlot(int32 NewSlotIndex);
+	
+	UFUNCTION()
+	void OnPressedSlot1();
+
+	UFUNCTION()
+	void OnPressedSlot2();
 // --------------------
 // Variables
 // --------------------
@@ -76,10 +87,22 @@ protected:
 	FGenericTeamId TeamId = 0;
 
 	// Weapon
-	TSubclassOf<AWeaponBase> WeaponClass;
-	TObjectPtr<AWeaponBase> CurrentWeapon;
+	TSubclassOf<AMainWeapon> WeaponClass;
+	
+	UPROPERTY()
+	AWeaponBase* CurrentWeapon;
 	
 	bool bIsAutoFire = false;
+
+	// Inventory
+	UPROPERTY(EditAnywhere, Category="Inventory")
+	TArray<TSubclassOf<AWeaponBase>> WeaponInventory;
+	
+	int32 CurrentSlotIndex;
+	
+	UPROPERTY()
+	TArray<AWeaponBase*> WeaponInstances;
+
 	
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -133,6 +156,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ReloadAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SwapSlot1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SwapSlot2;
 
 	// Data
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")

@@ -38,7 +38,6 @@ protected:
 	FZombieData ZombieData;
 	
 	TMap<EZombieStateType, FName> MontageSectionNameMap;
-	FName CurrentSection = "Idle";
 	FName IdleSectionName = "Idle";
 	FName WanderSectionName = "Wander";
 	FName ChaseWalkSectionName = "ChaseWalk";

@@ -26,5 +26,5 @@ void UFPSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsCrouching = Character->IsCrouching();
 	bIsShooting = Character->IsShooting();
 	bIsAutoFire = Character-> GetFireMode();
-
+	bIsReloading = Character->IsReloading();
 }

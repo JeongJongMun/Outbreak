@@ -2,7 +2,7 @@
 
 #include "OBGameMode.h"
 #include "Outbreak/Character/Player/CharacterPlayer.h"
-#include "Outbreak/Character/Zombie/ZombieSpawnManager.h"
+#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 
 AOBGameMode::AOBGameMode()
 {
@@ -15,5 +15,5 @@ void AOBGameMode::BeginPlay()
 	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	AZombieSpawnManager* SpawnManager = GetWorld()->SpawnActor<AZombieSpawnManager>(AZombieSpawnManager::StaticClass(), SpawnParams);
+	ACharacterSpawnManager* SpawnManager = GetWorld()->SpawnActor<ACharacterSpawnManager>(ACharacterSpawnManager::StaticClass(), SpawnParams);
 }

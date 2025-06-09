@@ -87,9 +87,9 @@ void UAbilityComponent::UpdateCooldowns(float DeltaTime)
 {
 	for (TObjectPtr Ability : Abilities)
 	{
-		if (!IsValid(Ability))
+		if (!Ability || !IsValid(Ability))
 		{
-			UE_LOG(LogTemp, Error, TEXT("[%s] %s Ability is not valid."), CURRENT_CONTEXT, *Ability->GetName());
+			UE_LOG(LogTemp, Error, TEXT("[%s] Ability is not valid."), CURRENT_CONTEXT);
 			continue;
 		}
 		
@@ -104,9 +104,9 @@ void UAbilityComponent::UpdateDurations(float DeltaTime)
 {
 	for (UBaseAbilityObject* Ability : Abilities)
 	{
-		if (!IsValid(Ability))
+		if (!Ability || !IsValid(Ability))
 		{
-			UE_LOG(LogTemp, Error, TEXT("[%s] %s Ability is not valid."), CURRENT_CONTEXT, *Ability->GetName());
+			UE_LOG(LogTemp, Error, TEXT("[%s] Ability is not valid."), CURRENT_CONTEXT);
 			continue;
 		}
 		

@@ -29,6 +29,7 @@ protected:
 	virtual void Die() override;
 	virtual void SetMesh(ECharacterBodyType MeshType);
 	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,class AActor* DamageCauser) override;
 
 // --------------------
 // Variables
@@ -36,6 +37,9 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
 	FZombieData ZombieData;
+
+	UPROPERTY()
+	AController* LastDamagePlayer;
 	
 	TMap<EZombieStateType, FName> MontageSectionNameMap;
 	FName IdleSectionName = "Idle";

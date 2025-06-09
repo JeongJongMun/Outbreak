@@ -59,6 +59,8 @@ ACharacterBase::ACharacterBase()
 
 float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (IsDead()) return 0.0f; // 중복 Die 방지
+	
 	const float DamageAmount = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
 	if (DamageEvent.IsOfType((FPointDamageEvent::ClassID)))

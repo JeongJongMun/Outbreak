@@ -6,8 +6,11 @@
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
 #include "Camera/CameraComponent.h"
+#include "PaperSpriteComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Outbreak/Character/CharacterBase.h"
 #include "Outbreak/Util/Define.h"
+#include "Outbreak/Weapon/MainWeapon.h"
 #include "Outbreak/Weapon/WeaponBase.h"
 #include "CharacterPlayer.generated.h"
 
@@ -51,6 +54,7 @@ protected:
 	void OnToggleFireMode();
 	void ChangeArm();
 	void OnReload();
+	
 
 	// Movement
 	void Move(const FInputActionValue& Value);
@@ -68,6 +72,14 @@ protected:
 	UFUNCTION()
 	void EndCrouch();
 
+	UFUNCTION()
+	void SwapToSlot(int32 NewSlotIndex);
+	
+	UFUNCTION()
+	void OnPressedSlot1();
+
+	UFUNCTION()
+	void OnPressedSlot2();
 // --------------------
 // Variables
 // --------------------
@@ -75,10 +87,22 @@ protected:
 	FGenericTeamId TeamId = 0;
 
 	// Weapon
-	TSubclassOf<AWeaponBase> WeaponClass;
-	TObjectPtr<AWeaponBase> CurrentWeapon;
+	TSubclassOf<AMainWeapon> WeaponClass;
+	
+	UPROPERTY()
+	AWeaponBase* CurrentWeapon;
 	
 	bool bIsAutoFire = false;
+
+	// Inventory
+	UPROPERTY(EditAnywhere, Category="Inventory")
+	TArray<TSubclassOf<AWeaponBase>> WeaponInventory;
+	
+	int32 CurrentSlotIndex;
+	
+	UPROPERTY()
+	TArray<AWeaponBase*> WeaponInstances;
+
 	
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -89,6 +113,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	ECameraMode CurrentCameraMode = ECameraMode::FPS;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	USceneCaptureComponent2D* SceneCapture;
 
 	// Mesh
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
@@ -130,6 +157,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ReloadAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SwapSlot1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SwapSlot2;
+
 	// Data
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
 	FPlayerData PlayerData;
@@ -153,4 +186,11 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	bool bIsShooting = false;
+
+	// UI & HUD
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
+	UPaperSpriteComponent* PlayerIconSprite;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
+	UTextRenderComponent* PlayerNameText;
 };

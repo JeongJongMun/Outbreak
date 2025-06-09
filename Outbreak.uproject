@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{67D0A9BB-4ADB-2E15-91ED-AE862F55A77F}",
+	"EngineAssociation": "5.5",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -36,11 +36,6 @@
 		{
 			"Name": "ChaosVehiclesPlugin",
 			"Enabled": true
-		},
-		{
-			"Name": "AsyncLoadingScreen",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/01f39767dc6b4290877f38365787cbf8"
 		}
 	]
 }

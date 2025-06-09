@@ -5,7 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Engine/World.h"
 #include "CutsceneManager.h"
-#include "InGameMode.h"
+#include "Outbreak/Game/InGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 
@@ -26,10 +26,28 @@ ASafeZoneController::ASafeZoneController()
 void ASafeZoneController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	TArray<AActor*> FoundWalls;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInvisibleWall::StaticClass(), FoundWalls);
+	if (FoundWalls.Num() > 0)
+	{
+		InvisibleWall = Cast<AInvisibleWall>(FoundWalls[0]);
+	}
 	// 플레이어가 콜리전에 들어오거나 나갈때 실행할 함수 지정
 	if (StartSafeZoneCollision)
 	{
+		StartSafeZoneCollision->OnComponentBeginOverlap.AddDynamic(this, &ASafeZoneController::OnStartZoneEnter);
+		UE_LOG(LogTemp, Warning, TEXT("[SafeZone] 시작 존에 진입해서 등록"));
+
+		TArray<AActor*> OverlappingActors;
+		StartSafeZoneCollision->GetOverlappingActors(OverlappingActors, ACharacter::StaticClass());
+		for (AActor* Actor : OverlappingActors)
+		{
+			if (ACharacter* Character = Cast<ACharacter>(Actor))
+			{
+				PlayersInStartZone.Add(Character);
+			}
+		}
+		
 		StartSafeZoneCollision->OnComponentEndOverlap.AddDynamic(this, &ASafeZoneController::OnStartZoneExit);
 	}
 	if (EndSafeZoneCollision)
@@ -68,6 +86,18 @@ void ASafeZoneController::OnEndZoneEnter(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
+void ASafeZoneController::OnStartZoneEnter(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ACharacter* Character = Cast<ACharacter>(OtherActor);
+	if (Character && !PlayersInStartZone.Contains(Character))
+	{
+		PlayersInStartZone.Add(Character);
+		UE_LOG(LogTemp, Warning, TEXT("[SafeZone] %s 시작 존에 진입해서 등록"), *Character->GetName());
+	}
+}
+
+
 void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
@@ -82,6 +112,10 @@ void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, A
 			// 단, 컷씬 추가시 활성화 시간을 컷씬 종료시에 해야함
 			if (CutsceneManager && !CutsceneManager->bHasPlayedCutscene)
 			{
+				if (InvisibleWall)
+				{
+					InvisibleWall->DisableWall();
+				}
 				FString CurrentLevel = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
 				FString ObjectiveMessage;
 				if (CurrentLevel == TEXT("FirstPhase")) ObjectiveMessage = TEXT("목표 : 숲을 탈출하라 !!");

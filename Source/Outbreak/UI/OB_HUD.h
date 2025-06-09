@@ -19,6 +19,8 @@ public:
 	void DisplayObjectiveMessage(const FString& Message);
 	void DisplayAnnouncementMessage(const FString& Message);
 
+	void SetCutsceneMode(bool bEnable);
+
 private:
 	UPROPERTY()
 	class UOB_Widget* OB_Widget;

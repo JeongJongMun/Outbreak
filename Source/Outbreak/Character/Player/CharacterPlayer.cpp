@@ -4,9 +4,14 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
+#include "PaperSprite.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Animation/FPSAnimInstance.h"
+#include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/Weapon/WeaponAR.h"
 #include "Outbreak/Weapon/WeaponSMG.h"
 
@@ -23,6 +28,42 @@ ACharacterPlayer::ACharacterPlayer()
 	TopViewCamera->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
 	TopViewCamera->bUsePawnControlRotation = false;
 
+	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("SceneCapture2D"));
+	SceneCapture->ProjectionType = ECameraProjectionMode::Type::Orthographic;
+	SceneCapture->OrthoWidth = 4000.f;
+	SceneCapture->SetupAttachment(RootComponent); 
+	SceneCapture->SetRelativeLocation(FVector(0.f, 0.f, 2100.f)); 
+	SceneCapture->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f)); 
+	SceneCapture->bCaptureEveryFrame = true;
+	SceneCapture->bCaptureOnMovement = false;
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTargetRef(TEXT("/Game/UI/MiniMap/RT_Minimap.RT_Minimap"));
+	if (RenderTargetRef.Succeeded())
+	{
+		SceneCapture->TextureTarget = RenderTargetRef.Object;
+	}
+
+	PlayerIconSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("PlayerIconSprite"));
+	PlayerIconSprite->SetupAttachment(GetCapsuleComponent());
+	PlayerIconSprite->SetRelativeLocation(FVector(0.f, 0.f, 2000.f));
+	PlayerIconSprite->SetRelativeRotation(FRotator(-180.f, -180.f, -90.f));
+	PlayerIconSprite->SetRelativeScale3D(FVector(0.5f));
+	PlayerIconSprite->SetOwnerNoSee(true);
+	static ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerIconAsset(TEXT("/Game/UI/MiniMap/PlayerIcon_Sprite.PlayerIcon_Sprite"));
+	if (PlayerIconAsset.Succeeded())
+	{
+		PlayerIconSprite->SetSprite(PlayerIconAsset.Object);
+	}
+	
+	PlayerNameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("PlayerNameText"));
+	PlayerNameText->SetupAttachment(GetCapsuleComponent());
+	PlayerNameText->SetRelativeLocation(FVector(-250.f, 0.f, 2000.f));
+	PlayerNameText->SetRelativeRotation(FRotator(90.f, 180.f, 0.f));
+	PlayerNameText->SetHorizontalAlignment(EHTA_Center);
+	PlayerNameText->SetVerticalAlignment(EVRTA_TextCenter);
+	PlayerNameText->SetWorldSize(200.f); // 텍스트 크기
+	PlayerNameText->SetTextRenderColor(FColor::White);
+	PlayerNameText->SetOwnerNoSee(true);
+	
 	GetMesh()->SetHiddenInGame(true);
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> FirstPersonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Pack/SkeletalMeshes/Arms/SK_fps_armRig.SK_fps_armRig'"));
@@ -41,9 +82,6 @@ ACharacterPlayer::ACharacterPlayer()
 	GunMesh->SetOnlyOwnerSee(true);
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
-
-	WeaponClass = AWeaponSMG::StaticClass();
-	ChangeArm();
 
 	auto CM = GetCharacterMovement();
 	CM->MaxStepHeight = 50.f;
@@ -105,8 +143,24 @@ ACharacterPlayer::ACharacterPlayer()
 	{
 		ReloadAction = InputActionReloadRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSwap1(TEXT("/Script/EnhancedInput.InputAction'/Game/Inputs/IA_SwapSlot1.IA_SwapSlot1'"));
+	if (InputActionReloadRef.Object)
+	{
+		SwapSlot1 = InputActionSwap1.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSwap2(TEXT("/Script/EnhancedInput.InputAction'/Game/Inputs/IA_SwapSlot2.IA_SwapSlot2'"));
+	if (InputActionReloadRef.Object)
+	{
+		SwapSlot2 = InputActionSwap2.Object;
+	}
 	
 	CurrentCharacterControlType = EPlayerControlType::Top;
+	WeaponInventory.SetNum(6);
+	WeaponInstances.SetNum(6);
+	CurrentWeapon = nullptr;
+	CurrentSlotIndex = -1;
 }
 
 void ACharacterPlayer::BeginPlay()
@@ -123,27 +177,44 @@ void ACharacterPlayer::BeginPlay()
 		{
 			TopViewCamera->SetActive(false);
 		}
-
 	}
-
-	if (WeaponClass)
+	AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(GetPlayerState());
+	if (PS && PlayerNameText)
 	{
-		CurrentWeapon = GetWorld()->SpawnActor<AWeaponBase>(
-			WeaponClass,
-			FVector::ZeroVector, FRotator::ZeroRotator);
-
-		if (CurrentWeapon)
+		PlayerNameText->SetText(FText::FromString(PS->PlayerNickname));
+	}
+	
+	/// 인벤토리 스왑 디버깅용 코드
+	WeaponInventory[0] = AWeaponAR::StaticClass();
+	WeaponInventory[1] = AWeaponSMG::StaticClass();
+	/// 
+	for (int32 i = 0; i < WeaponInventory.Num(); ++i)
+	{
+		if (WeaponInventory[i])
 		{
+			// SpawnParameters 설정 (충돌 무시, 소유자 설정 등)
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = GetInstigator();
 
-			CurrentWeapon->AttachToComponent(
-				FirstPersonMesh, 
-				FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-				TEXT("weapon_l_Socket"));  
+			// 월드에 무기 액터 스폰
+			AWeaponBase* NewWeapon = GetWorld()->SpawnActor<AWeaponBase>(WeaponInventory[i], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+			if (NewWeapon)
+			{
+				// 처음에는 모두 비활성 상태로 두거나, 보이지 않게 설정
+				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("Weapon_Sheath"))); 
+				NewWeapon->SetActorHiddenInGame(true);
+				NewWeapon->SetActorEnableCollision(false);
+
+				WeaponInstances[i] = NewWeapon;
+			}
+		}
+		else
+		{
+			WeaponInstances[i] = nullptr;
 		}
 	}
-	CurrentWeapon->SetOwner(this);
-	CurrentWeapon->SetInstigator(this);
-
+	SwapToSlot(1);
 	ChangeArm();
 }
 
@@ -168,6 +239,8 @@ void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	EnhancedInputComponent->BindAction(ChangeCameraAction, ETriggerEvent::Triggered, this, &ACharacterPlayer::ToggleCameraMode);
 
 	EnhancedInputComponent->BindAction(ReloadAction,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnReload);
+	EnhancedInputComponent->BindAction(SwapSlot1,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnPressedSlot1);
+	EnhancedInputComponent->BindAction(SwapSlot2,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnPressedSlot2);
 }
 
 void ACharacterPlayer::Die()
@@ -292,18 +365,68 @@ void ACharacterPlayer::ChangeArm()
 		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/SMG02/ABP_SMG02.ABP_SMG02_C"));
 		FirstPersonMesh->SetRelativeRotation(FRotator(0.f,-90.f,15.f));
 	}
-
+	else
+	{
+		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/MP2/ABP_Arms_MP2.ABP_Arms_MP2_C"));
+		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/SMG02/ABP_SMG02.ABP_SMG02_C"));
+	}
+	if (CurrentWeapon)
+			CurrentWeapon->AttachToComponent(
+				FirstPersonMesh, 
+				FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+				TEXT("weapon_l_Socket"));
 	if (ArmAnimClass)
 	{
 		FirstPersonMesh->SetAnimInstanceClass(ArmAnimClass);
 	}
 	if (WeaponAnimClass)
 	{
-		GunMesh->SetAnimInstanceClass(ArmAnimClass);
+		GunMesh->SetAnimInstanceClass(WeaponAnimClass);
 	}
 }
 
+void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
+{
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1, 2.5f, FColor::Yellow,
+			FString::Printf(TEXT("Selected Slot: %d"), NewSlotIndex)
+		);
+	}
+	
+	if (NewSlotIndex < 0 || NewSlotIndex >= WeaponInstances.Num()) return;
+	if (CurrentSlotIndex == NewSlotIndex) return;
+	
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->SetActorHiddenInGame(true);
+		CurrentWeapon->SetActorEnableCollision(false);
+	}
+	
+	AWeaponBase* NewWeapon = WeaponInstances[NewSlotIndex];
+	if (NewWeapon)
+	{
+		NewWeapon->SetActorHiddenInGame(false);
+		NewWeapon->SetActorEnableCollision(true);
+	}
 
+	CurrentWeapon = NewWeapon;
+	CurrentSlotIndex = NewSlotIndex;
+
+
+	ChangeArm();
+}
+
+void ACharacterPlayer::OnPressedSlot1()
+{
+	SwapToSlot(0);
+}
+
+void ACharacterPlayer::OnPressedSlot2()
+{
+	SwapToSlot(1);
+}
 
 void ACharacterPlayer::Look(const FInputActionValue& Value)
 {
@@ -357,8 +480,8 @@ bool ACharacterPlayer::GetFireMode() const
 
 bool ACharacterPlayer::IsReloading() const
 {
-	// return bIsReloading;
-	return false;
+	if (!CurrentWeapon) return false;
+	return CurrentWeapon -> bIsReloading;
 }
 
 

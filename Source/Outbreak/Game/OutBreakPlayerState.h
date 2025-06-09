@@ -57,15 +57,18 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterLevel, BlueprintReadOnly, Category = "Status")
 	int32 CharacterLevel;
 
+	UFUNCTION()
+	void OnRep_ZombieKills();
+
+	UFUNCTION()
+	void AddZombieKill();
+	
 protected:
 	UFUNCTION()
 	void OnRep_PlayerNickname();
 	
 	UFUNCTION()
 	void OnRep_CharacterClass();
-
-	UFUNCTION()
-	void OnRep_ZombieKills();
 
 	UFUNCTION()
 	void OnRep_TotalDamageDealt();

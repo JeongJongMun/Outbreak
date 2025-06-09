@@ -36,6 +36,12 @@ void AOutBreakPlayerState::OnRep_ZombieKills()
 	// TODO: HUD 또는 UI 업데이트 함수 호출
 }
 
+void AOutBreakPlayerState::AddZombieKill()
+{
+	ZombieKills++;
+	OnRep_ZombieKills();
+}
+
 void AOutBreakPlayerState::OnRep_TotalDamageDealt()
 {
 	UE_LOG(LogTemp, Log, TEXT("누적 데미지 변경: %.1f"), TotalDamageDealt);

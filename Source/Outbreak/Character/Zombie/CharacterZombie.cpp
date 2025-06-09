@@ -3,6 +3,7 @@
 #include "CharacterZombie.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
 #include "State/FZombieIdleState.h"
 
@@ -90,6 +91,20 @@ void ACharacterZombie::Die()
 	Super::Die();
 
 	ChangeZombieState(EZombieStateType::Die);
+
+	if (AController* Killer = LastDamagePlayer)
+	{
+		if (AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(Killer->PlayerState))
+		{
+			PS->AddZombieKill();
+		}
+	}
+}
+
+float ACharacterZombie::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	LastDamagePlayer = EventInstigator; // Save Last Instigator
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
 void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)

@@ -85,9 +85,15 @@ void UAbilityComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UAbilityComponent::UpdateCooldowns(float DeltaTime)
 {
-	for (UBaseAbilityObject* Ability : Abilities)
+	for (TObjectPtr Ability : Abilities)
 	{
-		if (UActiveAbilityObject* Active = Cast<UActiveAbilityObject>(Ability))
+		if (!IsValid(Ability))
+		{
+			UE_LOG(LogTemp, Error, TEXT("[%s] %s Ability is not valid."), CURRENT_CONTEXT, *Ability->GetName());
+			continue;
+		}
+		
+		if (const TObjectPtr<UActiveAbilityObject> Active = Cast<UActiveAbilityObject>(Ability))
 		{
 			Active->TickCooldown(DeltaTime);
 		}
@@ -98,7 +104,13 @@ void UAbilityComponent::UpdateDurations(float DeltaTime)
 {
 	for (UBaseAbilityObject* Ability : Abilities)
 	{
-		if (UActiveAbilityObject* Active = Cast<UActiveAbilityObject>(Ability))
+		if (!IsValid(Ability))
+		{
+			UE_LOG(LogTemp, Error, TEXT("[%s] %s Ability is not valid."), CURRENT_CONTEXT, *Ability->GetName());
+			continue;
+		}
+		
+		if (const TObjectPtr<UActiveAbilityObject> Active = Cast<UActiveAbilityObject>(Ability))
 		{
 			Active->TickDuration(DeltaTime);
 		}

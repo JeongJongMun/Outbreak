@@ -5,7 +5,7 @@
 
 AWalkerZombie::AWalkerZombie()
 {
-
+	ZombieSubType = EZombieSubType::Walker;
 }
 
 void AWalkerZombie::BeginPlay()

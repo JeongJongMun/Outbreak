@@ -24,7 +24,6 @@ class OUTBREAK_API ACharacterPlayer : public ACharacterBase, public IGenericTeam
 // --------------------
 public:
 	ACharacterPlayer();
-	virtual void InitializePlayerData(FPlayerData* InData);
 	
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	bool IsCrouching() const;
@@ -80,10 +79,17 @@ protected:
 
 	UFUNCTION()
 	void OnPressedSlot2();
+
+private:
+	virtual void InitCharacterData() override;
+	
 // --------------------
 // Variables
 // --------------------
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
+	FPlayerData PlayerData;
+	EPlayerType PlayerType = EPlayerType::Player1;
 	FGenericTeamId TeamId = 0;
 
 	// Weapon
@@ -162,10 +168,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> SwapSlot2;
-
-	// Data
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
-	FPlayerData PlayerData;
 	
 	EPlayerControlType CurrentCharacterControlType;
 

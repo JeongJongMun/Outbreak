@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
+#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "OutBreakGameState.generated.h"
 
 UCLASS()
@@ -53,6 +54,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetObjectiveMessage(const FString& NewMessage);
 
+	TObjectPtr<ACharacterSpawnManager> GetSpawnManager() const { return SpawnManager; }
+
 protected:
 
 	UFUNCTION()
@@ -75,4 +78,8 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EventAlertMessage();
+
+private:
+	UPROPERTY()
+	ACharacterSpawnManager* SpawnManager;
 };

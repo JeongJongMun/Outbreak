@@ -4,7 +4,7 @@
 
 ARunnerZombie::ARunnerZombie()
 {
-	
+	ZombieSubType = EZombieSubType::Runner;
 }
 
 void ARunnerZombie::BeginPlay()

@@ -4,6 +4,7 @@
 #include "OutBreakGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "Outbreak/UI/OB_HUD.h"
 
 AOutBreakGameState::AOutBreakGameState()
@@ -30,6 +31,10 @@ void AOutBreakGameState::BeginPlay()
 	else if (CurrentLevel == TEXT("SecondPhase")) CurrentPhase = "LEVEL 2 : Devastated Village";
 	else if (CurrentLevel == TEXT("ThirdPhase")) CurrentPhase = "LEVEL 3 : Skyscrapers";
 	else if (CurrentLevel == TEXT("LastPhase")) CurrentPhase = "LEVEL 4 : Last Forest";
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnManager = GetWorld()->SpawnActor<ACharacterSpawnManager>(ACharacterSpawnManager::StaticClass(), SpawnParams);
 }
 
 void AOutBreakGameState::Tick(float DeltaTime)

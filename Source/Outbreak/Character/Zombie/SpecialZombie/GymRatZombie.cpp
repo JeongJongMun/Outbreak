@@ -9,6 +9,7 @@
 
 AGymRatZombie::AGymRatZombie()
 {
+	ZombieSubType = EZombieSubType::GymRat;
 }
 
 void AGymRatZombie::BeginPlay()

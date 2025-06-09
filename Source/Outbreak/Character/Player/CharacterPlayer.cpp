@@ -10,13 +10,18 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Outbreak/Animation/FPSAnimInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
+#include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/Weapon/WeaponAR.h"
 #include "Outbreak/Weapon/WeaponSMG.h"
 
 ACharacterPlayer::ACharacterPlayer()
 {
+	CharacterType = ECharacterType::Player;
+	PlayerType = EPlayerType::Player1;
+	
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera -> SetupAttachment(GetCapsuleComponent());
 	FirstPersonCamera -> SetRelativeLocation(FVector(20, 0, BaseEyeHeight));
@@ -161,6 +166,29 @@ ACharacterPlayer::ACharacterPlayer()
 	WeaponInstances.SetNum(6);
 	CurrentWeapon = nullptr;
 	CurrentSlotIndex = -1;
+}
+
+void ACharacterPlayer::InitCharacterData()
+{
+	Super::InitCharacterData();
+
+	const AOutBreakGameState* GameState = Cast<AOutBreakGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	if (!GameState)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] GameState is null!"), CURRENT_CONTEXT);
+		return;
+	}
+	ACharacterSpawnManager* SpawnManager = GameState->GetSpawnManager();
+	if (!SpawnManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] SpawnManager is null!"), CURRENT_CONTEXT);
+		return;
+	}
+
+	const FPlayerData* Data = SpawnManager->GetPlayerData(PlayerType);
+	PlayerData = *Data;
+	CurrentHealth = PlayerData.MaxHealth;
+	CurrentExtraHealth = 0;
 }
 
 void ACharacterPlayer::BeginPlay()
@@ -312,13 +340,6 @@ void ACharacterPlayer::OnToggleFireMode()
 			FString::Printf(TEXT("Fire Mode: %s"), ModeText)
 		);
 	}
-}
-
-void ACharacterPlayer::InitializePlayerData(FPlayerData* InData)
-{
-	PlayerData = *InData;
-	CurrentHealth = PlayerData.MaxHealth;
-	CurrentExtraHealth = 0;
 }
 
 void ACharacterPlayer::SetCharacterControl(EPlayerControlType NewCharacterControlType)

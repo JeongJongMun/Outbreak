@@ -18,7 +18,6 @@ class OUTBREAK_API ACharacterZombie : public ACharacterBase
 // --------------------
 public:
 	ACharacterZombie();
-	virtual void InitializeZombieData(FZombieData* InData);
 	virtual void OnAttackEnd();
 	FZombieData* GetZombieData() { return &ZombieData; }
 	void PlayAnimation(EZombieStateType AnimType);
@@ -31,10 +30,16 @@ protected:
 	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,class AActor* DamageCauser) override;
 
+private:
+	virtual void InitCharacterData() override;
+
 // --------------------
 // Variables
 // --------------------
 protected:
+	EZombieType ZombieType = EZombieType::None;
+	EZombieSubType ZombieSubType = EZombieSubType::None;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
 	FZombieData ZombieData;
 

@@ -35,6 +35,17 @@ void AOutBreakGameState::BeginPlay()
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnManager = GetWorld()->SpawnActor<ACharacterSpawnManager>(ACharacterSpawnManager::StaticClass(), SpawnParams);
+
+	UClass* SpawnerClass = StaticLoadClass(
+		AActor::StaticClass(),
+		nullptr,
+		TEXT("/Script/Engine.Blueprint'/Game/SSS/Blueprints/BP_SwarmSpawner.BP_SwarmSpawner_C'")
+	);
+	
+	if (SpawnerClass)
+	{
+		GetWorld()->SpawnActor<AActor>(SpawnerClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	}
 }
 
 void AOutBreakGameState::Tick(float DeltaTime)

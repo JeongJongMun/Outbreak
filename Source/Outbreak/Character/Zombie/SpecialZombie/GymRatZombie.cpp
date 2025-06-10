@@ -9,6 +9,7 @@
 
 AGymRatZombie::AGymRatZombie()
 {
+	ZombieSubType = EZombieSubType::GymRat;
 }
 
 void AGymRatZombie::BeginPlay()
@@ -18,8 +19,8 @@ void AGymRatZombie::BeginPlay()
 	
 	Super::BeginPlay();
 
-	AbilityComponent->AddAbility(NewObject<UDamageEnhanceAbility>());
-	AbilityComponent->AddAbility(NewObject<UVibrationAbility>());
+	AbilityComponent->AddAbility(NewObject<UDamageEnhanceAbility>(AbilityComponent));
+	AbilityComponent->AddAbility(NewObject<UVibrationAbility>(AbilityComponent));
 
 	SetActorScale3D(FVector(BodyScale, BodyScale, BodyScale));
 }

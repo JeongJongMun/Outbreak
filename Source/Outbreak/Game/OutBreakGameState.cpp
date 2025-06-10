@@ -4,6 +4,7 @@
 #include "OutBreakGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "Outbreak/UI/OB_HUD.h"
 
 AOutBreakGameState::AOutBreakGameState()
@@ -30,6 +31,21 @@ void AOutBreakGameState::BeginPlay()
 	else if (CurrentLevel == TEXT("SecondPhase")) CurrentPhase = "LEVEL 2 : Devastated Village";
 	else if (CurrentLevel == TEXT("ThirdPhase")) CurrentPhase = "LEVEL 3 : Skyscrapers";
 	else if (CurrentLevel == TEXT("LastPhase")) CurrentPhase = "LEVEL 4 : Last Forest";
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnManager = GetWorld()->SpawnActor<ACharacterSpawnManager>(ACharacterSpawnManager::StaticClass(), SpawnParams);
+
+	UClass* SpawnerClass = StaticLoadClass(
+		AActor::StaticClass(),
+		nullptr,
+		TEXT("/Script/Engine.Blueprint'/Game/SSS/Blueprints/BP_SwarmSpawner.BP_SwarmSpawner_C'")
+	);
+	
+	if (SpawnerClass)
+	{
+		GetWorld()->SpawnActor<AActor>(SpawnerClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	}
 }
 
 void AOutBreakGameState::Tick(float DeltaTime)
@@ -71,8 +87,21 @@ void AOutBreakGameState::Tick(float DeltaTime)
 void AOutBreakGameState::OnRep_TotalZombieKills()
 {
 	UE_LOG(LogTemp, Log, TEXT("총 좀비 처치 수 변경: %d"), TotalZombieKills);
-	// TODO: HUD 또는 UI 업데이트 함수 호출
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		{
+			HUD->DisplayTotalZombieKills(TotalZombieKills);
+		}
+	}
 }
+
+void AOutBreakGameState::AddTotalZombieKill()
+{
+	TotalZombieKills++;
+	OnRep_TotalZombieKills();
+}
+
 
 void AOutBreakGameState::OnRep_AlivePlayerCount()
 {

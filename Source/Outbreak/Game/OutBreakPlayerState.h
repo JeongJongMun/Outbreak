@@ -22,6 +22,9 @@ class OUTBREAK_API AOutBreakPlayerState : public APlayerState
 public:
 	AOutBreakPlayerState();
 
+	//플레이어 닉네임
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerNickname, BlueprintReadOnly, Category = "Player Info");
+	FString PlayerNickname;
 	// 캐릭터 종류
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterClass, BlueprintReadOnly, Category = "Player Info")
 	FString CharacterClass;
@@ -54,12 +57,18 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterLevel, BlueprintReadOnly, Category = "Status")
 	int32 CharacterLevel;
 
-protected:
-	UFUNCTION()
-	void OnRep_CharacterClass();
-
 	UFUNCTION()
 	void OnRep_ZombieKills();
+
+	UFUNCTION()
+	void AddZombieKill();
+	
+protected:
+	UFUNCTION()
+	void OnRep_PlayerNickname();
+	
+	UFUNCTION()
+	void OnRep_CharacterClass();
 
 	UFUNCTION()
 	void OnRep_TotalDamageDealt();

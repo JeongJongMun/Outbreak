@@ -17,9 +17,17 @@ void AOB_HUD::BeginPlay()
 			OB_Widget->SetVisibility(ESlateVisibility::Visible);
 			OB_Widget->SetObjectiveText(""); // 목표 메시지만 비활성화
 			OB_Widget->SetAnnouncementText(""); 
-
 		}
 }
+
+void AOB_HUD::SetCutsceneMode(bool bEnable)
+{
+	if (OB_Widget)
+	{
+		OB_Widget->SetCutsceneMode(bEnable);
+	}
+}
+
 void AOB_HUD::DisplayAlivePlayerCount(int32 AlivePlayerCount)
 {
 	if (OB_Widget)
@@ -44,5 +52,38 @@ void AOB_HUD::DisplayAnnouncementMessage(const FString& Message)
 	{
 		OB_Widget->SetAnnouncementText(Message);
 		OB_Widget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AOB_HUD::DisplayTotalZombieKills(int32 TotalKills)
+{
+	if (OB_Widget)
+	{
+		OB_Widget->SetTotalZombieKillsText(TotalKills);
+		OB_Widget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AOB_HUD::DisplayZombieKills(int32 Kills)
+{
+	if (OB_Widget)
+	{
+		OB_Widget->SetZombieKillsText(Kills);
+		OB_Widget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+void AOB_HUD::DisplayAmmo(int32 CurrentAmmo, int32 TotalAmmo)
+{
+	if (OB_Widget)
+	{
+		OB_Widget->SetAmmoText(CurrentAmmo, TotalAmmo);
+	}
+}
+
+void AOB_HUD::DisplayWeaponType(FString Type)
+{
+	if (OB_Widget)
+	{
+		OB_Widget->SetWeaponTypeText(Type);
 	}
 }

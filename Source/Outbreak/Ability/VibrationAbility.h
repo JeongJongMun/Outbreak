@@ -21,7 +21,6 @@ private:
 	void OnVibrationAbility();
 
 private:
-	TObjectPtr<ACharacterBase> CachedOwner;
 	FTimerHandle VibrationTimerHandle;
 	float VibrationInterval = 3.0f;
 	float VibrationDamage = 5.0f;

@@ -6,6 +6,8 @@
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
 #include "Camera/CameraComponent.h"
+#include "PaperSpriteComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Outbreak/Character/CharacterBase.h"
 #include "Outbreak/Util/Define.h"
 #include "Outbreak/Weapon/MainWeapon.h"
@@ -22,7 +24,6 @@ class OUTBREAK_API ACharacterPlayer : public ACharacterBase, public IGenericTeam
 // --------------------
 public:
 	ACharacterPlayer();
-	virtual void InitializePlayerData(FPlayerData* InData);
 	
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	bool IsCrouching() const;
@@ -41,6 +42,7 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void InitCharacterData() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void Die() override;
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
@@ -78,10 +80,14 @@ protected:
 
 	UFUNCTION()
 	void OnPressedSlot2();
+
 // --------------------
 // Variables
 // --------------------
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
+	FPlayerData PlayerData;
+	EPlayerType PlayerType = EPlayerType::Player1;
 	FGenericTeamId TeamId = 0;
 
 	// Weapon
@@ -114,6 +120,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	ECameraMode CurrentCameraMode = ECameraMode::FPS;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	USceneCaptureComponent2D* SceneCapture;
 
 	// Mesh
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
@@ -160,10 +169,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> SwapSlot2;
-
-	// Data
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
-	FPlayerData PlayerData;
 	
 	EPlayerControlType CurrentCharacterControlType;
 
@@ -184,4 +189,11 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	bool bIsShooting = false;
+
+	// UI & HUD
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
+	UPaperSpriteComponent* PlayerIconSprite;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
+	UTextRenderComponent* PlayerNameText;
 };

@@ -5,6 +5,7 @@
 
 AFatZombie::AFatZombie()
 {
+	ZombieSubType = EZombieSubType::Fat;
 }
 
 void AFatZombie::BeginPlay()

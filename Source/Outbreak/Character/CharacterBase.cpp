@@ -59,6 +59,8 @@ ACharacterBase::ACharacterBase()
 
 float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (IsDead()) return 0.0f; // 중복 Die 방지
+	
 	const float DamageAmount = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
 	if (DamageEvent.IsOfType((FPointDamageEvent::ClassID)))
@@ -81,11 +83,23 @@ float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, 
 	return DamageAmount;
 }
 
-void ACharacterBase::SetPhysicalAsset(const ECharacterType CharacterType, const ECharacterBodyType BodyType)
+void ACharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	InitCharacterData();
+}
+
+void ACharacterBase::InitCharacterData()
+{
+	// Implement in derived classes
+}
+
+void ACharacterBase::SetPhysicalAsset(const ECharacterType InCharacterType, const ECharacterBodyType InBodyType)
 {
 	const FString BasePath = TEXT("/Script/Engine.PhysicsAsset'/Game/Physics/PhysicsAssets/");
-	const FString CharacterTypeString = EnumHelper::EnumToString(CharacterType);
-	const FString BodyTypeString = EnumHelper::EnumToString(BodyType);
+	const FString CharacterTypeString = EnumHelper::EnumToString(InCharacterType);
+	const FString BodyTypeString = EnumHelper::EnumToString(InBodyType);
 	const FString AssetName = FString::Printf(TEXT("PA_%s_%s"), *CharacterTypeString, *BodyTypeString);
 
 	const FString FullPath = FString::Printf(TEXT("%s%s.%s'"), *BasePath, *AssetName, *AssetName);

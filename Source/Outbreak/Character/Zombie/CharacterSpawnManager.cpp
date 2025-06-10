@@ -67,78 +67,40 @@ void ACharacterSpawnManager::BeginPlay()
 		1
 	};
 	
-	SpawnCharacter(FatZombieSpawnParam);
-	SpawnCharacter(RunnerZombieSpawnParam);
-	SpawnCharacter(WalkerZombieSpawnParam);
-	SpawnCharacter(GymZombieSpawnParam);
+	// SpawnCharacter(FatZombieSpawnParam);
+	// SpawnCharacter(RunnerZombieSpawnParam);
+	// SpawnCharacter(WalkerZombieSpawnParam);
+	// SpawnCharacter(GymZombieSpawnParam);
 }
 
-FCharacterBaseData* ACharacterSpawnManager::GetCharacterData(ECharacterType CharacterType, const FString& RowName)
+FZombieData* ACharacterSpawnManager::GetZombieData(const EZombieSubType Type)
 {
-	if (CharacterType == ECharacterType::Zombie)
+	const FString RowName = EnumHelper::EnumToString(Type);
+	if (ZombieDataMap.Contains(RowName))
 	{
-		if (ZombieDataMap.Contains(RowName))
-		{
-			FZombieData* ZombieData = ZombieDataMap[RowName];
-			return ZombieData;
-		}
+		return ZombieDataMap[RowName];
 	}
-	else if (CharacterType == ECharacterType::Player)
-	{
-		if (PlayerDataMap.Contains(RowName))
-		{
-			FPlayerData* PlayerData = PlayerDataMap[RowName];
-			return PlayerData;
-		}
-	}
-
-	UE_LOG(LogTemp, Error, TEXT("[%s] No data found for type [%d], row [%s]"), CURRENT_CONTEXT, (int32)CharacterType, *RowName);
+	
+	UE_LOG(LogTemp, Error, TEXT("[%s] No Zombie data found for type: %d"), CURRENT_CONTEXT, (int32)Type);
 	return nullptr;
 }
 
-void ACharacterSpawnManager::SpawnCharacter(const FCharacterSpawnParam& InSpawnParam)
+FPlayerData* ACharacterSpawnManager::GetPlayerData(const EPlayerType Type)
 {
-	FString RowName;
-	switch (InSpawnParam.CharacterType)
+	const FString RowName = EnumHelper::EnumToString(Type);
+	if (PlayerDataMap.Contains(RowName))
 	{
-		case ECharacterType::Player:
-			RowName = EnumHelper::EnumToString(InSpawnParam.PlayerType);
-			break;
-		case ECharacterType::Zombie:
-			RowName = EnumHelper::EnumToString(InSpawnParam.ZombieSubType);
-			break;
-		default:
-			UE_LOG(LogTemp, Error, TEXT("[%s] Invalid Character Type: %d"), CURRENT_CONTEXT, (int32)InSpawnParam.CharacterType);
-			return;
-	}
-	FCharacterBaseData* CharacterData = GetCharacterData(InSpawnParam.CharacterType, RowName);
-	if (!CharacterData)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[%s] Failed to get character data for type: %d, row: %s"), CURRENT_CONTEXT, (int32)InSpawnParam.CharacterType, *RowName);
-		return;
+		return PlayerDataMap[RowName];
 	}
 
+	UE_LOG(LogTemp, Error, TEXT("[%s] No Player data found for type: %d"), CURRENT_CONTEXT, (int32)Type);
+	return nullptr;
+}
+
+void ACharacterSpawnManager::SpawnCharacter(const FCharacterSpawnParam& InSpawnParam) const
+{
 	for (int i = 0; i < InSpawnParam.SpawnCount; i++)
 	{
-		TObjectPtr<ACharacterBase> SpawnedCharacter = CharacterFactory->CreateCharacter(GetWorld(), InSpawnParam);
-		switch (InSpawnParam.CharacterType)
-		{
-			case ECharacterType::Player:
-			{
-				TObjectPtr<ACharacterPlayer> Player = CastChecked<ACharacterPlayer>(SpawnedCharacter);
-				FPlayerData* PlayerData = static_cast<FPlayerData*>(CharacterData);
-				Player->InitializePlayerData(PlayerData);
-				break;
-			}
-			case ECharacterType::Zombie:
-			{
-				TObjectPtr<ACharacterZombie> Zombie = CastChecked<ACharacterZombie>(SpawnedCharacter);
-				FZombieData* ZombieData = static_cast<FZombieData*>(CharacterData);
-				Zombie->InitializeZombieData(ZombieData);
-				break;
-			}
-			default:
-				break;
-		}
+		CharacterFactory->CreateCharacter(GetWorld(), InSpawnParam);
 	}
 }

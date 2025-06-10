@@ -31,7 +31,7 @@ public:
 	virtual bool UseAbility() override { return false;}
 
 	void SetOwnerCharacter(ACharacterBase* InOwner) { Owner = InOwner;}
-	TObjectPtr<ACharacterBase> GetOwnerCharacter() const { return Owner; }
+	TObjectPtr<ACharacterBase> GetOwner() const { return Owner; }
 
 protected:
 	virtual void ActivateAbility();

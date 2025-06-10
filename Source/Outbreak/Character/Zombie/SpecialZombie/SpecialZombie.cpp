@@ -5,6 +5,7 @@
 
 ASpecialZombie::ASpecialZombie()
 {
+	ZombieType = EZombieType::Special;
 	AbilityComponent = CreateDefaultSubobject<UAbilityComponent>(TEXT("AbilityComponent"));
 }
 

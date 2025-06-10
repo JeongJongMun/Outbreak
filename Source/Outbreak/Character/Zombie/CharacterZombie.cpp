@@ -1,13 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterZombie.h"
-
+#include "CharacterSpawnManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Outbreak/Game/OutBreakGameState.h"
+#include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
 #include "State/FZombieIdleState.h"
 
 ACharacterZombie::ACharacterZombie()
 {
+	CharacterType = ECharacterType::Zombie;
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
@@ -29,6 +32,28 @@ ACharacterZombie::ACharacterZombie()
 	MontageSectionNameMap.Add(EZombieStateType::Die, DieSectionName);
 }
 
+void ACharacterZombie::InitCharacterData()
+{
+	Super::InitCharacterData();
+
+	const AOutBreakGameState* GameState = Cast<AOutBreakGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	if (!GameState)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] GameState is null!"), CURRENT_CONTEXT);
+		return;
+	}
+	ACharacterSpawnManager* SpawnManager = GameState->GetSpawnManager();
+	if (!SpawnManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] SpawnManager is null!"), CURRENT_CONTEXT);
+		return;
+	}
+	const FZombieData* Data = SpawnManager->GetZombieData(ZombieSubType);
+	ZombieData = *Data;
+	CurrentHealth = ZombieData.MaxHealth;
+	CurrentExtraHealth = 0;
+}
+
 void ACharacterZombie::BeginPlay()
 {
 	Super::BeginPlay();
@@ -41,13 +66,6 @@ void ACharacterZombie::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-void ACharacterZombie::InitializeZombieData(FZombieData* InData)
-{
-	ZombieData = *InData;
-	CurrentHealth = ZombieData.MaxHealth;
-	CurrentExtraHealth = 0;
 }
 
 void ACharacterZombie::PlayAnimation(const EZombieStateType AnimType)
@@ -90,6 +108,24 @@ void ACharacterZombie::Die()
 	Super::Die();
 
 	ChangeZombieState(EZombieStateType::Die);
+
+	if (AController* Killer = LastDamagePlayer)
+	{
+		if (AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(Killer->PlayerState))
+		{
+			PS->AddZombieKill();
+		}
+	}
+	if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
+	{
+		GS->AddTotalZombieKill();
+	}
+}
+
+float ACharacterZombie::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	LastDamagePlayer = EventInstigator; // Save Last Instigator
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
 void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)

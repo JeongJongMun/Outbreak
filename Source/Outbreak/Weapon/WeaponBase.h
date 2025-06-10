@@ -20,6 +20,7 @@ public:
 	virtual void StopFire();
 	virtual void Reload();
 	virtual void InitializeWeaponData(FWeaponData* InData);
+	virtual void NotifyAmmoUpdate();
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(VisibleAnywhere, Category="Weapon")

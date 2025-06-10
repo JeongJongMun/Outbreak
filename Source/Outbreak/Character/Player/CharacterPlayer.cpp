@@ -4,15 +4,25 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
+#include "PaperSprite.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Outbreak/Animation/FPSAnimInstance.h"
+#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
+#include "Outbreak/Game/OutBreakGameState.h"
+#include "Outbreak/Game/OutBreakPlayerState.h"
+#include "Outbreak/UI/OB_HUD.h"
 #include "Outbreak/Weapon/WeaponAR.h"
 #include "Outbreak/Weapon/WeaponSMG.h"
 
 ACharacterPlayer::ACharacterPlayer()
 {
+	CharacterType = ECharacterType::Player;
+	PlayerType = EPlayerType::Player1;
 	
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera -> SetupAttachment(GetCapsuleComponent());
@@ -26,6 +36,43 @@ ACharacterPlayer::ACharacterPlayer()
 	TopViewCamera->bUsePawnControlRotation = false;
 
 	GetMesh()->bOwnerNoSee = true;
+	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("SceneCapture2D"));
+	SceneCapture->ProjectionType = ECameraProjectionMode::Type::Orthographic;
+	SceneCapture->OrthoWidth = 4000.f;
+	SceneCapture->SetupAttachment(RootComponent); 
+	SceneCapture->SetRelativeLocation(FVector(0.f, 0.f, 2100.f)); 
+	SceneCapture->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f)); 
+	SceneCapture->bCaptureEveryFrame = true;
+	SceneCapture->bCaptureOnMovement = false;
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTargetRef(TEXT("/Game/UI/MiniMap/RT_Minimap.RT_Minimap"));
+	if (RenderTargetRef.Succeeded())
+	{
+		SceneCapture->TextureTarget = RenderTargetRef.Object;
+	}
+
+	PlayerIconSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("PlayerIconSprite"));
+	PlayerIconSprite->SetupAttachment(GetCapsuleComponent());
+	PlayerIconSprite->SetRelativeLocation(FVector(0.f, 0.f, 2000.f));
+	PlayerIconSprite->SetRelativeRotation(FRotator(-180.f, -180.f, -90.f));
+	PlayerIconSprite->SetRelativeScale3D(FVector(0.5f));
+	PlayerIconSprite->SetOwnerNoSee(true);
+	static ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerIconAsset(TEXT("/Game/UI/MiniMap/PlayerIcon_Sprite.PlayerIcon_Sprite"));
+	if (PlayerIconAsset.Succeeded())
+	{
+		PlayerIconSprite->SetSprite(PlayerIconAsset.Object);
+	}
+	
+	PlayerNameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("PlayerNameText"));
+	PlayerNameText->SetupAttachment(GetCapsuleComponent());
+	PlayerNameText->SetRelativeLocation(FVector(-250.f, 0.f, 2000.f));
+	PlayerNameText->SetRelativeRotation(FRotator(90.f, 180.f, 0.f));
+	PlayerNameText->SetHorizontalAlignment(EHTA_Center);
+	PlayerNameText->SetVerticalAlignment(EVRTA_TextCenter);
+	PlayerNameText->SetWorldSize(200.f); // 텍스트 크기
+	PlayerNameText->SetTextRenderColor(FColor::White);
+	PlayerNameText->SetOwnerNoSee(true);
+	
+	GetMesh()->SetHiddenInGame(true);
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> FirstPersonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Pack/SkeletalMeshes/Arms/SK_fps_armRig.SK_fps_armRig'"));
 	if (FirstPersonMeshRef.Succeeded())
@@ -139,6 +186,29 @@ ACharacterPlayer::ACharacterPlayer()
 	CurrentSlotIndex = -1;
 }
 
+void ACharacterPlayer::InitCharacterData()
+{
+	Super::InitCharacterData();
+
+	const AOutBreakGameState* GameState = Cast<AOutBreakGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	if (!GameState)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] GameState is null!"), CURRENT_CONTEXT);
+		return;
+	}
+	ACharacterSpawnManager* SpawnManager = GameState->GetSpawnManager();
+	if (!SpawnManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] SpawnManager is null!"), CURRENT_CONTEXT);
+		return;
+	}
+
+	const FPlayerData* Data = SpawnManager->GetPlayerData(PlayerType);
+	PlayerData = *Data;
+	CurrentHealth = PlayerData.MaxHealth;
+	CurrentExtraHealth = 0;
+}
+
 void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
@@ -153,8 +223,13 @@ void ACharacterPlayer::BeginPlay()
 		{
 			TopViewCamera->SetActive(false);
 		}
-
 	}
+	AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(GetPlayerState());
+	if (PS && PlayerNameText)
+	{
+		PlayerNameText->SetText(FText::FromString(PS->PlayerNickname));
+	}
+	
 	/// 인벤토리 스왑 디버깅용 코드
 	WeaponInventory[0] = AWeaponAR::StaticClass();
 	WeaponInventory[1] = AWeaponSMG::StaticClass();
@@ -184,6 +259,7 @@ void ACharacterPlayer::BeginPlay()
 				NewWeapon->SetActorEnableCollision(false);
 
 				UGameplayStatics::FinishSpawningActor(NewWeapon, FTransform::Identity);
+				
 				WeaponInstances[i] = NewWeapon;
 			}
 		}
@@ -292,13 +368,6 @@ void ACharacterPlayer::OnToggleFireMode()
 	}
 }
 
-void ACharacterPlayer::InitializePlayerData(FPlayerData* InData)
-{
-	PlayerData = *InData;
-	CurrentHealth = PlayerData.MaxHealth;
-	CurrentExtraHealth = 0;
-}
-
 void ACharacterPlayer::SetCharacterControl(EPlayerControlType NewCharacterControlType)
 {
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
@@ -402,6 +471,23 @@ void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
 	);
 
 	ChangeArm();
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->NotifyAmmoUpdate();
+
+		FString WeaponType;
+		if (NewSlotIndex == 0) WeaponType = "AR";
+		else if (NewSlotIndex == 1) WeaponType = "SMG";
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD());
+			if (HUD)
+			{
+				HUD->DisplayWeaponType(WeaponType);
+			}
+		}
+	}
 }
 
 void ACharacterPlayer::OnPressedSlot1()

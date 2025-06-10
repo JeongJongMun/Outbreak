@@ -39,12 +39,6 @@ void AZombieAI::BeginPlay()
 	Super::BeginPlay();
 
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AZombieAI::OnTargetPerceptionUpdated);
-
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
-	{
-		DrawDebugSphere(GetWorld(), OwnerZombie->GetCharacterMovement()->GetActorLocation(), SightConfig->SightRadius, 12, FColor::Red, false, 1.0f);
-	}, 3.0f, true);
 }
 
 void AZombieAI::Tick(float DeltaTime)

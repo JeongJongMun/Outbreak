@@ -18,8 +18,8 @@ void AGymRatZombie::BeginPlay()
 	
 	Super::BeginPlay();
 
-	AbilityComponent->AddAbility(NewObject<UDamageEnhanceAbility>());
-	AbilityComponent->AddAbility(NewObject<UVibrationAbility>());
+	AbilityComponent->AddAbility(NewObject<UDamageEnhanceAbility>(this));
+	AbilityComponent->AddAbility(NewObject<UVibrationAbility>(this));
 
 	SetActorScale3D(FVector(BodyScale, BodyScale, BodyScale));
 }

@@ -8,8 +8,7 @@ void UVibrationAbility::ActivateAbility()
 {
 	Super::ActivateAbility();
 
-	CachedOwner = GetOwnerCharacter();
-	CachedOwner->GetWorldTimerManager().SetTimer(
+	GetOwner()->GetWorldTimerManager().SetTimer(
 		VibrationTimerHandle,
 		this,
 		&UVibrationAbility::OnVibrationAbility,
@@ -21,16 +20,16 @@ void UVibrationAbility::DeactivateAbility()
 {
 	Super::DeactivateAbility();
 
-	CachedOwner->GetWorldTimerManager().ClearTimer(VibrationTimerHandle);
+	GetOwner()->GetWorldTimerManager().ClearTimer(VibrationTimerHandle);
 }
 
 void UVibrationAbility::OnVibrationAbility()
 {
-	const FVector Origin = CachedOwner->GetActorLocation();
+	const FVector Origin = GetOwner()->GetActorLocation();
 
 	// TODO : Delete DebugSphere
 	DrawDebugSphere(
-		CachedOwner->GetWorld(),
+		GetOwner()->GetWorld(),
 		Origin,
 		VibrationRange,
 		24,
@@ -39,18 +38,18 @@ void UVibrationAbility::OnVibrationAbility()
 		1.0f
 	);
 
-	TArray<AActor*> Players;
-	UGameplayStatics::GetAllActorsOfClass(CachedOwner->GetWorld(), ACharacterPlayer::StaticClass(), Players);
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetOwner()->GetWorld(), ACharacterPlayer::StaticClass(), Actors);
 
-	for (AActor* Actor : Players)
+	for (AActor* Actor : Actors)
 	{
 		ACharacterPlayer* Player = Cast<ACharacterPlayer>(Actor);
-		if (!Player || Player == CachedOwner) continue;
+		if (!Player || Player == GetOwner()) continue;
 
 		const float Distance = FVector::Dist(Player->GetActorLocation(), Origin);
 		if (Distance <= VibrationRange)
 		{
-			UGameplayStatics::ApplyRadialDamage(CachedOwner->GetWorld(), VibrationDamage, Origin, VibrationRange, nullptr, TArray<AActor*>(), CachedOwner, CachedOwner->GetController(), true);
+			UGameplayStatics::ApplyDamage(Player, VibrationDamage, GetOwner()->GetController(), GetOwner(), UDamageType::StaticClass());
 
 			if (APlayerController* PC = Cast<APlayerController>(Player->GetController()))
 			{

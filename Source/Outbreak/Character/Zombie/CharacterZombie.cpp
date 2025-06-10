@@ -74,7 +74,7 @@ void ACharacterZombie::SetupCollision()
 {
 	Super::SetupCollision();
 
-	GetCapsuleComponent()->InitCapsuleSize(21.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(10.f, 96.0f);
 	
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
@@ -88,7 +88,7 @@ void ACharacterZombie::SetupMovement()
 	auto* MovementComp = GetCharacterMovement();
 	MovementComp->AvoidanceConsiderationRadius = 500.0f;
 	MovementComp->SetAvoidanceEnabled(true);
-	MovementComp->SetRVOAvoidanceWeight(0.5f);
+	MovementComp->SetRVOAvoidanceWeight(0.3f);
 	MovementComp->SetAvoidanceGroup(static_cast<int32>(EAvoidanceGroupType::Zombie));
 	MovementComp->SetGroupsToAvoid(static_cast<int32>(EAvoidanceGroupType::Zombie));
 	MovementComp->SetGroupsToIgnore(static_cast<int32>(EAvoidanceGroupType::Player));

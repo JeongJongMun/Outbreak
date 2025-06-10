@@ -26,6 +26,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void InitCharacterData() override;
+	virtual void SetupCollision() override;
+	virtual void SetupMovement() override;
 	virtual void Die() override;
 	virtual void SetMesh(ECharacterBodyType MeshType);
 	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);

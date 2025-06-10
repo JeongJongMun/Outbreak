@@ -2,6 +2,7 @@
 
 #include "CharacterZombie.h"
 #include "CharacterSpawnManager.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Outbreak/Game/OutBreakGameState.h"
@@ -11,20 +12,9 @@
 
 ACharacterZombie::ACharacterZombie()
 {
-	CharacterType = ECharacterType::Zombie;
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
-	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-
-	auto CM = GetCharacterMovement();
-	CM->AvoidanceConsiderationRadius = 500.0f;
-	CM->SetAvoidanceEnabled(true);
-	CM->SetRVOAvoidanceWeight(0.5f);
-	CM->SetAvoidanceGroup(static_cast<int32>(EAvoidanceGroupType::Zombie));
-	CM->SetGroupsToAvoid(static_cast<int32>(EAvoidanceGroupType::Zombie));
-	CM->SetGroupsToIgnore(static_cast<int32>(EAvoidanceGroupType::Player));
-	
 	PrimaryActorTick.bCanEverTick = true;
+	
+	CharacterType = ECharacterType::Zombie;
 	AIControllerClass = AZombieAI::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
@@ -78,6 +68,30 @@ void ACharacterZombie::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ACharacterZombie::SetupCollision()
+{
+	Super::SetupCollision();
+
+	GetCapsuleComponent()->InitCapsuleSize(21.f, 96.0f);
+	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+}
+
+void ACharacterZombie::SetupMovement()
+{
+	Super::SetupMovement();
+
+	auto* MovementComp = GetCharacterMovement();
+	MovementComp->AvoidanceConsiderationRadius = 500.0f;
+	MovementComp->SetAvoidanceEnabled(true);
+	MovementComp->SetRVOAvoidanceWeight(0.5f);
+	MovementComp->SetAvoidanceGroup(static_cast<int32>(EAvoidanceGroupType::Zombie));
+	MovementComp->SetGroupsToAvoid(static_cast<int32>(EAvoidanceGroupType::Zombie));
+	MovementComp->SetGroupsToIgnore(static_cast<int32>(EAvoidanceGroupType::Player));
 }
 
 void ACharacterZombie::PlayAnimation(const EZombieStateType AnimType)

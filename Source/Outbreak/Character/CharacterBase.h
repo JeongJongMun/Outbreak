@@ -21,6 +21,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitCharacterData();
+	virtual void SetupCollision();
+	virtual void SetupMovement();
 	virtual void SetPhysicalAsset(ECharacterType InCharacterType, ECharacterBodyType InBodyType);
 	virtual bool IsDead() const;
 	virtual void Die();
@@ -28,7 +30,6 @@ protected:
 	virtual void ApplyDamage(int32 DamageAmount);
 	virtual void ApplyHitEffects(const int32 DamageAmount, const EPhysicalSurface SurfaceType = EPhysicalSurface::SurfaceType_Default);
 
-private:
 	
 // --------------------
 // Variables

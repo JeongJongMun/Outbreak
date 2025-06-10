@@ -43,6 +43,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitCharacterData() override;
+	virtual void SetupCollision() override;
+	virtual void SetupMovement() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void Die() override;
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }

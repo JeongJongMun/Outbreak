@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Outbreak/Animation/FPSAnimInstance.h"
 #include "Outbreak/Weapon/WeaponAR.h"
 #include "Outbreak/Weapon/WeaponSMG.h"
@@ -162,20 +163,27 @@ void ACharacterPlayer::BeginPlay()
 	{
 		if (WeaponInventory[i])
 		{
-			// SpawnParameters 설정 (충돌 무시, 소유자 설정 등)
+
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = GetInstigator();
-
+			SpawnParams.bDeferConstruction = true;  
 			// 월드에 무기 액터 스폰
-			AWeaponBase* NewWeapon = GetWorld()->SpawnActor<AWeaponBase>(WeaponInventory[i], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+			AWeaponBase* NewWeapon = GetWorld()->SpawnActorDeferred<AWeaponBase>(
+				WeaponInventory[i],
+				FTransform::Identity,
+				SpawnParams.Owner,
+				SpawnParams.Instigator,
+				ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+			);
 			if (NewWeapon)
 			{
 				// 처음에는 모두 비활성 상태로 두거나, 보이지 않게 설정
-				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("Weapon_Sheath"))); 
+				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_socket_l"))); 
 				NewWeapon->SetActorHiddenInGame(true);
 				NewWeapon->SetActorEnableCollision(false);
 
+				UGameplayStatics::FinishSpawningActor(NewWeapon, FTransform::Identity);
 				WeaponInstances[i] = NewWeapon;
 			}
 		}

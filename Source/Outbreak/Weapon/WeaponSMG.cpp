@@ -4,6 +4,7 @@
 #include "Engine/Engine.h"
 #include "TimerManager.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
+#include "Outbreak/UI/OB_HUD.h"
 
 AWeaponSMG::AWeaponSMG()
 {
@@ -49,6 +50,7 @@ void AWeaponSMG::Reload()
         WeaponData.ReloadDuration,
         false
     );
+    NotifyAmmoUpdate();
 }
 
 void AWeaponSMG::FinishReload()
@@ -66,6 +68,7 @@ void AWeaponSMG::FinishReload()
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
             FString::Printf(TEXT("%d / %d"), WeaponData.CurrentAmmo, WeaponData.TotalAmmo));
     }
+    NotifyAmmoUpdate();
 }
 void AWeaponSMG::StartFire()
 {
@@ -177,11 +180,26 @@ void AWeaponSMG::MakeShot()
                 UDamageType::StaticClass());
         }
     }
+    NotifyAmmoUpdate();
 }
 
 bool AWeaponSMG::IsReloading()
 {
     return bIsReloading;
+}
+void AWeaponSMG::NotifyAmmoUpdate()
+{
+    ACharacterPlayer* OwnerCharacter = Cast<ACharacterPlayer>(GetOwner());
+    if (!OwnerCharacter) return;
+
+    APlayerController* PC = Cast<APlayerController>(OwnerCharacter->GetController());
+    if (!PC) return;
+
+    AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD());
+    if (HUD)
+    {
+        HUD->DisplayAmmo(WeaponData.CurrentAmmo, WeaponData.TotalAmmo);
+    }
 }
 
 void AWeaponSMG::BeginPlay()

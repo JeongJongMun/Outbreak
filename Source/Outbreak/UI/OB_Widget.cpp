@@ -115,5 +115,22 @@ void UOB_Widget::SetZombieKillsText(int32 Kills)
 	}
 }
 
+void UOB_Widget::SetAmmoText(int32 CurrentAmmo, int32 TotalAmmo)
+{
+	if (AmmoTextBlock)
+	{
+		FString AmmoStr = FString::Printf(TEXT("%d / %d"), CurrentAmmo, TotalAmmo);
+		AmmoTextBlock->SetText(FText::FromString(AmmoStr));
+	}
+}
+
+void UOB_Widget::SetWeaponTypeText(FString Type)
+{
+	if (WeaponTypeTextBlock)
+	{
+		FString TypeStr = FString::Printf(TEXT("%s"), *Type);
+		WeaponTypeTextBlock->SetText(FText::FromString(TypeStr));
+	}
+}
 
 

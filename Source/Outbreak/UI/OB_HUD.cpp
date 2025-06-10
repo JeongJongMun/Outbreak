@@ -72,3 +72,18 @@ void AOB_HUD::DisplayZombieKills(int32 Kills)
 		OB_Widget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
+void AOB_HUD::DisplayAmmo(int32 CurrentAmmo, int32 TotalAmmo)
+{
+	if (OB_Widget)
+	{
+		OB_Widget->SetAmmoText(CurrentAmmo, TotalAmmo);
+	}
+}
+
+void AOB_HUD::DisplayWeaponType(FString Type)
+{
+	if (OB_Widget)
+	{
+		OB_Widget->SetWeaponTypeText(Type);
+	}
+}

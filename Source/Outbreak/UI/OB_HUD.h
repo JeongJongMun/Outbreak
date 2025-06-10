@@ -20,6 +20,11 @@ public:
 	void DisplayAnnouncementMessage(const FString& Message);
 	void DisplayTotalZombieKills(int32 TotalZombieKills);
 	void DisplayZombieKills(int32 ZombieKills);
+
+	UFUNCTION()
+	void DisplayAmmo(int32 CurrentAmmo, int32 TotalAmmo);
+	UFUNCTION()
+	void DisplayWeaponType(FString Type);
 	
 	void SetCutsceneMode(bool bEnable);
 

@@ -26,7 +26,14 @@ public:
 	void SetTotalZombieKillsText(int32 TotalKills);
 	void SetZombieKillsText(int32 Kills);
 	
+	
 	void SetCutsceneMode(bool bEnable);
+
+	UFUNCTION()
+	void SetAmmoText(int32 currentAmmo, int32 TotalAmmo);
+
+	UFUNCTION()
+	void SetWeaponTypeText(FString Type);
 	
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -52,4 +59,10 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* ZombieKillsTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* AmmoTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* WeaponTypeTextBlock;
 };

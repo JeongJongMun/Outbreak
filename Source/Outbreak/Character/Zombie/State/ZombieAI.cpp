@@ -20,12 +20,6 @@ AZombieAI::AZombieAI()
 	SetPerceptionComponent(*AIPerception);
 
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	// Aggro Distance
-	SightConfig->SightRadius = 800.f;
-	SightConfig->LoseSightRadius = 850.f;
-	SightConfig->PeripheralVisionAngleDegrees = 180.f;
-	SightConfig->SetMaxAge(5.f);
-
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = false;
@@ -44,15 +38,25 @@ void AZombieAI::BeginPlay()
 void AZombieAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 	if (StateMachine.IsValid())
 	{
 		StateMachine->Execute(DeltaTime);
 	}
 }
 
-void AZombieAI::InitializeStateMachine(ACharacterZombie* InZombie)
+void AZombieAI::InitializeZombieAI(ACharacterZombie* InZombie)
 {
 	OwnerZombie = InZombie;
+
+	const auto* Data = OwnerZombie->GetZombieData();
+	SightConfig->SightRadius = Data->SightRadius;
+	SightConfig->LoseSightRadius = Data->LoseSightRadius;
+	SightConfig->PeripheralVisionAngleDegrees = Data->PeripheralVisionAngleDegrees;
+	SightConfig->AutoSuccessRangeFromLastSeenLocation = 1000.0f;
+	SightConfig->SetMaxAge(10.0f);
+
+	AIPerception->ConfigureSense(*SightConfig);
 	
 	StateMachine = MakeShared<FZombieStateMachine>();
 	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, this, OwnerZombie));

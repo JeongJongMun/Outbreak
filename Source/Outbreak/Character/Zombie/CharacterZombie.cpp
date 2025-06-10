@@ -2,6 +2,7 @@
 
 #include "CharacterZombie.h"
 #include "CharacterSpawnManager.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
@@ -14,6 +15,14 @@ ACharacterZombie::ACharacterZombie()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+
+	auto CM = GetCharacterMovement();
+	CM->AvoidanceConsiderationRadius = 500.0f;
+	CM->SetAvoidanceEnabled(true);
+	CM->SetRVOAvoidanceWeight(0.5f);
+	CM->SetAvoidanceGroup(static_cast<int32>(EAvoidanceGroupType::Zombie));
+	CM->SetGroupsToAvoid(static_cast<int32>(EAvoidanceGroupType::Zombie));
+	CM->SetGroupsToIgnore(static_cast<int32>(EAvoidanceGroupType::Player));
 	
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AZombieAI::StaticClass();
@@ -57,9 +66,12 @@ void ACharacterZombie::InitCharacterData()
 void ACharacterZombie::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	ZombieAIController = CastChecked<AZombieAI>(GetController());
-	ZombieAIController->InitializeStateMachine(this);
+
+	ZombieAI = Cast<AZombieAI>(GetController());
+	if (ZombieAI)
+	{
+		ZombieAI->InitializeZombieAI(this);
+	}
 }
 
 void ACharacterZombie::Tick(float DeltaTime)
@@ -97,10 +109,10 @@ void ACharacterZombie::PlayAnimation(const EZombieStateType AnimType)
 
 void ACharacterZombie::ChangeZombieState(const EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	if (!ZombieAIController->StateMachine.IsValid())
-	return;
-
-	ZombieAIController->StateMachine->ChangeState(NewState, TargetPlayer);
+	if (ZombieAI->StateMachine.IsValid())
+	{
+		ZombieAI->StateMachine->ChangeState(NewState, TargetPlayer);
+	}
 }
 
 void ACharacterZombie::Die()
@@ -189,5 +201,5 @@ void ACharacterZombie::OnAttackEnd()
 		}
 	}
 	
-	ChangeZombieState(EZombieStateType::Chase, ZombieAIController->CurrentTargetPlayer);
+	ChangeZombieState(EZombieStateType::Chase, ZombieAI->CurrentTargetPlayer);
 }

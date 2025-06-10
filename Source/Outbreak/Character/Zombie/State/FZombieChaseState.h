@@ -20,5 +20,4 @@ public:
 private:
 	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 	FDelegateHandle DelegateHandle;
-	float ChaseSpeed = 500.0f;
 };

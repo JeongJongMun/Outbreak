@@ -25,7 +25,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
-	void InitializeStateMachine(class ACharacterZombie* InZombie);
+	void InitializeZombieAI(class ACharacterZombie* InZombie);
 	EZombieStateType GetCurrentState() const;
 	
 protected:

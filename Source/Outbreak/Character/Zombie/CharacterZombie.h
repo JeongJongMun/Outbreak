@@ -30,7 +30,7 @@ protected:
 	virtual void SetMesh(ECharacterBodyType MeshType);
 	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,class AActor* DamageCauser) override;
-
+	
 // --------------------
 // Variables
 // --------------------
@@ -59,6 +59,6 @@ protected:
 	int FatMeshCount = 6;
 	
 private:
-	TObjectPtr<AZombieAI> ZombieAIController;
+	TObjectPtr<AZombieAI> ZombieAI;
 	TObjectPtr<UAnimMontage> AnimMontage;
 };

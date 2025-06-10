@@ -92,6 +92,9 @@ protected:
 	
 	bool bIsAutoFire = false;
 
+	USkeletalMesh* SMGMesh;
+	USkeletalMesh* ARMesh;
+
 	// Inventory
 	UPROPERTY(EditAnywhere, Category="Inventory")
 	TArray<TSubclassOf<AWeaponBase>> WeaponInventory;

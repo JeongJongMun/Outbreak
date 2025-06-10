@@ -12,6 +12,7 @@
 
 ACharacterPlayer::ACharacterPlayer()
 {
+	
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera -> SetupAttachment(GetCapsuleComponent());
 	FirstPersonCamera -> SetRelativeLocation(FVector(20, 0, BaseEyeHeight));
@@ -23,7 +24,7 @@ ACharacterPlayer::ACharacterPlayer()
 	TopViewCamera->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
 	TopViewCamera->bUsePawnControlRotation = false;
 
-	GetMesh()->SetHiddenInGame(true);
+	GetMesh()->bOwnerNoSee = true;
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> FirstPersonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Pack/SkeletalMeshes/Arms/SK_fps_armRig.SK_fps_armRig'"));
 	if (FirstPersonMeshRef.Succeeded())
@@ -39,6 +40,9 @@ ACharacterPlayer::ACharacterPlayer()
 
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
 	GunMesh->SetOnlyOwnerSee(true);
+	GunMesh->SetupAttachment(
+		FirstPersonMesh,
+		TEXT("weapon_socket_l"));
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
 
@@ -113,6 +117,18 @@ ACharacterPlayer::ACharacterPlayer()
 	if (InputActionReloadRef.Object)
 	{
 		SwapSlot2 = InputActionSwap2.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SMGMeshobj(
+	TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/SMG02/SK_weapon_SMG_02.SK_weapon_SMG_02"));
+	if (SMGMeshobj.Object)
+	{
+		SMGMesh = SMGMeshobj.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ARMeshObj(
+	TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));
+	if (ARMeshObj.Object)
+	{
+		ARMesh = ARMeshObj.Object;
 	}
 	
 	CurrentCharacterControlType = EPlayerControlType::Top;
@@ -308,16 +324,19 @@ void ACharacterPlayer::ChangeArm()
 {
 	UClass* ArmAnimClass = nullptr;
 	UClass* WeaponAnimClass = nullptr;
-
-	if (WeaponClass == AWeaponAR::StaticClass())
+	
+	if (CurrentWeapon->GetClass() == AWeaponAR::StaticClass())
 	{
 		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/AR02/ABP_Arms_AR02.ABP_Arms_AR02_C"));
+		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/AR02/ABP_AR02.ABP_AR02_C"));
+		GunMesh->SetSkeletalMesh(ARMesh);
+		
 	}
-	else if (WeaponClass == AWeaponSMG::StaticClass())
+	else if (CurrentWeapon->GetClass() == AWeaponSMG::StaticClass())
 	{
 		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/MP2/ABP_Arms_MP2.ABP_Arms_MP2_C"));
 		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/SMG02/ABP_SMG02.ABP_SMG02_C"));
-		FirstPersonMesh->SetRelativeRotation(FRotator(0.f,-90.f,15.f));
+		GunMesh->SetSkeletalMesh(SMGMesh);
 	}
 	else
 	{
@@ -333,10 +352,12 @@ void ACharacterPlayer::ChangeArm()
 	{
 		FirstPersonMesh->SetAnimInstanceClass(ArmAnimClass);
 	}
+
 	if (WeaponAnimClass)
 	{
 		GunMesh->SetAnimInstanceClass(WeaponAnimClass);
 	}
+
 }
 
 void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
@@ -367,7 +388,10 @@ void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
 
 	CurrentWeapon = NewWeapon;
 	CurrentSlotIndex = NewSlotIndex;
-
+	GEngine->AddOnScreenDebugMessage(
+		-1, 2.5f, FColor::Yellow,
+		FString::Printf(TEXT("Selected Slot: %d"), CurrentWeapon)
+	);
 
 	ChangeArm();
 }

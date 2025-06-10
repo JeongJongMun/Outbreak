@@ -18,7 +18,14 @@ public:
 	void DisplayAlivePlayerCount(int32 AlivePlayerCount);
 	void DisplayObjectiveMessage(const FString& Message);
 	void DisplayAnnouncementMessage(const FString& Message);
+	void DisplayTotalZombieKills(int32 TotalZombieKills);
+	void DisplayZombieKills(int32 ZombieKills);
 
+	UFUNCTION()
+	void DisplayAmmo(int32 CurrentAmmo, int32 TotalAmmo);
+	UFUNCTION()
+	void DisplayWeaponType(FString Type);
+	
 	void SetCutsceneMode(bool bEnable);
 
 private:

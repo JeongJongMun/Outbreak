@@ -42,6 +42,8 @@ void UOB_Widget::SetCutsceneMode(bool bEnable)
 	if (PhaseTextBlock) PhaseTextBlock->SetVisibility(NewVisibility);
 	if (AlivePlayerCountTextBlock) AlivePlayerCountTextBlock->SetVisibility(NewVisibility);
 	if (AnnouncementTextBlock) AnnouncementTextBlock->SetVisibility(NewVisibility);
+	if (TotalZombieKillsTextBlock) TotalZombieKillsTextBlock->SetVisibility(NewVisibility);
+	if (ZombieKillsTextBlock) ZombieKillsTextBlock->SetVisibility(NewVisibility);
 }
 
 
@@ -95,6 +97,40 @@ void UOB_Widget::SetAnnouncementText(FString AnnouncementText)
 	}
 }
 
+void UOB_Widget::SetTotalZombieKillsText(int32 TotalKills)
+{
+	if (TotalZombieKillsTextBlock)
+	{
+		FString CountText = FString::Printf(TEXT("Total Kills : %d"), TotalKills);
+		TotalZombieKillsTextBlock->SetText(FText::FromString(CountText));
+	}
+}
 
+void UOB_Widget::SetZombieKillsText(int32 Kills)
+{
+	if (ZombieKillsTextBlock)
+	{
+		FString CountText = FString::Printf(TEXT("Kills : %d"), Kills);
+		ZombieKillsTextBlock->SetText(FText::FromString(CountText));
+	}
+}
+
+void UOB_Widget::SetAmmoText(int32 CurrentAmmo, int32 TotalAmmo)
+{
+	if (AmmoTextBlock)
+	{
+		FString AmmoStr = FString::Printf(TEXT("%d / %d"), CurrentAmmo, TotalAmmo);
+		AmmoTextBlock->SetText(FText::FromString(AmmoStr));
+	}
+}
+
+void UOB_Widget::SetWeaponTypeText(FString Type)
+{
+	if (WeaponTypeTextBlock)
+	{
+		FString TypeStr = FString::Printf(TEXT("%s"), *Type);
+		WeaponTypeTextBlock->SetText(FText::FromString(TypeStr));
+	}
+}
 
 

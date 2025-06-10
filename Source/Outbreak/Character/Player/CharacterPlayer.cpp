@@ -14,6 +14,7 @@
 #include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
+#include "Outbreak/UI/OB_HUD.h"
 #include "Outbreak/Weapon/WeaponAR.h"
 #include "Outbreak/Weapon/WeaponSMG.h"
 
@@ -233,7 +234,7 @@ void ACharacterPlayer::BeginPlay()
 				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("Weapon_Sheath"))); 
 				NewWeapon->SetActorHiddenInGame(true);
 				NewWeapon->SetActorEnableCollision(false);
-
+				
 				WeaponInstances[i] = NewWeapon;
 			}
 		}
@@ -437,6 +438,23 @@ void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
 
 
 	ChangeArm();
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->NotifyAmmoUpdate();
+
+		FString WeaponType;
+		if (NewSlotIndex == 0) WeaponType = "AR";
+		else if (NewSlotIndex == 1) WeaponType = "SMG";
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD());
+			if (HUD)
+			{
+				HUD->DisplayWeaponType(WeaponType);
+			}
+		}
+	}
 }
 
 void ACharacterPlayer::OnPressedSlot1()

@@ -55,6 +55,9 @@ public:
 	void SetObjectiveMessage(const FString& NewMessage);
 
 	TObjectPtr<ACharacterSpawnManager> GetSpawnManager() const { return SpawnManager; }
+	
+	UFUNCTION()
+	void AddTotalZombieKill();
 
 protected:
 

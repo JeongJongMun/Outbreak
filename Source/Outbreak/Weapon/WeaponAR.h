@@ -23,6 +23,7 @@ protected:
 	virtual void BeginPlay() override;
 	void MakeShot();
 	void FinishReload();
+	void NotifyAmmoUpdate() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
 	FWeaponData WeaponData;

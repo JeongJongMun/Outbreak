@@ -116,6 +116,10 @@ void ACharacterZombie::Die()
 			PS->AddZombieKill();
 		}
 	}
+	if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
+	{
+		GS->AddTotalZombieKill();
+	}
 }
 
 float ACharacterZombie::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

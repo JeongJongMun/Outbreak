@@ -20,6 +20,7 @@ AWeaponSMG::AWeaponSMG()
     {
         WeaponMesh->SetSkeletalMesh(WeaponMeshObj.Object);
     }
+    WeaponMesh->SetHiddenInGame(true);
     
     ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Game/Sounds/AR_Single.AR_Single"));
     if (tempSound.Succeeded()) {

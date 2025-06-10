@@ -11,6 +11,7 @@
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Outbreak/Animation/FPSAnimInstance.h"
 #include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
@@ -34,6 +35,7 @@ ACharacterPlayer::ACharacterPlayer()
 	TopViewCamera->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
 	TopViewCamera->bUsePawnControlRotation = false;
 
+	GetMesh()->bOwnerNoSee = true;
 	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("SceneCapture2D"));
 	SceneCapture->ProjectionType = ECameraProjectionMode::Type::Orthographic;
 	SceneCapture->OrthoWidth = 4000.f;
@@ -86,6 +88,9 @@ ACharacterPlayer::ACharacterPlayer()
 
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
 	GunMesh->SetOnlyOwnerSee(true);
+	GunMesh->SetupAttachment(
+		FirstPersonMesh,
+		TEXT("weapon_socket_l"));
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
 
@@ -161,6 +166,18 @@ ACharacterPlayer::ACharacterPlayer()
 	{
 		SwapSlot2 = InputActionSwap2.Object;
 	}
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SMGMeshobj(
+	TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/SMG02/SK_weapon_SMG_02.SK_weapon_SMG_02"));
+	if (SMGMeshobj.Object)
+	{
+		SMGMesh = SMGMeshobj.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ARMeshObj(
+	TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));
+	if (ARMeshObj.Object)
+	{
+		ARMesh = ARMeshObj.Object;
+	}
 	
 	CurrentCharacterControlType = EPlayerControlType::Top;
 	WeaponInventory.SetNum(6);
@@ -221,19 +238,27 @@ void ACharacterPlayer::BeginPlay()
 	{
 		if (WeaponInventory[i])
 		{
-			// SpawnParameters 설정 (충돌 무시, 소유자 설정 등)
+
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = GetInstigator();
-
+			SpawnParams.bDeferConstruction = true;  
 			// 월드에 무기 액터 스폰
-			AWeaponBase* NewWeapon = GetWorld()->SpawnActor<AWeaponBase>(WeaponInventory[i], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+			AWeaponBase* NewWeapon = GetWorld()->SpawnActorDeferred<AWeaponBase>(
+				WeaponInventory[i],
+				FTransform::Identity,
+				SpawnParams.Owner,
+				SpawnParams.Instigator,
+				ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+			);
 			if (NewWeapon)
 			{
 				// 처음에는 모두 비활성 상태로 두거나, 보이지 않게 설정
-				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("Weapon_Sheath"))); 
+				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_socket_l"))); 
 				NewWeapon->SetActorHiddenInGame(true);
 				NewWeapon->SetActorEnableCollision(false);
+
+				UGameplayStatics::FinishSpawningActor(NewWeapon, FTransform::Identity);
 				
 				WeaponInstances[i] = NewWeapon;
 			}
@@ -376,16 +401,19 @@ void ACharacterPlayer::ChangeArm()
 {
 	UClass* ArmAnimClass = nullptr;
 	UClass* WeaponAnimClass = nullptr;
-
-	if (WeaponClass == AWeaponAR::StaticClass())
+	
+	if (CurrentWeapon->GetClass() == AWeaponAR::StaticClass())
 	{
 		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/AR02/ABP_Arms_AR02.ABP_Arms_AR02_C"));
+		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/AR02/ABP_AR02.ABP_AR02_C"));
+		GunMesh->SetSkeletalMesh(ARMesh);
+		
 	}
-	else if (WeaponClass == AWeaponSMG::StaticClass())
+	else if (CurrentWeapon->GetClass() == AWeaponSMG::StaticClass())
 	{
 		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/MP2/ABP_Arms_MP2.ABP_Arms_MP2_C"));
 		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/SMG02/ABP_SMG02.ABP_SMG02_C"));
-		FirstPersonMesh->SetRelativeRotation(FRotator(0.f,-90.f,15.f));
+		GunMesh->SetSkeletalMesh(SMGMesh);
 	}
 	else
 	{
@@ -401,10 +429,12 @@ void ACharacterPlayer::ChangeArm()
 	{
 		FirstPersonMesh->SetAnimInstanceClass(ArmAnimClass);
 	}
+
 	if (WeaponAnimClass)
 	{
 		GunMesh->SetAnimInstanceClass(WeaponAnimClass);
 	}
+
 }
 
 void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
@@ -435,7 +465,10 @@ void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
 
 	CurrentWeapon = NewWeapon;
 	CurrentSlotIndex = NewSlotIndex;
-
+	GEngine->AddOnScreenDebugMessage(
+		-1, 2.5f, FColor::Yellow,
+		FString::Printf(TEXT("Selected Slot: %d"), CurrentWeapon)
+	);
 
 	ChangeArm();
 	if (CurrentWeapon)

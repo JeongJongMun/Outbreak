@@ -26,6 +26,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
 	FWeaponData WeaponData;
+
 	
 	FTimerHandle TimerHandle_TimeBetweenShots;
 	FTimerHandle ReloadTimerHandle;

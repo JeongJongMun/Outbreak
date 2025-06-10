@@ -119,7 +119,19 @@ void AWeaponAR::MakeShot()
 
     ApplyCameraShake();
     UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
-
+    // FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
+    // if (NiagaraMuzzleFlash)
+    // {
+    //     UNiagaraFunctionLibrary::SpawnSystemAttached(
+    //         NiagaraMuzzleFlash,
+    //         WeaponMesh,
+    //         MuzzleSocketName,
+    //         FVector::ZeroVector,
+    //         MuzzleRot,
+    //         EAttachLocation::SnapToTarget,
+    //         true
+    //     );
+    // }
 
     AActor* MyOwner = GetOwner();
     if (!MyOwner)

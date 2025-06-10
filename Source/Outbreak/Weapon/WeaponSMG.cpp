@@ -121,10 +121,28 @@ void AWeaponSMG::MakeShot()
 
     ApplyCameraShake();
     UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
-
+    
+    FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+    // FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
+    // if (NiagaraMuzzleFlash)
+    // {
+    //     UNiagaraFunctionLibrary::SpawnSystemAttached(
+    //         NiagaraMuzzleFlash,
+    //         WeaponMesh,
+    //         MuzzleSocketName,
+    //         FVector::ZeroVector,
+    //         MuzzleRot,
+    //         EAttachLocation::SnapToTarget,
+    //         true,
+    //         true
+    //     );
+    // }
+    
+    
     AActor* MyOwner = GetOwner();
     if (!MyOwner) return;
 
+    
     APlayerController* PC = Cast<APlayerController>(MyOwner->GetInstigatorController());
     if (!PC) return;
 
@@ -144,7 +162,7 @@ void AWeaponSMG::MakeShot()
     bool bHit = GetWorld()->LineTraceSingleByChannel(
         Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
 
-    FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+
     FVector EndPoint = bHit ? Hit.ImpactPoint : TraceEnd;
 
     DrawDebugLine(

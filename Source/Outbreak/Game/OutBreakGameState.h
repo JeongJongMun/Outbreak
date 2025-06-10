@@ -53,6 +53,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetObjectiveMessage(const FString& NewMessage);
 
+	UFUNCTION()
+	void AddTotalZombieKill();
+
 protected:
 
 	UFUNCTION()

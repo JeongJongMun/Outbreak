@@ -23,7 +23,9 @@ public:
 	void SetCurrentPhaseText(FString Phase);
 	void SetAlivePlayerCountText(int32 Count);
 	void SetAnnouncementText(FString AnnouncementText);
-
+	void SetTotalZombieKillsText(int32 TotalKills);
+	void SetZombieKillsText(int32 Kills);
+	
 	void SetCutsceneMode(bool bEnable);
 	
 protected:
@@ -44,4 +46,10 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* AnnouncementTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* TotalZombieKillsTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ZombieKillsTextBlock;
 };

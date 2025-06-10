@@ -3,6 +3,7 @@
 
 #include "OutBreakPlayerState.h"
 #include "Net/UnrealNetwork.h"
+#include "Outbreak/UI/OB_HUD.h"
 
 AOutBreakPlayerState::AOutBreakPlayerState()
 {
@@ -33,7 +34,13 @@ void AOutBreakPlayerState::OnRep_CharacterClass()
 void AOutBreakPlayerState::OnRep_ZombieKills()
 {
 	UE_LOG(LogTemp, Log, TEXT("좀비 처치 수 변경: %d"), ZombieKills);
-	// TODO: HUD 또는 UI 업데이트 함수 호출
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		{
+			HUD->DisplayZombieKills(ZombieKills);
+		}
+	}
 }
 
 void AOutBreakPlayerState::AddZombieKill()

@@ -54,3 +54,21 @@ void AOB_HUD::DisplayAnnouncementMessage(const FString& Message)
 		OB_Widget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
+
+void AOB_HUD::DisplayTotalZombieKills(int32 TotalKills)
+{
+	if (OB_Widget)
+	{
+		OB_Widget->SetTotalZombieKillsText(TotalKills);
+		OB_Widget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AOB_HUD::DisplayZombieKills(int32 Kills)
+{
+	if (OB_Widget)
+	{
+		OB_Widget->SetZombieKillsText(Kills);
+		OB_Widget->SetVisibility(ESlateVisibility::Visible);
+	}
+}

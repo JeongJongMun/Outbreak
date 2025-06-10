@@ -71,8 +71,21 @@ void AOutBreakGameState::Tick(float DeltaTime)
 void AOutBreakGameState::OnRep_TotalZombieKills()
 {
 	UE_LOG(LogTemp, Log, TEXT("총 좀비 처치 수 변경: %d"), TotalZombieKills);
-	// TODO: HUD 또는 UI 업데이트 함수 호출
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		{
+			HUD->DisplayTotalZombieKills(TotalZombieKills);
+		}
+	}
 }
+
+void AOutBreakGameState::AddTotalZombieKill()
+{
+	TotalZombieKills++;
+	OnRep_TotalZombieKills();
+}
+
 
 void AOutBreakGameState::OnRep_AlivePlayerCount()
 {

@@ -3,6 +3,7 @@
 #include "CharacterZombie.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
 #include "State/FZombieIdleState.h"
@@ -98,6 +99,10 @@ void ACharacterZombie::Die()
 		{
 			PS->AddZombieKill();
 		}
+	}
+	if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
+	{
+		GS->AddTotalZombieKill();
 	}
 }
 

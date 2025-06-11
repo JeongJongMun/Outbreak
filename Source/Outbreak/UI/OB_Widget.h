@@ -7,6 +7,7 @@
 #include "OB_Widget.generated.h"
 
 class UTextBlock;
+class UImage;
 
 UCLASS()
 class OUTBREAK_API UOB_Widget : public UUserWidget
@@ -37,7 +38,10 @@ public:
 	
 protected:
 	UPROPERTY(meta = (BindWidget))
-	class UImage* MiniMapImage;
+	UImage* MiniMapImage;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* AimImage;
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MatchTimeTextBlock;

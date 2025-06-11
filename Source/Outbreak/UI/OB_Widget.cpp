@@ -40,6 +40,7 @@ void UOB_Widget::SetCutsceneMode(bool bEnable)
 	// 컷씬 재생시 안보일 HUD & UI
 	TArray<UWidget*> WidgetsToToggle = {
 		MiniMapImage,
+		AimImage,
 		MatchTimeTextBlock,
 		PhaseTextBlock,
 		AlivePlayerCountTextBlock,

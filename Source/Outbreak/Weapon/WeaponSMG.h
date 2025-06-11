@@ -27,7 +27,7 @@ protected:
 	UFUNCTION(Server, Reliable,WithValidation)
 	void ServerMakeShot();
 
-	UFUNCTION(Client, Reliable)
+	UFUNCTION(Client, Unreliable)
 	void ClientShotRay(const FVector& TraceEnd, bool bHit, const FVector& ImpactPoint);
 
 	UFUNCTION(NetMulticast,Unreliable)

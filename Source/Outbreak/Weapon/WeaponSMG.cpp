@@ -6,6 +6,8 @@
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/UI/OB_HUD.h"
 
+#include "GameFramework/PlayerState.h" // for logging. delete this before packaging
+
 AWeaponSMG::AWeaponSMG()
 {
     SetReplicates(true);
@@ -254,7 +256,17 @@ void AWeaponSMG::ServerMakeShot_Implementation()
                 UDamageType::StaticClass());
         }
     }
-    
+
+    // 플레이어 이름 얻기
+    FString CallerName = TEXT("Unknown");
+    if (PC && PC->PlayerState)
+    {
+        CallerName = PC->PlayerState->GetPlayerName();
+    }
+
+    // 로그 출력
+    UE_LOG(LogTemp, Log, TEXT(">> ServerMakeShot called by %s"), *CallerName);
+
     ClientShotRay(TraceEnd, bHit, Hit.ImpactPoint);
     MultiCastShot(Cast<APlayerController>(GetOwner()->GetInstigatorController()));
 }

@@ -254,6 +254,6 @@ void ACharacterZombie::OnAttackEnd()
 			);
 		}
 	}
-	
-	ChangeZombieState(EZombieStateType::Chase, ZombieAI->CurrentTargetPlayer);
+
+	ChangeZombieState(EZombieStateType::Chase, ZombieAI->GetCurrentTargetCharacter());
 }

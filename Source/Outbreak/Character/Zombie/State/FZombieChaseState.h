@@ -15,6 +15,5 @@ public:
 	virtual void Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 
 private:
-	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 	FDelegateHandle DelegateHandle;
 };

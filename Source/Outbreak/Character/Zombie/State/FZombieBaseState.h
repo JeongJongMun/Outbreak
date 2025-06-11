@@ -18,4 +18,5 @@ public:
 
 protected:
 	TObjectPtr<ACharacterZombie> Owner;
+	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 };

@@ -12,4 +12,11 @@ public:
 	virtual void Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> Context = nullptr) override;
 	virtual void Execute(EZombieStateType CurrentState, float DeltaTime) override;
 	virtual void Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> Context = nullptr) override;
+
+private:
+	void RotateTowardsTarget(float DeltaTime) const;
+
+
+private:
+	float RotationSpeed = 180.0f;
 };

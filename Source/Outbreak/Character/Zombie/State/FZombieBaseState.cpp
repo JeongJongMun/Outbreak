@@ -14,6 +14,10 @@ FZombieBaseState::FZombieBaseState(const TSharedPtr<TStateMachine<EZombieStateTy
 void FZombieBaseState::Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
 	Owner->PlayAnimation(StateKey);
+	if (TargetPlayer)
+	{
+		CurrentTargetPlayer = TargetPlayer;
+	}
 }
 
 void FZombieBaseState::Execute(EZombieStateType CurrentState, float DeltaTime)
@@ -22,4 +26,5 @@ void FZombieBaseState::Execute(EZombieStateType CurrentState, float DeltaTime)
 
 void FZombieBaseState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
+	CurrentTargetPlayer = nullptr;
 }

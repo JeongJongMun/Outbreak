@@ -28,7 +28,6 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 			MovementComp->MaxWalkSpeed = ZombieData->MaxWalkSpeed;
 	}
 	
-	CurrentTargetPlayer = TargetPlayer;
 	float AcceptanceRadius = ZombieData->AttackRange;
 
 	const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
@@ -56,7 +55,6 @@ void FZombieChaseState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPl
 {
 	Super::Exit(NextState, TargetPlayer);
 
-	CurrentTargetPlayer = nullptr;
 	const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
 	ZombieAI->GetPathFollowingComponent()->OnRequestFinished.Remove(DelegateHandle);
 }

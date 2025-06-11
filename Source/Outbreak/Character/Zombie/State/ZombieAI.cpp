@@ -47,9 +47,9 @@ void AZombieAI::Tick(float DeltaTime)
 
 void AZombieAI::InitializeZombieAI(ACharacterZombie* InZombie)
 {
-	Owner = InZombie;
+	OwnerZombie = InZombie;
 
-	const auto* Data = Owner->GetZombieData();
+	const auto* Data = OwnerZombie->GetZombieData();
 	SightConfig->SightRadius = Data->SightRadius;
 	SightConfig->LoseSightRadius = Data->LoseSightRadius;
 	SightConfig->PeripheralVisionAngleDegrees = Data->PeripheralVisionAngleDegrees;
@@ -59,13 +59,13 @@ void AZombieAI::InitializeZombieAI(ACharacterZombie* InZombie)
 	AIPerception->ConfigureSense(*SightConfig);
 	
 	StateMachine = MakeShared<FZombieStateMachine>();
-	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, Owner));
-	StateMachine->AddState(EZombieStateType::Wander, MakeShared<FZombieWanderState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Wander, MakeShared<FZombieWanderState>(StateMachine, OwnerZombie));
 	// StateMachine->AddState(EZombieStateType::Alert, MakeShared<FZombieAlertState>(StateMachine, Owner));
-	StateMachine->AddState(EZombieStateType::Chase, MakeShared<FZombieChaseState>(StateMachine, Owner));
-	StateMachine->AddState(EZombieStateType::Attack, MakeShared<FZombieAttackState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Chase, MakeShared<FZombieChaseState>(StateMachine, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Attack, MakeShared<FZombieAttackState>(StateMachine, OwnerZombie));
 	// StateMachine->AddState(EZombieStateType::Stun, MakeShared<FZombieStunState>(StateMachine, Owner));
-	StateMachine->AddState(EZombieStateType::Die, MakeShared<FZombieDieState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Die, MakeShared<FZombieDieState>(StateMachine, OwnerZombie));
 	
 	StateMachine->ChangeState(EZombieStateType::Idle);
 }
@@ -82,7 +82,7 @@ EZombieStateType AZombieAI::GetCurrentState() const
 void AZombieAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	const TObjectPtr<ACharacterPlayer> TargetPlayer = Cast<ACharacterPlayer>(Actor);
-	CurrentTargetPlayer = TargetPlayer;
+	CurrentTargetCharacter = TargetPlayer;
 	
 	if (Stimulus.WasSuccessfullySensed())
 	{

@@ -6,6 +6,10 @@
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/Util/Define.h"
 
+FZombieChaseState::FZombieChaseState(const TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>>& InFsm, ACharacterZombie* InOwner): FZombieBaseState(InFsm, EZombieStateType::Chase, InOwner)
+{
+}
+
 void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
 	Super::Enter(PreviousState, TargetPlayer);
@@ -13,10 +17,10 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 	if (!TargetPlayer)
 		return;
 
-	const TObjectPtr<UCharacterMovementComponent> MovementComp = Zombie->GetCharacterMovement();
-	const FZombieData* ZombieData = Zombie->GetZombieData();
+	const TObjectPtr<UCharacterMovementComponent> MovementComp = Owner->GetCharacterMovement();
+	const FZombieData* ZombieData = Owner->GetZombieData();
 	
-	if (Zombie && MovementComp)
+	if (Owner && MovementComp)
 	{
 		if (ZombieData->bIsCanRun)
 			MovementComp->MaxWalkSpeed = ZombieData->MaxRunSpeed;
@@ -27,7 +31,8 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 	CurrentTargetPlayer = TargetPlayer;
 	float AcceptanceRadius = ZombieData->AttackRange;
 
-	DelegateHandle = Owner->GetPathFollowingComponent()->OnRequestFinished.AddLambda([this](FAIRequestID RequestID, const FPathFollowingResult& Result)
+	const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
+	DelegateHandle = ZombieAI->GetPathFollowingComponent()->OnRequestFinished.AddLambda([this](FAIRequestID RequestID, const FPathFollowingResult& Result)
 	{
 		if (Result.IsSuccess())
 		{
@@ -39,7 +44,7 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 		}
 	});
 	
-	Owner->MoveToActor(CurrentTargetPlayer, AcceptanceRadius, true);
+	ZombieAI->MoveToActor(CurrentTargetPlayer, AcceptanceRadius, true);
 }
 
 void FZombieChaseState::Execute(EZombieStateType CurrentState, float DeltaTime)
@@ -52,5 +57,6 @@ void FZombieChaseState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPl
 	Super::Exit(NextState, TargetPlayer);
 
 	CurrentTargetPlayer = nullptr;
-	Owner->GetPathFollowingComponent()->OnRequestFinished.Remove(DelegateHandle);
+	const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
+	ZombieAI->GetPathFollowingComponent()->OnRequestFinished.Remove(DelegateHandle);
 }

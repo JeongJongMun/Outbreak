@@ -37,7 +37,7 @@ public:
 	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 
 protected:
-	TObjectPtr<class ACharacterZombie> OwnerZombie;
+	TObjectPtr<class ACharacterZombie> Owner;
 	TObjectPtr<UAIPerceptionComponent> AIPerception;
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
 	TObjectPtr<UAISenseConfig_Hearing> HearingConfig;

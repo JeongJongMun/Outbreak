@@ -21,6 +21,7 @@ public:
 	virtual void OnAttackEnd();
 	FZombieData* GetZombieData() { return &ZombieData; }
 	void PlayAnimation(EZombieStateType InStateType);
+	TObjectPtr<AZombieAI> GetZombieAI() const { return ZombieAI; }
 
 protected:
 	virtual void BeginPlay() override;

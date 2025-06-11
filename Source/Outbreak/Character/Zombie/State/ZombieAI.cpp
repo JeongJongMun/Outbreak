@@ -47,9 +47,9 @@ void AZombieAI::Tick(float DeltaTime)
 
 void AZombieAI::InitializeZombieAI(ACharacterZombie* InZombie)
 {
-	OwnerZombie = InZombie;
+	Owner = InZombie;
 
-	const auto* Data = OwnerZombie->GetZombieData();
+	const auto* Data = Owner->GetZombieData();
 	SightConfig->SightRadius = Data->SightRadius;
 	SightConfig->LoseSightRadius = Data->LoseSightRadius;
 	SightConfig->PeripheralVisionAngleDegrees = Data->PeripheralVisionAngleDegrees;
@@ -59,13 +59,13 @@ void AZombieAI::InitializeZombieAI(ACharacterZombie* InZombie)
 	AIPerception->ConfigureSense(*SightConfig);
 	
 	StateMachine = MakeShared<FZombieStateMachine>();
-	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieStateType::Wander, MakeShared<FZombieWanderState>(StateMachine, this, OwnerZombie));
-	// StateMachine->AddState(EZombieStateType::Alert, MakeShared<FZombieAlertState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieStateType::Chase, MakeShared<FZombieChaseState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieStateType::Attack, MakeShared<FZombieAttackState>(StateMachine, this, OwnerZombie));
-	// StateMachine->AddState(EZombieStateType::Stun, MakeShared<FZombieStunState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieStateType::Die, MakeShared<FZombieDieState>(StateMachine, this, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Wander, MakeShared<FZombieWanderState>(StateMachine, Owner));
+	// StateMachine->AddState(EZombieStateType::Alert, MakeShared<FZombieAlertState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Chase, MakeShared<FZombieChaseState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Attack, MakeShared<FZombieAttackState>(StateMachine, Owner));
+	// StateMachine->AddState(EZombieStateType::Stun, MakeShared<FZombieStunState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Die, MakeShared<FZombieDieState>(StateMachine, Owner));
 	
 	StateMachine->ChangeState(EZombieStateType::Idle);
 }

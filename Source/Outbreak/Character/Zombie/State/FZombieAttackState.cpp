@@ -1,6 +1,10 @@
 ﻿#include "FZombieAttackState.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 
+FZombieAttackState::FZombieAttackState(const TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>>& InFsm, ACharacterZombie* InOwner): FZombieBaseState(InFsm, EZombieStateType::Attack, InOwner)
+{
+}
+
 void FZombieAttackState::Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> Context)
 {
 	FZombieBaseState::Enter(PreviousState, Context);

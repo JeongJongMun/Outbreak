@@ -20,17 +20,23 @@ public:
 	ACharacterZombie();
 	virtual void OnAttackEnd();
 	FZombieData* GetZombieData() { return &ZombieData; }
-	void PlayAnimation(EZombieStateType AnimType);
+	void PlayAnimation(EZombieStateType InStateType);
+	TObjectPtr<AZombieAI> GetZombieAI() const { return ZombieAI; }
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void InitCharacterData() override;
+	virtual void SetupCollision() override;
+	virtual void SetupMovement() override;
 	virtual void Die() override;
 	virtual void SetMesh(ECharacterBodyType MeshType);
 	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,class AActor* DamageCauser) override;
 
+private:
+	EZombieAnimationType GetZombieAnimationTypeFromState(EZombieStateType InStateType);
+	
 // --------------------
 // Variables
 // --------------------
@@ -43,15 +49,11 @@ protected:
 
 	UPROPERTY()
 	AController* LastDamagePlayer;
-	
-	TMap<EZombieStateType, FName> MontageSectionNameMap;
-	FName IdleSectionName = "Idle";
-	FName WanderSectionName = "Wander";
-	FName ChaseWalkSectionName = "ChaseWalk";
-	FName ChaseRunSectionName = "ChaseRun";
-	FName AttackSectionName = "Attack";
-	FName DieSectionName = "Die";
 
+	UPROPERTY()
+	TMap<EZombieAnimationType, TObjectPtr<UAnimMontage>> AnimMontageMap;
+	TMap<EZombieAnimationType, TArray<FName>> AnimSectionMap;
+	
 	FString BaseMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/Meshes/Character");
 	FString BaseMeshName = TEXT("SKM_Zombie");
 	int NormalMeshCount = 20;
@@ -59,6 +61,5 @@ protected:
 	int FatMeshCount = 6;
 	
 private:
-	TObjectPtr<AZombieAI> ZombieAIController;
-	TObjectPtr<UAnimMontage> AnimMontage;
+	TObjectPtr<AZombieAI> ZombieAI;
 };

@@ -8,17 +8,12 @@
 class OUTBREAK_API FZombieChaseState : public FZombieBaseState
 {
 public:
-	FZombieChaseState(const TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>>& InFsm, AZombieAI* InOwner, ACharacterZombie* InCharacter)
-		: FZombieBaseState(InFsm, EZombieStateType::Chase, InOwner, InCharacter)
-	{
-	}
+	FZombieChaseState(const TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>>& InFsm, ACharacterZombie* InOwner);
 
 	virtual void Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 	virtual void Execute(EZombieStateType CurrentState, float DeltaTime) override;
 	virtual void Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> TargetPlayer) override;
 
 private:
-	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 	FDelegateHandle DelegateHandle;
-	float ChaseSpeed = 500.0f;
 };

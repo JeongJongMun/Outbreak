@@ -5,14 +5,19 @@
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/Util/Define.h"
 
-FZombieBaseState::~FZombieBaseState()
+FZombieBaseState::FZombieBaseState(const TSharedPtr<TStateMachine<EZombieStateType, ACharacterPlayer>>& InFsm,
+	const EZombieStateType InStateKey, ACharacterZombie* InOwner): TState(InFsm, InStateKey)
 {
+	Owner = InOwner;
 }
 
 void FZombieBaseState::Enter(EZombieStateType PreviousState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	Zombie->PlayAnimation(StateKey);
-	// UE_LOG(LogTemp, Log, TEXT("[%s] Entering state: %s"), CURRENT_CONTEXT, *UEnum::GetValueAsString(StateKey));
+	Owner->PlayAnimation(StateKey);
+	if (TargetPlayer)
+	{
+		CurrentTargetPlayer = TargetPlayer;
+	}
 }
 
 void FZombieBaseState::Execute(EZombieStateType CurrentState, float DeltaTime)
@@ -21,5 +26,5 @@ void FZombieBaseState::Execute(EZombieStateType CurrentState, float DeltaTime)
 
 void FZombieBaseState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	// UE_LOG(LogTemp, Log, TEXT("[%s] Exiting state: %s"), CURRENT_CONTEXT, *UEnum::GetValueAsString(StateKey));
+	CurrentTargetPlayer = nullptr;
 }

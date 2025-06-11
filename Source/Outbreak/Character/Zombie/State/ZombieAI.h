@@ -25,8 +25,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
-	void InitializeStateMachine(class ACharacterZombie* InZombie);
+	void InitializeZombieAI(class ACharacterZombie* InZombie);
 	EZombieStateType GetCurrentState() const;
+	TObjectPtr<ACharacterPlayer> GetCurrentTargetCharacter() const { return CurrentTargetCharacter; }
 	
 protected:
 	UFUNCTION()
@@ -34,13 +35,26 @@ protected:
 	
 public:
 	TSharedPtr<FZombieStateMachine> StateMachine;
-	TObjectPtr<ACharacterPlayer> CurrentTargetPlayer;
 
 protected:
+	UPROPERTY()
 	TObjectPtr<class ACharacterZombie> OwnerZombie;
+	
+	UPROPERTY()
 	TObjectPtr<UAIPerceptionComponent> AIPerception;
+	
+	UPROPERTY()
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
+	
+	UPROPERTY()
 	TObjectPtr<UAISenseConfig_Hearing> HearingConfig;
+	
+	UPROPERTY()
 	TObjectPtr<UAISenseConfig_Damage> DamageConfig;
+	
 	FGenericTeamId TeamId = 1;
+
+private:
+	UPROPERTY()
+	TObjectPtr<ACharacterPlayer> CurrentTargetCharacter;
 };

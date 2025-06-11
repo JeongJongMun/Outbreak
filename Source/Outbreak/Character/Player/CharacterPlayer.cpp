@@ -11,7 +11,6 @@
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Outbreak/Animation/FPSAnimInstance.h"
 #include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
@@ -34,8 +33,7 @@ ACharacterPlayer::ACharacterPlayer()
 	TopViewCamera->SetRelativeLocation(FVector(0.f, 0.f, 800.f));
 	TopViewCamera->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
 	TopViewCamera->bUsePawnControlRotation = false;
-
-	GetMesh()->bOwnerNoSee = true;
+	
 	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("SceneCapture2D"));
 	SceneCapture->ProjectionType = ECameraProjectionMode::Type::Orthographic;
 	SceneCapture->OrthoWidth = 4000.f;
@@ -91,12 +89,6 @@ ACharacterPlayer::ACharacterPlayer()
 		TEXT("weapon_socket_l"));
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
-
-	auto CM = GetCharacterMovement();
-	CM->MaxStepHeight = 50.f;
-	CM->SetWalkableFloorAngle(55.f);
-	CM->bUseControllerDesiredRotation = true;
-	CM->bOrientRotationToMovement = true;
 
 	// Input Mapping Context
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Inputs/IMC_Player.IMC_Player'"));
@@ -554,4 +546,26 @@ bool ACharacterPlayer::IsReloading() const
 	return CurrentWeapon -> bIsReloading;
 }
 
+void ACharacterPlayer::SetupCollision()
+{
+	Super::SetupCollision();
 
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
+	auto* MeshComp = GetMesh();
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	MeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	MeshComp->bOwnerNoSee = true;
+	MeshComp->SetHiddenInGame(true);
+}
+
+void ACharacterPlayer::SetupMovement()
+{
+	Super::SetupMovement();
+
+	auto* MovementComp = GetCharacterMovement();
+	MovementComp->MaxStepHeight = 50.f;
+	MovementComp->SetWalkableFloorAngle(55.f);
+	MovementComp->bUseControllerDesiredRotation = true;
+}

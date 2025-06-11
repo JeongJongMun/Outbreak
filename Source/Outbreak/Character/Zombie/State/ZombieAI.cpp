@@ -20,12 +20,6 @@ AZombieAI::AZombieAI()
 	SetPerceptionComponent(*AIPerception);
 
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	// Aggro Distance
-	SightConfig->SightRadius = 800.f;
-	SightConfig->LoseSightRadius = 850.f;
-	SightConfig->PeripheralVisionAngleDegrees = 180.f;
-	SightConfig->SetMaxAge(5.f);
-
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = false;
@@ -44,24 +38,34 @@ void AZombieAI::BeginPlay()
 void AZombieAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 	if (StateMachine.IsValid())
 	{
 		StateMachine->Execute(DeltaTime);
 	}
 }
 
-void AZombieAI::InitializeStateMachine(ACharacterZombie* InZombie)
+void AZombieAI::InitializeZombieAI(ACharacterZombie* InZombie)
 {
 	OwnerZombie = InZombie;
+
+	const auto* Data = OwnerZombie->GetZombieData();
+	SightConfig->SightRadius = Data->SightRadius;
+	SightConfig->LoseSightRadius = Data->LoseSightRadius;
+	SightConfig->PeripheralVisionAngleDegrees = Data->PeripheralVisionAngleDegrees;
+	SightConfig->AutoSuccessRangeFromLastSeenLocation = 1000.0f;
+	SightConfig->SetMaxAge(10.0f);
+
+	AIPerception->ConfigureSense(*SightConfig);
 	
 	StateMachine = MakeShared<FZombieStateMachine>();
-	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieStateType::Wander, MakeShared<FZombieWanderState>(StateMachine, this, OwnerZombie));
-	// StateMachine->AddState(EZombieStateType::Alert, MakeShared<FZombieAlertState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieStateType::Chase, MakeShared<FZombieChaseState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieStateType::Attack, MakeShared<FZombieAttackState>(StateMachine, this, OwnerZombie));
-	// StateMachine->AddState(EZombieStateType::Stun, MakeShared<FZombieStunState>(StateMachine, this, OwnerZombie));
-	StateMachine->AddState(EZombieStateType::Die, MakeShared<FZombieDieState>(StateMachine, this, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Wander, MakeShared<FZombieWanderState>(StateMachine, OwnerZombie));
+	// StateMachine->AddState(EZombieStateType::Alert, MakeShared<FZombieAlertState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Chase, MakeShared<FZombieChaseState>(StateMachine, OwnerZombie));
+	StateMachine->AddState(EZombieStateType::Attack, MakeShared<FZombieAttackState>(StateMachine, OwnerZombie));
+	// StateMachine->AddState(EZombieStateType::Stun, MakeShared<FZombieStunState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Die, MakeShared<FZombieDieState>(StateMachine, OwnerZombie));
 	
 	StateMachine->ChangeState(EZombieStateType::Idle);
 }
@@ -78,7 +82,7 @@ EZombieStateType AZombieAI::GetCurrentState() const
 void AZombieAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	const TObjectPtr<ACharacterPlayer> TargetPlayer = Cast<ACharacterPlayer>(Actor);
-	CurrentTargetPlayer = TargetPlayer;
+	CurrentTargetCharacter = TargetPlayer;
 	
 	if (Stimulus.WasSuccessfullySensed())
 	{

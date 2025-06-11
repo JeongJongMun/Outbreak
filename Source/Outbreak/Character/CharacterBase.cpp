@@ -88,6 +88,8 @@ void ACharacterBase::BeginPlay()
 	Super::BeginPlay();
 	
 	InitCharacterData();
+	SetupCollision();
+	SetupMovement();
 }
 
 void ACharacterBase::InitCharacterData()
@@ -192,4 +194,24 @@ void ACharacterBase::ApplyHitEffects(const int32 DamageAmount, const EPhysicalSu
 		default:
 			break;
 	}
+}
+
+void ACharacterBase::SetupCollision()
+{
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
+
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+}
+
+void ACharacterBase::SetupMovement()
+{
+	auto* MovementComp = GetCharacterMovement();
+	MovementComp->bOrientRotationToMovement = true;
+	MovementComp->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
+	MovementComp->JumpZVelocity = 700.f;
+	MovementComp->AirControl = 0.35f;
+	MovementComp->MaxWalkSpeed = 500.f;
+	MovementComp->MinAnalogWalkSpeed = 20.f;
+	MovementComp->BrakingDecelerationWalking = 2000.f;
 }

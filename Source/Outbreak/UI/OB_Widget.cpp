@@ -10,6 +10,10 @@ void UOB_Widget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	if (!GetWorld() || GetWorld()->GetNetMode() == NM_DedicatedServer)
+	{
+		return; 
+	}
 	UTextureRenderTarget2D* RenderTarget = LoadObject<UTextureRenderTarget2D>(nullptr, TEXT("/Game/UI/MiniMap/RT_Minimap.RT_Minimap"));
 	if (RenderTarget && MiniMapImage)
 	{

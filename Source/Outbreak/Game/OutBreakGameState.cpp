@@ -89,9 +89,12 @@ void AOutBreakGameState::OnRep_TotalZombieKills()
 	UE_LOG(LogTemp, Log, TEXT("총 좀비 처치 수 변경: %d"), TotalZombieKills);
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
-		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		if (PC->IsLocalController())
 		{
-			HUD->DisplayTotalZombieKills(TotalZombieKills);
+			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			{
+				HUD->DisplayTotalZombieKills(TotalZombieKills);
+			}
 		}
 	}
 }
@@ -108,9 +111,12 @@ void AOutBreakGameState::OnRep_AlivePlayerCount()
 	UE_LOG(LogTemp, Log, TEXT("생존 플레이어 수 변경: %d"), AlivePlayerCount);
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
-		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		if (PC->IsLocalController())
 		{
-			HUD->DisplayAlivePlayerCount(AlivePlayerCount);
+			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			{
+				HUD->DisplayAlivePlayerCount(AlivePlayerCount);
+			}	
 		}
 	}
 }
@@ -132,9 +138,12 @@ void AOutBreakGameState::OnRep_AnnouncementMessage()
 	UE_LOG(LogTemp, Log, TEXT("알림 : %s"), *AnnouncementMessage);
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
-		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		if (PC->IsLocalController())
 		{
-			HUD->DisplayAnnouncementMessage(ObjectiveMessage);
+			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			{
+				HUD->DisplayAnnouncementMessage(ObjectiveMessage);
+			}
 		}
 	}
 }
@@ -143,9 +152,12 @@ void AOutBreakGameState::OnRep_ObjectMessage()
 {
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
-		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		if (PC->IsLocalController())
 		{
-			HUD->DisplayObjectiveMessage(ObjectiveMessage);
+			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			{
+				HUD->DisplayObjectiveMessage(ObjectiveMessage);
+			}
 		}
 	}
 }

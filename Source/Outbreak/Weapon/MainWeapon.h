@@ -21,7 +21,7 @@ public:
 	AMainWeapon();
 	
 	void ApplyCameraShake();
-
+	
 
 protected:
 

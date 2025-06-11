@@ -124,19 +124,16 @@ void AWeaponSMG::MakeShot()
     
     FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
     // FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
-    // if (NiagaraMuzzleFlash)
-    // {
-    //     UNiagaraFunctionLibrary::SpawnSystemAttached(
-    //         NiagaraMuzzleFlash,
-    //         WeaponMesh,
-    //         MuzzleSocketName,
-    //         FVector::ZeroVector,
-    //         MuzzleRot,
-    //         EAttachLocation::SnapToTarget,
-    //         true,
-    //         true
-    //     );
-    // }
+    // UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+    //     NiagaraMuzzleFlash, 
+    //     WeaponMesh,                     
+    //     TEXT("Muzzle_SMG"),
+    //     FVector::ZeroVector,
+    //     FRotator(MuzzleRot.Pitch, MuzzleRot.Yaw, MuzzleRot.Roll),
+    //     EAttachLocation::SnapToTarget,
+    //     true,   
+    //     true   
+    // );
     
     
     AActor* MyOwner = GetOwner();

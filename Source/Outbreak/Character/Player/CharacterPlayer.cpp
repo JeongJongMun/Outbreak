@@ -72,7 +72,6 @@ ACharacterPlayer::ACharacterPlayer()
 	PlayerNameText->SetTextRenderColor(FColor::White);
 	PlayerNameText->SetOwnerNoSee(true);
 	
-	GetMesh()->SetHiddenInGame(true);
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> FirstPersonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Pack/SkeletalMeshes/Arms/SK_fps_armRig.SK_fps_armRig'"));
 	if (FirstPersonMeshRef.Succeeded())
@@ -87,7 +86,6 @@ ACharacterPlayer::ACharacterPlayer()
 	FirstPersonMesh->CastShadow = false;
 
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
-	GunMesh->SetOnlyOwnerSee(true);
 	GunMesh->SetupAttachment(
 		FirstPersonMesh,
 		TEXT("weapon_socket_l"));

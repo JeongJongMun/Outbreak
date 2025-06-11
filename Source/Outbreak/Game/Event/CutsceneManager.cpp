@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Outbreak/Character/Player/CharacterPlayer.h"
 
 void UCutsceneManager::Init(UWorld* InWorld)
 {
@@ -44,6 +45,10 @@ void UCutsceneManager::PlayCutscene(ULevelSequence* Sequence, const FString& InO
 				if (ACharacter* Character = Cast<ACharacter>(Pawn))
 				{
 					Character->GetCharacterMovement()->DisableMovement();
+					if (ACharacterPlayer* CP = Cast<ACharacterPlayer>(Character))
+					{
+						CP->bIsCutscenePlaying = true;
+					}
 				}
 			}
 		}
@@ -90,6 +95,10 @@ void UCutsceneManager::OnCutSceneFinished()
 			if (ACharacter* Character = Cast<ACharacter>(Pawn))
 			{
 				Character->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+				if (ACharacterPlayer* CP = Cast<ACharacterPlayer>(Character))
+				{
+					CP->bIsCutscenePlaying = false;
+				}
 			}
 		}
 	}

@@ -320,7 +320,7 @@ void ACharacterPlayer::OnReload()
 
 void ACharacterPlayer::OnFirePressed()
 {
-	if (!CurrentWeapon) return;
+	if (!CurrentWeapon || bIsCutscenePlaying) return;
 
 	if (bIsAutoFire)
 	{

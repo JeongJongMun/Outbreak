@@ -19,12 +19,17 @@ public:
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
-	virtual void SetPhysicalAsset(ECharacterType CharacterType, ECharacterBodyType BodyType);
+	virtual void BeginPlay() override;
+	virtual void InitCharacterData();
+	virtual void SetupCollision();
+	virtual void SetupMovement();
+	virtual void SetPhysicalAsset(ECharacterType InCharacterType, ECharacterBodyType InBodyType);
 	virtual bool IsDead() const;
 	virtual void Die();
 	virtual float GetDamageMultiplier(EPhysicalSurface SurfaceType);
 	virtual void ApplyDamage(int32 DamageAmount);
 	virtual void ApplyHitEffects(const int32 DamageAmount, const EPhysicalSurface SurfaceType = EPhysicalSurface::SurfaceType_Default);
+
 	
 // --------------------
 // Variables
@@ -33,6 +38,8 @@ public:
 	float AttackDamageMultiplier = 1.0f;
 	
 protected:
+	ECharacterType CharacterType = ECharacterType::None;
+	
 	int32 CurrentHealth = 100;
 	int32 CurrentExtraHealth = 0;
 

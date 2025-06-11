@@ -3,3 +3,7 @@
 
 #include "NormalZombie.h"
 
+ANormalZombie::ANormalZombie()
+{
+	ZombieType = EZombieType::Normal;
+}

@@ -1,40 +1,72 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterZombie.h"
-
+#include "CharacterSpawnManager.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Outbreak/Game/OutBreakGameState.h"
+#include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
 #include "State/FZombieIdleState.h"
 
 ACharacterZombie::ACharacterZombie()
 {
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
-	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	
 	PrimaryActorTick.bCanEverTick = true;
+	
+	CharacterType = ECharacterType::Zombie;
 	AIControllerClass = AZombieAI::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
-	ConstructorHelpers::FObjectFinder<UAnimMontage> ZombieAnimationMontage(TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/Montage_Zombie.Montage_Zombie'"));
-	if (ZombieAnimationMontage.Succeeded())
-	{
-		AnimMontage = ZombieAnimationMontage.Object;
-	}
+	TMap<EZombieAnimationType, FString> MontagePaths = {
+		{EZombieAnimationType::Idle, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Idle.MT_Zombie_Idle'")},
+		{EZombieAnimationType::Wander, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Wander.MT_Zombie_Wander'")},
+		{EZombieAnimationType::ChaseWalk, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Chase_Walk.MT_Zombie_Chase_Walk'")},
+		{EZombieAnimationType::ChaseRun, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Chase_Run.MT_Zombie_Chase_Run'")},
+		{EZombieAnimationType::Attack, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Attack.MT_Zombie_Attack'")},
+		{EZombieAnimationType::Die, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Die.MT_Zombie_Die'")},
+	};
 
-	MontageSectionNameMap.Add(EZombieStateType::Idle, IdleSectionName);
-	MontageSectionNameMap.Add(EZombieStateType::Wander, WanderSectionName);
-	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseRunSectionName);
-	MontageSectionNameMap.Add(EZombieStateType::Attack, AttackSectionName);
-	MontageSectionNameMap.Add(EZombieStateType::Die, DieSectionName);
+	for (const auto& [Type, Path] : MontagePaths)
+	{
+		if (ConstructorHelpers::FObjectFinder<UAnimMontage> MontageFinder(*Path); MontageFinder.Succeeded())
+		{
+			AnimMontageMap.Add(Type, MontageFinder.Object);
+		}
+	}
+}
+
+void ACharacterZombie::InitCharacterData()
+{
+	Super::InitCharacterData();
+
+	const AOutBreakGameState* GameState = Cast<AOutBreakGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	if (!GameState)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] GameState is null!"), CURRENT_CONTEXT);
+		return;
+	}
+	ACharacterSpawnManager* SpawnManager = GameState->GetSpawnManager();
+	if (!SpawnManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] SpawnManager is null!"), CURRENT_CONTEXT);
+		return;
+	}
+	const FZombieData* Data = SpawnManager->GetZombieData(ZombieSubType);
+	ZombieData = *Data;
+	CurrentHealth = ZombieData.MaxHealth;
+	CurrentExtraHealth = 0;
 }
 
 void ACharacterZombie::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	ZombieAIController = CastChecked<AZombieAI>(GetController());
-	ZombieAIController->InitializeStateMachine(this);
+
+	ZombieAI = Cast<AZombieAI>(GetController());
+	if (ZombieAI)
+	{
+		ZombieAI->InitializeZombieAI(this);
+	}
 }
 
 void ACharacterZombie::Tick(float DeltaTime)
@@ -43,46 +75,59 @@ void ACharacterZombie::Tick(float DeltaTime)
 
 }
 
-void ACharacterZombie::InitializeZombieData(FZombieData* InData)
+void ACharacterZombie::SetupCollision()
 {
-	ZombieData = *InData;
-	CurrentHealth = ZombieData.MaxHealth;
-	CurrentExtraHealth = 0;
+	Super::SetupCollision();
+
+	GetCapsuleComponent()->InitCapsuleSize(10.f, 96.0f);
+	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
-void ACharacterZombie::PlayAnimation(const EZombieStateType AnimType)
+void ACharacterZombie::SetupMovement()
 {
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (!AnimInstance || !AnimMontage)
-		return;
+	Super::SetupMovement();
 
-	// TODO : Section Name Manage
-	const FName SectionPrefix = MontageSectionNameMap[AnimType];
-	const FName SectionName = FName(*FString::Printf(TEXT("%s%d"), *SectionPrefix.ToString(), 0));
+	auto* MovementComp = GetCharacterMovement();
+	MovementComp->AvoidanceConsiderationRadius = 500.0f;
+	MovementComp->SetAvoidanceEnabled(true);
+	MovementComp->SetRVOAvoidanceWeight(0.3f);
+	MovementComp->SetAvoidanceGroup(static_cast<int32>(EAvoidanceGroupType::Zombie));
+	MovementComp->SetGroupsToAvoid(static_cast<int32>(EAvoidanceGroupType::Zombie));
+	MovementComp->SetGroupsToIgnore(static_cast<int32>(EAvoidanceGroupType::Player));
+}
 
-	if (AnimInstance->Montage_IsPlaying(AnimMontage))
+void ACharacterZombie::PlayAnimation(const EZombieStateType InStateType)
+{
+	const EZombieAnimationType AnimationType = GetZombieAnimationTypeFromState(InStateType);
+
+	if (const TObjectPtr<UAnimMontage> AnimMontage = AnimMontageMap.FindRef(AnimationType))
 	{
-		const FName CurrentSection = AnimInstance->Montage_GetCurrentSection(AnimMontage);
-		if (CurrentSection != NAME_None && CurrentSection != SectionName)
+		TArray<FName>& SectionNames = AnimSectionMap.FindOrAdd(AnimationType);
+		if (SectionNames.IsEmpty())
 		{
-			AnimInstance->Montage_Stop(0.5f, AnimMontage);
-			AnimInstance->Montage_Play(AnimMontage);
-			AnimInstance->Montage_JumpToSection(SectionName, AnimMontage); 
+			for (const auto& Section : AnimMontage->CompositeSections)
+			{
+				SectionNames.Add(Section.SectionName);
+			}
 		}
-	}
-	else
-	{
-		AnimInstance->Montage_Play(AnimMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage); 
+
+		if (SectionNames.Num() > 0)
+		{
+			const FName RandomSection = SectionNames[FMath::RandRange(0, SectionNames.Num() - 1)];
+			PlayAnimMontage(AnimMontage, 1.0f, RandomSection);
+		}
 	}
 }
 
 void ACharacterZombie::ChangeZombieState(const EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	if (!ZombieAIController->StateMachine.IsValid())
-	return;
-
-	ZombieAIController->StateMachine->ChangeState(NewState, TargetPlayer);
+	if (ZombieAI->StateMachine.IsValid())
+	{
+		ZombieAI->StateMachine->ChangeState(NewState, TargetPlayer);
+	}
 }
 
 void ACharacterZombie::Die()
@@ -90,6 +135,63 @@ void ACharacterZombie::Die()
 	Super::Die();
 
 	ChangeZombieState(EZombieStateType::Die);
+
+	if (AController* Killer = LastDamagePlayer)
+	{
+		if (AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(Killer->PlayerState))
+		{
+			PS->AddZombieKill();
+		}
+	}
+	if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
+	{
+		GS->AddTotalZombieKill();
+	}
+}
+
+float ACharacterZombie::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	LastDamagePlayer = EventInstigator; // Save Last Instigator
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
+EZombieAnimationType ACharacterZombie::GetZombieAnimationTypeFromState(const EZombieStateType InStateType)
+{
+	EZombieAnimationType AnimType = EZombieAnimationType::None;
+	if (InStateType == EZombieStateType::Chase)
+	{
+		const uint8 bIsRunning = GetZombieData()->bIsCanRun;
+		AnimType = bIsRunning ? EZombieAnimationType::ChaseRun : EZombieAnimationType::ChaseWalk;
+	}
+
+	switch (InStateType)
+	{
+	case EZombieStateType::Idle:
+		AnimType = EZombieAnimationType::Idle;
+		break;
+	case EZombieStateType::Wander:
+		AnimType = EZombieAnimationType::Wander;
+		break;
+	case EZombieStateType::Alert:
+		AnimType = EZombieAnimationType::Alert;
+		break;
+	case EZombieStateType::Chase:
+		break;
+	case EZombieStateType::Attack:
+		AnimType = EZombieAnimationType::Attack;
+		break;
+	case EZombieStateType::Stun:
+		AnimType = EZombieAnimationType::Stun;
+		break;
+	case EZombieStateType::Die:
+		AnimType = EZombieAnimationType::Die;
+		break;
+	default:
+		UE_LOG(LogTemp, Error, TEXT("[%s] Invalid Zombie State Type: %s"), CURRENT_CONTEXT, *UEnum::GetValueAsString(InStateType));
+		return EZombieAnimationType::None;
+	}
+
+	return AnimType;
 }
 
 void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)
@@ -152,6 +254,6 @@ void ACharacterZombie::OnAttackEnd()
 			);
 		}
 	}
-	
-	ChangeZombieState(EZombieStateType::Chase, ZombieAIController->CurrentTargetPlayer);
+
+	ChangeZombieState(EZombieStateType::Chase, ZombieAI->GetCurrentTargetCharacter());
 }

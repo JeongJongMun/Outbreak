@@ -7,6 +7,7 @@
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
+#include "Outbreak/UI/OB_HUD.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogWeaponAR, All, All);
 AWeaponAR::AWeaponAR()
@@ -23,6 +24,7 @@ AWeaponAR::AWeaponAR()
     {
         WeaponMesh->SetSkeletalMesh(WeaponMeshObj.Object);
     }
+    WeaponMesh->SetHiddenInGame(true);
     ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Game/Sounds/AR_Single.AR_Single"));
     if (tempSound.Succeeded()) {
         WeaponData.ShotSound = tempSound.Object; 
@@ -52,6 +54,7 @@ void AWeaponAR::Reload()
         WeaponData.ReloadDuration,
         false
     );
+    NotifyAmmoUpdate();
 }
 
 void AWeaponAR::FinishReload()
@@ -69,6 +72,7 @@ void AWeaponAR::FinishReload()
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
             FString::Printf(TEXT("%d / %d"), WeaponData.CurrentAmmo, WeaponData.TotalAmmo));
     }
+    NotifyAmmoUpdate();
 }
 
 void AWeaponAR::StartFire()
@@ -197,8 +201,7 @@ void AWeaponAR::MakeShot()
                 UDamageType::StaticClass());
         }
     }
-
-
+    NotifyAmmoUpdate();
 }
 
 void AWeaponAR::InitializeWeaponData(FWeaponData* InData)
@@ -209,6 +212,21 @@ void AWeaponAR::InitializeWeaponData(FWeaponData* InData)
 bool AWeaponAR::IsReloading()
 {
     return bIsReloading;
+}
+
+void AWeaponAR::NotifyAmmoUpdate()
+{
+    ACharacterPlayer* OwnerCharacter = Cast<ACharacterPlayer>(GetOwner());
+    if (!OwnerCharacter) return;
+
+    APlayerController* PC = Cast<APlayerController>(OwnerCharacter->GetController());
+    if (!PC) return;
+
+    AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD());
+    if (HUD)
+    {
+        HUD->DisplayAmmo(WeaponData.CurrentAmmo, WeaponData.TotalAmmo);
+    }
 }
 
 void AWeaponAR::BeginPlay()

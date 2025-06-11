@@ -4,14 +4,25 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
+#include "PaperSprite.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Outbreak/Animation/FPSAnimInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
+#include "Outbreak/Game/OutBreakGameState.h"
+#include "Outbreak/Game/OutBreakPlayerState.h"
+#include "Outbreak/UI/OB_HUD.h"
 #include "Outbreak/Weapon/WeaponAR.h"
 #include "Outbreak/Weapon/WeaponSMG.h"
 
 ACharacterPlayer::ACharacterPlayer()
 {
+	CharacterType = ECharacterType::Player;
+	PlayerType = EPlayerType::Player1;
+	
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera -> SetupAttachment(GetCapsuleComponent());
 	FirstPersonCamera -> SetRelativeLocation(FVector(20, 0, BaseEyeHeight));
@@ -22,8 +33,43 @@ ACharacterPlayer::ACharacterPlayer()
 	TopViewCamera->SetRelativeLocation(FVector(0.f, 0.f, 800.f));
 	TopViewCamera->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
 	TopViewCamera->bUsePawnControlRotation = false;
+	
+	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("SceneCapture2D"));
+	SceneCapture->ProjectionType = ECameraProjectionMode::Type::Orthographic;
+	SceneCapture->OrthoWidth = 4000.f;
+	SceneCapture->SetupAttachment(RootComponent); 
+	SceneCapture->SetRelativeLocation(FVector(0.f, 0.f, 2100.f)); 
+	SceneCapture->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f)); 
+	SceneCapture->bCaptureEveryFrame = true;
+	SceneCapture->bCaptureOnMovement = false;
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTargetRef(TEXT("/Game/UI/MiniMap/RT_Minimap.RT_Minimap"));
+	if (RenderTargetRef.Succeeded())
+	{
+		SceneCapture->TextureTarget = RenderTargetRef.Object;
+	}
 
-	GetMesh()->SetHiddenInGame(true);
+	PlayerIconSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("PlayerIconSprite"));
+	PlayerIconSprite->SetupAttachment(GetCapsuleComponent());
+	PlayerIconSprite->SetRelativeLocation(FVector(0.f, 0.f, 2000.f));
+	PlayerIconSprite->SetRelativeRotation(FRotator(-180.f, -180.f, -90.f));
+	PlayerIconSprite->SetRelativeScale3D(FVector(0.5f));
+	PlayerIconSprite->SetOwnerNoSee(true);
+	static ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerIconAsset(TEXT("/Game/UI/MiniMap/PlayerIcon_Sprite.PlayerIcon_Sprite"));
+	if (PlayerIconAsset.Succeeded())
+	{
+		PlayerIconSprite->SetSprite(PlayerIconAsset.Object);
+	}
+	
+	PlayerNameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("PlayerNameText"));
+	PlayerNameText->SetupAttachment(GetCapsuleComponent());
+	PlayerNameText->SetRelativeLocation(FVector(-250.f, 0.f, 2000.f));
+	PlayerNameText->SetRelativeRotation(FRotator(90.f, 180.f, 0.f));
+	PlayerNameText->SetHorizontalAlignment(EHTA_Center);
+	PlayerNameText->SetVerticalAlignment(EVRTA_TextCenter);
+	PlayerNameText->SetWorldSize(200.f); // 텍스트 크기
+	PlayerNameText->SetTextRenderColor(FColor::White);
+	PlayerNameText->SetOwnerNoSee(true);
+	
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> FirstPersonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Pack/SkeletalMeshes/Arms/SK_fps_armRig.SK_fps_armRig'"));
 	if (FirstPersonMeshRef.Succeeded())
@@ -39,14 +85,11 @@ ACharacterPlayer::ACharacterPlayer()
 
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
 	GunMesh->SetOnlyOwnerSee(true);
+	GunMesh->SetupAttachment(
+		FirstPersonMesh,
+		TEXT("weapon_socket_l"));
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
-
-	auto CM = GetCharacterMovement();
-	CM->MaxStepHeight = 50.f;
-	CM->SetWalkableFloorAngle(55.f);
-	CM->bUseControllerDesiredRotation = true;
-	CM->bOrientRotationToMovement = true;
 
 	// Input Mapping Context
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Inputs/IMC_Player.IMC_Player'"));
@@ -114,12 +157,47 @@ ACharacterPlayer::ACharacterPlayer()
 	{
 		SwapSlot2 = InputActionSwap2.Object;
 	}
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SMGMeshobj(
+	TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/SMG02/SK_weapon_SMG_02.SK_weapon_SMG_02"));
+	if (SMGMeshobj.Object)
+	{
+		SMGMesh = SMGMeshobj.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ARMeshObj(
+	TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));
+	if (ARMeshObj.Object)
+	{
+		ARMesh = ARMeshObj.Object;
+	}
 	
 	CurrentCharacterControlType = EPlayerControlType::Top;
 	WeaponInventory.SetNum(6);
 	WeaponInstances.SetNum(6);
 	CurrentWeapon = nullptr;
 	CurrentSlotIndex = -1;
+}
+
+void ACharacterPlayer::InitCharacterData()
+{
+	Super::InitCharacterData();
+
+	const AOutBreakGameState* GameState = Cast<AOutBreakGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	if (!GameState)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] GameState is null!"), CURRENT_CONTEXT);
+		return;
+	}
+	ACharacterSpawnManager* SpawnManager = GameState->GetSpawnManager();
+	if (!SpawnManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] SpawnManager is null!"), CURRENT_CONTEXT);
+		return;
+	}
+
+	const FPlayerData* Data = SpawnManager->GetPlayerData(PlayerType);
+	PlayerData = *Data;
+	CurrentHealth = PlayerData.MaxHealth;
+	CurrentExtraHealth = 0;
 }
 
 void ACharacterPlayer::BeginPlay()
@@ -136,8 +214,13 @@ void ACharacterPlayer::BeginPlay()
 		{
 			TopViewCamera->SetActive(false);
 		}
-
 	}
+	AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(GetPlayerState());
+	if (PS && PlayerNameText)
+	{
+		PlayerNameText->SetText(FText::FromString(PS->PlayerNickname));
+	}
+	
 	/// 인벤토리 스왑 디버깅용 코드
 	WeaponInventory[0] = AWeaponAR::StaticClass();
 	WeaponInventory[1] = AWeaponSMG::StaticClass();
@@ -146,20 +229,28 @@ void ACharacterPlayer::BeginPlay()
 	{
 		if (WeaponInventory[i])
 		{
-			// SpawnParameters 설정 (충돌 무시, 소유자 설정 등)
+
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = GetInstigator();
-
+			SpawnParams.bDeferConstruction = true;  
 			// 월드에 무기 액터 스폰
-			AWeaponBase* NewWeapon = GetWorld()->SpawnActor<AWeaponBase>(WeaponInventory[i], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+			AWeaponBase* NewWeapon = GetWorld()->SpawnActorDeferred<AWeaponBase>(
+				WeaponInventory[i],
+				FTransform::Identity,
+				SpawnParams.Owner,
+				SpawnParams.Instigator,
+				ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+			);
 			if (NewWeapon)
 			{
 				// 처음에는 모두 비활성 상태로 두거나, 보이지 않게 설정
-				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("Weapon_Sheath"))); 
+				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_socket_l"))); 
 				NewWeapon->SetActorHiddenInGame(true);
 				NewWeapon->SetActorEnableCollision(false);
 
+				UGameplayStatics::FinishSpawningActor(NewWeapon, FTransform::Identity);
+				
 				WeaponInstances[i] = NewWeapon;
 			}
 		}
@@ -268,13 +359,6 @@ void ACharacterPlayer::OnToggleFireMode()
 	}
 }
 
-void ACharacterPlayer::InitializePlayerData(FPlayerData* InData)
-{
-	PlayerData = *InData;
-	CurrentHealth = PlayerData.MaxHealth;
-	CurrentExtraHealth = 0;
-}
-
 void ACharacterPlayer::SetCharacterControl(EPlayerControlType NewCharacterControlType)
 {
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
@@ -308,16 +392,19 @@ void ACharacterPlayer::ChangeArm()
 {
 	UClass* ArmAnimClass = nullptr;
 	UClass* WeaponAnimClass = nullptr;
-
-	if (WeaponClass == AWeaponAR::StaticClass())
+	
+	if (CurrentWeapon->GetClass() == AWeaponAR::StaticClass())
 	{
 		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/AR02/ABP_Arms_AR02.ABP_Arms_AR02_C"));
+		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/AR02/ABP_AR02.ABP_AR02_C"));
+		GunMesh->SetSkeletalMesh(ARMesh);
+		
 	}
-	else if (WeaponClass == AWeaponSMG::StaticClass())
+	else if (CurrentWeapon->GetClass() == AWeaponSMG::StaticClass())
 	{
 		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/MP2/ABP_Arms_MP2.ABP_Arms_MP2_C"));
 		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/SMG02/ABP_SMG02.ABP_SMG02_C"));
-		FirstPersonMesh->SetRelativeRotation(FRotator(0.f,-90.f,15.f));
+		GunMesh->SetSkeletalMesh(SMGMesh);
 	}
 	else
 	{
@@ -333,10 +420,12 @@ void ACharacterPlayer::ChangeArm()
 	{
 		FirstPersonMesh->SetAnimInstanceClass(ArmAnimClass);
 	}
+
 	if (WeaponAnimClass)
 	{
 		GunMesh->SetAnimInstanceClass(WeaponAnimClass);
 	}
+
 }
 
 void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
@@ -367,9 +456,29 @@ void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
 
 	CurrentWeapon = NewWeapon;
 	CurrentSlotIndex = NewSlotIndex;
-
+	GEngine->AddOnScreenDebugMessage(
+		-1, 2.5f, FColor::Yellow,
+		FString::Printf(TEXT("Selected Slot: %d"), CurrentWeapon)
+	);
 
 	ChangeArm();
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->NotifyAmmoUpdate();
+
+		FString WeaponType;
+		if (NewSlotIndex == 0) WeaponType = "AR";
+		else if (NewSlotIndex == 1) WeaponType = "SMG";
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD());
+			if (HUD)
+			{
+				HUD->DisplayWeaponType(WeaponType);
+			}
+		}
+	}
 }
 
 void ACharacterPlayer::OnPressedSlot1()
@@ -438,4 +547,26 @@ bool ACharacterPlayer::IsReloading() const
 	return CurrentWeapon -> bIsReloading;
 }
 
+void ACharacterPlayer::SetupCollision()
+{
+	Super::SetupCollision();
 
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
+	auto* MeshComp = GetMesh();
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	MeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	MeshComp->bOwnerNoSee = true;
+	MeshComp->SetHiddenInGame(true);
+}
+
+void ACharacterPlayer::SetupMovement()
+{
+	Super::SetupMovement();
+
+	auto* MovementComp = GetCharacterMovement();
+	MovementComp->MaxStepHeight = 50.f;
+	MovementComp->SetWalkableFloorAngle(55.f);
+	MovementComp->bUseControllerDesiredRotation = true;
+}

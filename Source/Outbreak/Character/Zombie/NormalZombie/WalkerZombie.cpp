@@ -5,7 +5,7 @@
 
 AWalkerZombie::AWalkerZombie()
 {
-
+	ZombieSubType = EZombieSubType::Walker;
 }
 
 void AWalkerZombie::BeginPlay()
@@ -14,9 +14,6 @@ void AWalkerZombie::BeginPlay()
 	SetPhysicalAsset(ECharacterType::Zombie, ECharacterBodyType::Normal);
 	
 	Super::BeginPlay();
-	
-	MontageSectionNameMap.Remove(EZombieStateType::Chase);
-	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseWalkSectionName);
 }
 
 void AWalkerZombie::SetMesh(ECharacterBodyType MeshType)

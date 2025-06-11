@@ -12,13 +12,14 @@ class TState
 public:
 	virtual ~TState() = default;
 
-	TState(TSharedPtr<TStateMachine<T, ContextType>> InFsm)
+	TState(TSharedPtr<TStateMachine<T, ContextType>> InFsm, T InStateKey)
 	{
 		if (!InFsm)
 		{
 			UE_LOG(LogTemp, Error, TEXT("StateMachine is null"));
 		}
 		Fsm = InFsm;
+		StateKey = InStateKey;
 	};
 
 	/*

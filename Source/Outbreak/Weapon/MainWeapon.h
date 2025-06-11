@@ -19,8 +19,7 @@ public:
 	AMainWeapon();
 	
 	void ApplyCameraShake();
-	FORCEINLINE FName GetMuzzleSocketName() const { return MuzzleSocketName; }
-	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+
 
 protected:
 
@@ -33,8 +32,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Weapon")
 	FName MuzzleSocketName = TEXT("Muzzle"); // 발사될 총구 소켓 이름
 	
-	UPROPERTY(VisibleAnywhere, Category="Weapon")
-	USkeletalMeshComponent* WeaponMesh; // 무기 메시
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
 	UDataTable* WeaponDataTable;

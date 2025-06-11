@@ -6,12 +6,33 @@
 
 #define CURRENT_CONTEXT *FString(__FUNCTION__)
 
+enum class EAvoidanceGroupType : uint8
+{
+	None = 0,
+	Player = 1 << 0,
+	Zombie = 1 << 1,
+};
+
 UENUM()
 enum class ECharacterBodyType : uint8
 {
 	Normal,
 	Muscle,
 	Fat,
+};
+
+UENUM()
+enum class EZombieAnimationType : uint8
+{
+	None,
+	Idle,
+	Wander,
+	Alert,
+	ChaseWalk,
+	ChaseRun,
+	Attack,
+	Stun,
+	Die,
 };
 
 UENUM()

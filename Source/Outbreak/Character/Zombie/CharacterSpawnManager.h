@@ -28,7 +28,9 @@ class OUTBREAK_API ACharacterSpawnManager : public AActor
 public:	
 	ACharacterSpawnManager();
 	// TODO : After Spawn 'Player', Need to decide who will be possessing player
-	void SpawnCharacter(const FCharacterSpawnParam& InSpawnParam);
+	void SpawnCharacter(const FCharacterSpawnParam& InSpawnParam) const;
+	FZombieData* GetZombieData(const EZombieSubType Type);
+	FPlayerData* GetPlayerData(const EPlayerType Type);
 
 protected:
 	virtual void BeginPlay() override;
@@ -54,7 +56,6 @@ private:
 		}
 	}
 
-	FCharacterBaseData* GetCharacterData(ECharacterType CharacterType, const FString& RowName);
 
 // --------------------
 // Variables

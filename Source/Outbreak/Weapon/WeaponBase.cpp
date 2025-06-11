@@ -29,3 +29,7 @@ void AWeaponBase::InitializeWeaponData(FWeaponData* InData)
 {
 	
 }
+void AWeaponBase::NotifyAmmoUpdate()
+{
+	
+}

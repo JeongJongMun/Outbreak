@@ -13,5 +13,8 @@ UCLASS()
 class OUTBREAK_API ANormalZombie : public ACharacterZombie
 {
 	GENERATED_BODY()
+
+public:
+	ANormalZombie();
 	
 };

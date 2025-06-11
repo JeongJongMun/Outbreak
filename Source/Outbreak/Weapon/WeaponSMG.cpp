@@ -8,6 +8,8 @@
 
 AWeaponSMG::AWeaponSMG()
 {
+    SetReplicates(true);
+
     AmmoClass = ASMGAmmo::StaticClass();
     
     MuzzleSocketName = TEXT("Muzzle_SMG");
@@ -73,6 +75,7 @@ void AWeaponSMG::FinishReload()
 }
 void AWeaponSMG::StartFire()
 {
+    // 여기에 총쏘는 이펙트 넣기 (즉시 피드백)
     if (bIsReloading)
         return;
 
@@ -82,15 +85,19 @@ void AWeaponSMG::StartFire()
         return;
     }
 
-    MakeShot();
+    PlayLocalEffects();
+    ServerMakeShot();
+
+    //연속발사 코드 
     GetWorldTimerManager().SetTimer(
         TimerHandle_TimeBetweenShots,
         this,
-        &AWeaponSMG::MakeShot,
+        &AWeaponSMG::ServerMakeShot,
         WeaponData.FireFrequency,
         true
     );
 }
+
 void AWeaponSMG::InitializeWeaponData(FWeaponData* InData)
 {
     WeaponData = *InData;
@@ -100,10 +107,6 @@ void AWeaponSMG::StopFire()
 {
     GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
-
-
-
-
 
 void AWeaponSMG::MakeShot()
 {
@@ -119,69 +122,10 @@ void AWeaponSMG::MakeShot()
 
     WeaponData.CurrentAmmo--;
 
-    ApplyCameraShake();
-    UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
+    //ApplyCameraShake();
+    //UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
 
-    AActor* MyOwner = GetOwner();
-    if (!MyOwner) return;
-
-    APlayerController* PC = Cast<APlayerController>(MyOwner->GetInstigatorController());
-    if (!PC) return;
-
-    FVector ViewLocation;
-    FRotator ViewRotation;
-    PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
-
-    const float HalfRad = FMath::DegreesToRadians(WeaponData.BulletSpread * 0.5f);
-    FVector ShotDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
-    FVector TraceEnd = ViewLocation + ShotDirection * WeaponData.TraceMaxDistance;
-
-    FHitResult Hit;
-    FCollisionQueryParams Params;
-    Params.AddIgnoredActor(MyOwner);
-    Params.AddIgnoredActor(this);
-    Params.bReturnPhysicalMaterial = true;
-    bool bHit = GetWorld()->LineTraceSingleByChannel(
-        Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
-
-    FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
-    FVector EndPoint = bHit ? Hit.ImpactPoint : TraceEnd;
-
-    DrawDebugLine(
-        GetWorld(),
-        MuzzleLoc,
-        EndPoint,
-        FColor::Cyan,
-        false,
-        2.0f,
-        SDPG_World,
-        2.5f
-    );
-
-    if (bHit)
-    {
-        DrawDebugSphere(
-            GetWorld(),
-            Hit.ImpactPoint,
-            6.0f,
-            12,
-            FColor::Yellow
-        );
-
-        AActor* HitActor = Hit.GetActor();
-        if (HitActor && HitActor -> IsA(ACharacterZombie::StaticClass()))
-        {
-            UGameplayStatics::ApplyPointDamage(
-                HitActor,
-                10.0f,
-                GetActorForwardVector(),
-                Hit,
-                PC,
-                this,
-                UDamageType::StaticClass());
-        }
-    }
-    NotifyAmmoUpdate();
+    
 }
 
 bool AWeaponSMG::IsReloading()
@@ -230,4 +174,119 @@ void AWeaponSMG::BeginPlay()
     {
         UE_LOG(LogTemp, Warning, TEXT("[WeaponSMG] WeaponDataTable이 에디터에 연결되지 않았습니다."));
     }
+
+}
+void AWeaponSMG::PlayLocalEffects()
+{
+    UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
+    ApplyCameraShake();
+}
+bool AWeaponSMG::ServerMakeShot_Validate()
+{
+    return WeaponData.CurrentAmmo > 0 && !bIsReloading;
+}
+
+
+void AWeaponSMG::ServerMakeShot_Implementation()
+{
+    //MakeShot();
+    WeaponData.CurrentAmmo--;
+    
+    AActor* MyOwner = GetOwner();
+    if (!MyOwner) return;
+
+    APlayerController* PC = Cast<APlayerController>(MyOwner->GetInstigatorController());
+    if (!PC) return;
+
+    FVector ViewLocation;
+    FRotator ViewRotation;
+    PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
+
+    const float HalfRad = FMath::DegreesToRadians(WeaponData.BulletSpread * 0.5f);
+    FVector ShotDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
+    FVector TraceEnd = ViewLocation + ShotDirection * WeaponData.TraceMaxDistance;
+
+    FHitResult Hit;
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(MyOwner);
+    Params.AddIgnoredActor(this);
+    Params.bReturnPhysicalMaterial = true;
+
+    bool bHit = GetWorld()->LineTraceSingleByChannel(
+        Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
+
+    FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+    FVector EndPoint = bHit ? Hit.ImpactPoint : TraceEnd;
+
+    /*
+    DrawDebugLine(
+        GetWorld(),
+        MuzzleLoc,
+        EndPoint,
+        FColor::Cyan,
+        false,
+        2.0f,
+        SDPG_World,
+        2.5f
+    );
+    */
+    //서버에서 데미지 판정.
+    if (bHit)
+    {
+        DrawDebugSphere(
+            GetWorld(),
+            Hit.ImpactPoint,
+            6.0f,
+            12,
+            FColor::Yellow
+        );
+
+        AActor* HitActor = Hit.GetActor();
+        if (HitActor && HitActor->IsA(ACharacterZombie::StaticClass()))
+        {
+            UGameplayStatics::ApplyPointDamage(
+                HitActor,
+                10.0f,
+                GetActorForwardVector(),
+                Hit,
+                PC,
+                this,
+                UDamageType::StaticClass());
+        }
+    }
+    
+    ClientShotRay(TraceEnd, bHit, Hit.ImpactPoint);
+    MultiCastShot(Cast<APlayerController>(GetOwner()->GetInstigatorController()));
+}
+
+void AWeaponSMG::ClientShotRay_Implementation(const FVector& TraceEnd, bool bHit, const FVector& ImpactPoint)
+{
+    FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+    FVector EndPoint = bHit ? ImpactPoint : TraceEnd;
+    DrawDebugLine(
+        GetWorld(),
+        MuzzleLoc,
+        EndPoint,
+        FColor::Cyan,
+        false,          // 지속 여부 (false = 일정 시간 뒤 사라짐)
+        2.0f,           // 지속 시간
+        SDPG_World,
+        2.5f            // 선 두께
+    );
+
+    PlayLocalEffects();
+
+}
+
+void AWeaponSMG::MultiCastShot_Implementation(AController* ShooterController)
+{
+    // 플레이어만 빼고 사운드 호출하기. 
+    APlayerController* LocalPC = Cast<APlayerController>(GetOwner()->GetInstigatorController());
+    if (LocalPC == ShooterController)
+    {
+        return;
+    }
+    //전체 클라이언트에게 들려줘야 하는 사운드.
+    UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
+
 }

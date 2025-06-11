@@ -24,6 +24,17 @@ protected:
 	void FinishReload();
 	virtual void NotifyAmmoUpdate() override;
 
+	UFUNCTION(Server, Reliable,WithValidation)
+	void ServerMakeShot();
+
+	UFUNCTION(Client, Reliable)
+	void ClientShotRay(const FVector& TraceEnd, bool bHit, const FVector& ImpactPoint);
+
+	UFUNCTION(NetMulticast,Unreliable)
+	void MultiCastShot(AController* ShooterController);
+
+	void PlayLocalEffects();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
 	FWeaponData WeaponData;
 	

@@ -22,6 +22,20 @@ enum class ECharacterBodyType : uint8
 };
 
 UENUM()
+enum class EZombieAnimationType : uint8
+{
+	None,
+	Idle,
+	Wander,
+	Alert,
+	ChaseWalk,
+	ChaseRun,
+	Attack,
+	Stun,
+	Die,
+};
+
+UENUM()
 enum class EZombieStateType : uint8
 {
 	None	UMETA(DisplayName = "None"),

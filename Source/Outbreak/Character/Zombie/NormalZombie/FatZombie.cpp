@@ -14,7 +14,4 @@ void AFatZombie::BeginPlay()
 	SetPhysicalAsset(ECharacterType::Zombie, ECharacterBodyType::Fat);
 	
 	Super::BeginPlay();
-
-	MontageSectionNameMap.Remove(EZombieStateType::Chase);
-	MontageSectionNameMap.Add(EZombieStateType::Chase, ChaseWalkSectionName);
 }

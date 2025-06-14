@@ -23,6 +23,10 @@ public:
 	void PlayAnimation(EZombieStateType InStateType);
 	TObjectPtr<AZombieAI> GetZombieAI() const { return ZombieAI; }
 
+	UFUNCTION(NetMulticast,Reliable)
+	void Multicast_PlayAnimation(EZombieStateType InStateType);
+
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

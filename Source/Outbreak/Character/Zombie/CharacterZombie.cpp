@@ -122,6 +122,11 @@ void ACharacterZombie::PlayAnimation(const EZombieStateType InStateType)
 	}
 }
 
+void ACharacterZombie::Multicast_PlayAnimation_Implementation(EZombieStateType InStateType)
+{
+	PlayAnimation(InStateType);
+}
+
 void ACharacterZombie::ChangeZombieState(const EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
 	if (ZombieAI->StateMachine.IsValid())

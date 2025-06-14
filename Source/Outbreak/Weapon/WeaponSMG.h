@@ -27,7 +27,7 @@ protected:
 	UFUNCTION(Server, Reliable,WithValidation)
 	void ServerMakeShot();
 
-	UFUNCTION(Client, Unreliable)
+	UFUNCTION(Client, Reliable)
 	void ClientShotRay(const FVector& TraceEnd, bool bHit, const FVector& ImpactPoint);
 
 	UFUNCTION(NetMulticast,Unreliable)
@@ -39,6 +39,6 @@ protected:
 	FWeaponData WeaponData;
 	
 	FTimerHandle TimerHandle_TimeBetweenShots;
-	FTimerHandle ReloadTimerHandle;
+	FTimerHandle ReloadTimerHandle;	
 	
 };

@@ -36,9 +36,12 @@ void AOutBreakPlayerState::OnRep_ZombieKills()
 	UE_LOG(LogTemp, Log, TEXT("좀비 처치 수 변경: %d"), ZombieKills);
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
-		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		if (PC->IsLocalController())
 		{
-			HUD->DisplayZombieKills(ZombieKills);
+			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			{
+				HUD->DisplayZombieKills(ZombieKills);
+			}
 		}
 	}
 }

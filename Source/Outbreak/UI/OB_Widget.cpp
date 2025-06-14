@@ -10,6 +10,10 @@ void UOB_Widget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	if (!GetWorld() || GetWorld()->GetNetMode() == NM_DedicatedServer)
+	{
+		return; 
+	}
 	UTextureRenderTarget2D* RenderTarget = LoadObject<UTextureRenderTarget2D>(nullptr, TEXT("/Game/UI/MiniMap/RT_Minimap.RT_Minimap"));
 	if (RenderTarget && MiniMapImage)
 	{
@@ -37,13 +41,26 @@ void UOB_Widget::SetCutsceneMode(bool bEnable)
 {
 	ESlateVisibility NewVisibility = bEnable ? ESlateVisibility::Hidden : ESlateVisibility::Visible;
 
-	if (MiniMapImage) MiniMapImage->SetVisibility(NewVisibility);
-	if (MatchTimeTextBlock) MatchTimeTextBlock->SetVisibility(NewVisibility);
-	if (PhaseTextBlock) PhaseTextBlock->SetVisibility(NewVisibility);
-	if (AlivePlayerCountTextBlock) AlivePlayerCountTextBlock->SetVisibility(NewVisibility);
-	if (AnnouncementTextBlock) AnnouncementTextBlock->SetVisibility(NewVisibility);
-	if (TotalZombieKillsTextBlock) TotalZombieKillsTextBlock->SetVisibility(NewVisibility);
-	if (ZombieKillsTextBlock) ZombieKillsTextBlock->SetVisibility(NewVisibility);
+	// 컷씬 재생시 안보일 HUD & UI
+	TArray<UWidget*> WidgetsToToggle = {
+		MiniMapImage,
+		AimImage,
+		MatchTimeTextBlock,
+		PhaseTextBlock,
+		AlivePlayerCountTextBlock,
+		AnnouncementTextBlock,
+		TotalZombieKillsTextBlock,
+		ZombieKillsTextBlock,
+		AmmoTextBlock,
+		WeaponTypeTextBlock
+	};
+	for (UWidget* Widget : WidgetsToToggle)
+	{
+		if (Widget)
+		{
+			Widget->SetVisibility(NewVisibility);
+		}
+	}
 }
 
 

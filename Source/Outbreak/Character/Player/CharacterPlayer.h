@@ -194,8 +194,12 @@ protected:
 
 	// UI & HUD
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
-	UPaperSpriteComponent* PlayerIconSprite;
+	TObjectPtr<UPaperSpriteComponent> PlayerIconSprite;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
-	UTextRenderComponent* PlayerNameText;
+	TObjectPtr<UTextRenderComponent> PlayerNameText;
+	
+public:
+	UPROPERTY()
+	bool bIsCutscenePlaying = false;
 };

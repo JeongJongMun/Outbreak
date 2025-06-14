@@ -8,6 +8,8 @@
 #include "Outbreak/Util/EnumHelper.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 
+#include "Net/UnrealNetwork.h"
+
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
@@ -64,6 +66,12 @@ float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, 
 		
 	return DamageAmount;
 }
+void OnRep_CurrentHealth()
+{
+	// Change Player UI HP
+}
+
+
 
 void ACharacterBase::BeginPlay()
 {
@@ -144,7 +152,10 @@ void ACharacterBase::ApplyDamage(int32 DamageAmount)
 			CurrentExtraHealth = 0;
 		}
 	}
-	
+	if (!HasAuthority())
+	{
+		return;
+	}
 	CurrentHealth -= DamageAmount;
 	if (CurrentHealth < 0)
 		CurrentHealth = 0;
@@ -196,4 +207,12 @@ void ACharacterBase::SetupMovement()
 	MovementComp->MaxWalkSpeed = 500.f;
 	MovementComp->MinAnalogWalkSpeed = 20.f;
 	MovementComp->BrakingDecelerationWalking = 2000.f;
+}
+
+void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACharacterBase, CurrentHealth);
+
 }

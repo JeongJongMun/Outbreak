@@ -17,6 +17,11 @@ class OUTBREAK_API ACharacterBase : public ACharacter
 public:
 	ACharacterBase();
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
+	UFUNCTION()
+	virtual void OnRep_CurrentHealth();
 
 protected:
 	virtual void BeginPlay() override;
@@ -40,7 +45,9 @@ public:
 protected:
 	ECharacterType CharacterType = ECharacterType::None;
 	
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
 	int32 CurrentHealth = 100;
+
 	int32 CurrentExtraHealth = 0;
 
 	// TODO : Hit Damage Multiplier Data Table

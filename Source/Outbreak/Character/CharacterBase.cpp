@@ -66,7 +66,7 @@ float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, 
 		
 	return DamageAmount;
 }
-void OnRep_CurrentHealth()
+void ACharacterBase::OnRep_CurrentHealth()
 {
 	// Change Player UI HP
 }

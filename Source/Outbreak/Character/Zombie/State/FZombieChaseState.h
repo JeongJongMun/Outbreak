@@ -16,4 +16,7 @@ public:
 
 private:
 	FDelegateHandle DelegateHandle;
+	float BlockDetectionDistance = 10.0f;
+	float BlockDetectionInterval = 0.5f;
+	int32 BlockDetectionSampleCount = 2;
 };

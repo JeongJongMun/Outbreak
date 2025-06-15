@@ -31,7 +31,14 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 	float AcceptanceRadius = ZombieData->AttackRange;
 
 	const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
-	DelegateHandle = ZombieAI->GetPathFollowingComponent()->OnRequestFinished.AddLambda([this](FAIRequestID RequestID, const FPathFollowingResult& Result)
+	const TObjectPtr<UPathFollowingComponent> PathFollowingComp = ZombieAI->GetPathFollowingComponent();
+	if (PathFollowingComp)
+	{
+		PathFollowingComp->SetBlockDetectionState(true);
+		PathFollowingComp->SetBlockDetection(BlockDetectionDistance, BlockDetectionInterval, BlockDetectionSampleCount);
+	}
+	
+	DelegateHandle = PathFollowingComp->OnRequestFinished.AddLambda([this](FAIRequestID RequestID, const FPathFollowingResult& Result)
 	{
 		if (Result.IsSuccess())
 		{

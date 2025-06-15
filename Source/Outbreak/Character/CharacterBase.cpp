@@ -16,7 +16,7 @@ ACharacterBase::ACharacterBase()
 	// Pawn
 	
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
 	// Capsule
@@ -209,7 +209,7 @@ void ACharacterBase::SetupCollision()
 void ACharacterBase::SetupMovement()
 {
 	auto* MovementComp = GetCharacterMovement();
-	MovementComp->bOrientRotationToMovement = true;
+	MovementComp->bOrientRotationToMovement = false;
 	MovementComp->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	MovementComp->JumpZVelocity = 700.f;
 	MovementComp->AirControl = 0.35f;

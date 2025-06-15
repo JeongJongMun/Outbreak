@@ -494,7 +494,9 @@ void ACharacterPlayer::OnPressedSlot2()
 void ACharacterPlayer::Look(const FInputActionValue& Value)
 {
 	FVector2D LookAxis = Value.Get<FVector2D>();
-
+	FRotator CameraRotation = FirstPersonCamera->GetComponentRotation();
+	FRotator TargetRotation = FRotator(0.f, CameraRotation.Yaw, 0.f);
+	GetMesh()->SetWorldRotation(TargetRotation);
 	AddControllerYawInput(LookAxis.X);
 	AddControllerPitchInput(LookAxis.Y);
 }

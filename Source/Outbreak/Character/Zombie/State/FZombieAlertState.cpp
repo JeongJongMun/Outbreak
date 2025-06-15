@@ -21,8 +21,7 @@ void FZombieAlertState::Execute(EZombieStateType CurrentState, float DeltaTime)
 	Timer += DeltaTime;
 	if (Timer >= CurrentAnimationLength)
 	{
-		const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
-		ZombieAI->StateMachine->ChangeState(EZombieStateType::Chase, CurrentTargetPlayer);
+		Fsm->ChangeState(EZombieStateType::Chase, CurrentTargetPlayer);
 	}
 }
 

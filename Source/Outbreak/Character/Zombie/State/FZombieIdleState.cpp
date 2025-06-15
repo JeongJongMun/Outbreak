@@ -24,8 +24,7 @@ void FZombieIdleState::Execute(EZombieStateType CurrentState, float DeltaTime)
 
 	if (IdleTimer >= IdleTime)
 	{
-		const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
-		ZombieAI->StateMachine->ChangeState(EZombieStateType::Wander);
+		Fsm->ChangeState(EZombieStateType::Wander);
 	}
 }
 

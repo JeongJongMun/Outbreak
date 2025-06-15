@@ -39,7 +39,7 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 		}
 		else if (Result.IsFailure())
 		{
-			// Try to move again or switch to another state
+			Fsm->ChangeState(EZombieStateType::Alert, CurrentTargetPlayer);
 		}
 	});
 	

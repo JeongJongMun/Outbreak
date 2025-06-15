@@ -2,6 +2,7 @@
 
 #include "ZombieAI.h"
 
+#include "FZombieAlertState.h"
 #include "FZombieAttackState.h"
 #include "FZombieChaseState.h"
 #include "FZombieDieState.h"
@@ -61,7 +62,7 @@ void AZombieAI::InitializeZombieAI(ACharacterZombie* InZombie)
 	StateMachine = MakeShared<FZombieStateMachine>();
 	StateMachine->AddState(EZombieStateType::Idle, MakeShared<FZombieIdleState>(StateMachine, OwnerZombie));
 	StateMachine->AddState(EZombieStateType::Wander, MakeShared<FZombieWanderState>(StateMachine, OwnerZombie));
-	// StateMachine->AddState(EZombieStateType::Alert, MakeShared<FZombieAlertState>(StateMachine, Owner));
+	StateMachine->AddState(EZombieStateType::Alert, MakeShared<FZombieAlertState>(StateMachine, OwnerZombie));
 	StateMachine->AddState(EZombieStateType::Chase, MakeShared<FZombieChaseState>(StateMachine, OwnerZombie));
 	StateMachine->AddState(EZombieStateType::Attack, MakeShared<FZombieAttackState>(StateMachine, OwnerZombie));
 	// StateMachine->AddState(EZombieStateType::Stun, MakeShared<FZombieStunState>(StateMachine, Owner));
@@ -88,7 +89,7 @@ void AZombieAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 	{
 		if (GetCurrentState() == EZombieStateType::Idle || GetCurrentState() == EZombieStateType::Wander)
 		{
-			StateMachine->ChangeState(EZombieStateType::Chase, TargetPlayer);
+			StateMachine->ChangeState(EZombieStateType::Alert, TargetPlayer);
 		}
 	}
 	else

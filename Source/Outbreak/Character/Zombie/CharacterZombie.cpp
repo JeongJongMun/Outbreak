@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
+#include "Outbreak/Util/EnumHelper.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
 #include "State/FZombieIdleState.h"
 
@@ -21,6 +22,7 @@ ACharacterZombie::ACharacterZombie()
 	TMap<EZombieAnimationType, FString> MontagePaths = {
 		{EZombieAnimationType::Idle, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Idle.MT_Zombie_Idle'")},
 		{EZombieAnimationType::Wander, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Wander.MT_Zombie_Wander'")},
+		{EZombieAnimationType::Alert, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Alert.MT_Zombie_Alert'")},
 		{EZombieAnimationType::ChaseWalk, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Chase_Walk.MT_Zombie_Chase_Walk'")},
 		{EZombieAnimationType::ChaseRun, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Chase_Run.MT_Zombie_Chase_Run'")},
 		{EZombieAnimationType::Attack, TEXT("/Script/Engine.AnimMontage'/Game/Animations/Zombie/MT_Zombie_Attack.MT_Zombie_Attack'")},
@@ -117,6 +119,9 @@ void ACharacterZombie::PlayAnimation(const EZombieStateType InStateType)
 		if (SectionNames.Num() > 0)
 		{
 			const FName RandomSection = SectionNames[FMath::RandRange(0, SectionNames.Num() - 1)];
+			const int32 SectionIndex = AnimMontage->GetSectionIndex(RandomSection);
+			CurrentAnimationSectionLength = AnimMontage->GetSectionLength(SectionIndex);
+			
 			PlayAnimMontage(AnimMontage, 1.0f, RandomSection);
 		}
 	}

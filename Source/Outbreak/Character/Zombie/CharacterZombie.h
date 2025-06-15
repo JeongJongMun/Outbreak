@@ -22,6 +22,7 @@ public:
 	FZombieData* GetZombieData() { return &ZombieData; }
 	void PlayAnimation(EZombieStateType InStateType);
 	TObjectPtr<AZombieAI> GetZombieAI() const { return ZombieAI; }
+	float GetCurrentAnimationSectionLength() const { return CurrentAnimationSectionLength; }
 
 	UFUNCTION(NetMulticast,Reliable)
 	void Multicast_PlayAnimation(EZombieStateType InStateType);

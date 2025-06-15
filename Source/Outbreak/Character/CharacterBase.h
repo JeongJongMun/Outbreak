@@ -54,4 +54,6 @@ protected:
 	float HeadDamageMultiplier = 3.0f;
 	float BodyDamageMultiplier = 1.0f;
 	float LimbsDamageMultiplier = 0.7f;
+
+	float CurrentAnimationSectionLength = 0.0f;
 };

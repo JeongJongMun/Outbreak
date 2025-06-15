@@ -22,26 +22,3 @@ void FZombieAttackState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterP
 {
 	FZombieBaseState::Exit(NextState, Context);
 }
-
-void FZombieAttackState::RotateTowardsTarget(const float DeltaTime) const
-{
-	if (Owner && CurrentTargetPlayer)
-	{
-		const FVector TargetLocation = CurrentTargetPlayer->GetActorLocation();
-		const FVector OwnerLocation = Owner->GetActorLocation();
-        
-		FVector Direction = TargetLocation - OwnerLocation;
-		Direction.Z = 0.0f;
-		Direction.Normalize();
-        
-		if (!Direction.IsNearlyZero())
-		{
-			const FRotator TargetRotation = Direction.Rotation();
-			const FRotator CurrentRotation = Owner->GetActorRotation();
-            
-			const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, RotationSpeed);
-            
-			Owner->SetActorRotation(NewRotation);
-		}
-	}
-}

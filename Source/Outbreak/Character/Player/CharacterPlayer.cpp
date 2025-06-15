@@ -22,7 +22,8 @@ ACharacterPlayer::ACharacterPlayer()
 {
 	CharacterType = ECharacterType::Player;
 	PlayerType = EPlayerType::Player1;
-	
+
+
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera -> SetupAttachment(GetCapsuleComponent());
 	FirstPersonCamera -> SetRelativeLocation(FVector(20, 0, BaseEyeHeight));
@@ -557,7 +558,7 @@ void ACharacterPlayer::SetupCollision()
 	MeshComp->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 	MeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	MeshComp->bOwnerNoSee = true;
-	MeshComp->SetHiddenInGame(true);
+	// MeshComp->SetHiddenInGame(true);
 }
 
 void ACharacterPlayer::SetupMovement()

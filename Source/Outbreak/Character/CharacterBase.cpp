@@ -14,6 +14,7 @@ ACharacterBase::ACharacterBase()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	// Pawn
+	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -23,7 +24,7 @@ ACharacterBase::ACharacterBase()
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
 
 	// Movement
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
@@ -35,8 +36,9 @@ ACharacterBase::ACharacterBase()
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
-
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DefaultMesh(TEXT("/Game/FPSAnimationPack/Demo/Characters/Mannequin_UE4/Meshes/SK_Mannequin.SK_Mannequin"));
+	GetMesh()->SetHiddenInGame(false);
+	
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DefaultMesh(TEXT("/Game/FPSAnimationPack/Demo/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny"));
 	if (DefaultMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(DefaultMesh.Object);
@@ -214,4 +216,16 @@ void ACharacterBase::SetupMovement()
 	MovementComp->MaxWalkSpeed = 500.f;
 	MovementComp->MinAnalogWalkSpeed = 20.f;
 	MovementComp->BrakingDecelerationWalking = 2000.f;
+}
+void ACharacterBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (Controller)
+	{
+
+		FRotator ControlRot = Controller->GetControlRotation();
+		FRotator MeshRotation = FRotator(0.0f, ControlRot.Yaw, 0.0f);
+		GetMesh()->SetWorldRotation(MeshRotation);
+	}
 }

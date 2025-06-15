@@ -89,15 +89,23 @@ void AWeaponSMG::StartFire()
 
     PlayLocalEffects();
     ServerMakeShot();
+    bool bAutoFire = false;
+    if (auto* OwnerChar = Cast<ACharacterPlayer>(GetOwner()))
+    {
+        bAutoFire = OwnerChar->GetFireMode();
+    }
 
     //연속발사 코드 
-    GetWorldTimerManager().SetTimer(
-        TimerHandle_TimeBetweenShots,
-        this,
-        &AWeaponSMG::ServerMakeShot,
-        WeaponData.FireFrequency,
-        true
-    );
+    if (bAutoFire)
+    {
+        GetWorldTimerManager().SetTimer(
+            TimerHandle_TimeBetweenShots,
+            this,
+            &AWeaponSMG::ServerMakeShot,
+            WeaponData.FireFrequency,
+            true
+        );
+    }
 }
 
 void AWeaponSMG::InitializeWeaponData(FWeaponData* InData)

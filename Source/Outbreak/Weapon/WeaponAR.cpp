@@ -119,7 +119,18 @@ void AWeaponAR::MakeShot()
 
     ApplyCameraShake();
     UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
-
+    FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+    // FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
+    // UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+    //     NiagaraMuzzleFlash, 
+    //     WeaponMesh,                     
+    //     TEXT("Muzzle_SMG"),
+    //     FVector::ZeroVector,
+    //     FRotator(MuzzleRot.Pitch, MuzzleRot.Yaw, MuzzleRot.Roll),
+    //     EAttachLocation::SnapToTarget,
+    //     true,   
+    //     true   
+    // );
 
     AActor* MyOwner = GetOwner();
     if (!MyOwner)
@@ -160,7 +171,7 @@ void AWeaponAR::MakeShot()
 
 
     // 5) 총구 소켓 위치
-    FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+
 
 
     FVector EndPoint = bHit ? Hit.ImpactPoint : TraceEnd;

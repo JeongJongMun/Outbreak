@@ -22,7 +22,8 @@ ACharacterPlayer::ACharacterPlayer()
 {
 	CharacterType = ECharacterType::Player;
 	PlayerType = EPlayerType::Player1;
-	
+
+
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera -> SetupAttachment(GetCapsuleComponent());
 	FirstPersonCamera -> SetRelativeLocation(FVector(20, 0, BaseEyeHeight));
@@ -84,7 +85,6 @@ ACharacterPlayer::ACharacterPlayer()
 	FirstPersonMesh->CastShadow = false;
 
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
-	GunMesh->SetOnlyOwnerSee(true);
 	GunMesh->SetupAttachment(
 		FirstPersonMesh,
 		TEXT("weapon_socket_l"));
@@ -499,7 +499,9 @@ void ACharacterPlayer::OnPressedSlot2()
 void ACharacterPlayer::Look(const FInputActionValue& Value)
 {
 	FVector2D LookAxis = Value.Get<FVector2D>();
-
+	FRotator CameraRotation = FirstPersonCamera->GetComponentRotation();
+	FRotator TargetRotation = FRotator(0.f, CameraRotation.Yaw, 0.f);
+	GetMesh()->SetWorldRotation(TargetRotation);
 	AddControllerYawInput(LookAxis.X);
 	AddControllerPitchInput(LookAxis.Y);
 }
@@ -563,7 +565,7 @@ void ACharacterPlayer::SetupCollision()
 	MeshComp->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 	MeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	MeshComp->bOwnerNoSee = true;
-	MeshComp->SetHiddenInGame(true);
+	// MeshComp->SetHiddenInGame(true);
 }
 
 void ACharacterPlayer::SetupMovement()

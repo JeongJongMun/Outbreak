@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WeaponBase.h"
+#include "NiagaraSystem.h"       
+#include "NiagaraFunctionLibrary.h"     
 #include "MainWeapon.generated.h"
 
 /**
@@ -19,7 +21,7 @@ public:
 	AMainWeapon();
 	
 	void ApplyCameraShake();
-
+	
 
 protected:
 
@@ -32,7 +34,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Weapon")
 	FName MuzzleSocketName = TEXT("Muzzle"); // 발사될 총구 소켓 이름
 	
-
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	TObjectPtr<UNiagaraSystem> NiagaraMuzzleFlash;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
 	UDataTable* WeaponDataTable;

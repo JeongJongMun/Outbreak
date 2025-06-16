@@ -160,6 +160,10 @@ void AWeaponSMG::NotifyAmmoUpdate()
 void AWeaponSMG::BeginPlay()
 {
     Super::BeginPlay();
+    if (!HasAuthority())
+    {
+        return;
+    }
 
     // 1) DataTable이 할당되어 있는지 확인
     if (WeaponDataTable)

@@ -243,7 +243,11 @@ void AWeaponAR::NotifyAmmoUpdate()
 void AWeaponAR::BeginPlay()
 {
     Super::BeginPlay();
-    
+    if (!HasAuthority())
+    {
+        return;
+    }
+
     if (WeaponDataTable)
     {
         static const FString ContextString(TEXT("WeaponAR DataTable Initialization"));

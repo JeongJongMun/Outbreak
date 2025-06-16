@@ -85,7 +85,7 @@ void ACharacterZombie::SetupCollision()
 	
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
-	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 }
 
 void ACharacterZombie::SetupMovement()

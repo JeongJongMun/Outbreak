@@ -144,6 +144,8 @@ void ACharacterZombie::Die()
 {
 	Super::Die();
 
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	ChangeZombieState(EZombieStateType::Die);
 
 	if (AController* Killer = LastDamagePlayer)

@@ -121,7 +121,10 @@ bool ACharacterBase::IsDead() const
 
 void ACharacterBase::Die()
 {
-	// TODO : Implement common death logic
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+    
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 float ACharacterBase::GetDamageMultiplier(const EPhysicalSurface SurfaceType)

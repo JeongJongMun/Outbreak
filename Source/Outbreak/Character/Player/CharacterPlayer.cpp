@@ -291,7 +291,12 @@ void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void ACharacterPlayer::Die()
 {
 	Super::Die();
-
+	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
+    
+	DetachFromControllerPendingDestroy();
+	
 	// TODO : Implement player death logic
 	UE_LOG(LogTemp, Warning, TEXT("############# Player Die #############"));
 }

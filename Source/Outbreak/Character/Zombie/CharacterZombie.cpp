@@ -86,6 +86,14 @@ void ACharacterZombie::SetupCollision()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+
+	GetCapsuleComponent()->SetNotifyRigidBodyCollision(false);
+	GetCapsuleComponent()->BodyInstance.bLockXRotation = true;
+	GetCapsuleComponent()->BodyInstance.bLockYRotation = true;
+	GetCapsuleComponent()->BodyInstance.bLockZRotation = false;
+    
+	GetCapsuleComponent()->BodyInstance.LinearDamping = 1.0f;
+	GetCapsuleComponent()->BodyInstance.AngularDamping = 10.0f;
 }
 
 void ACharacterZombie::SetupMovement()
@@ -99,6 +107,8 @@ void ACharacterZombie::SetupMovement()
 	MovementComp->SetAvoidanceGroup(static_cast<int32>(EAvoidanceGroupType::Zombie));
 	MovementComp->SetGroupsToAvoid(static_cast<int32>(EAvoidanceGroupType::Zombie));
 	MovementComp->SetGroupsToIgnore(static_cast<int32>(EAvoidanceGroupType::Player));
+
+	MovementComp->JumpZVelocity = 0.0f;
 }
 
 void ACharacterZombie::PlayAnimation(const EZombieStateType InStateType)

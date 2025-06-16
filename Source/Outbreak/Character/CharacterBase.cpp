@@ -205,11 +205,20 @@ void ACharacterBase::SetupMovement()
 	auto* MovementComp = GetCharacterMovement();
 	MovementComp->bOrientRotationToMovement = true;
 	MovementComp->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
-	MovementComp->JumpZVelocity = 700.f;
+	MovementComp->JumpZVelocity = 500.f;
 	MovementComp->AirControl = 0.35f;
 	MovementComp->MaxWalkSpeed = 500.f;
 	MovementComp->MinAnalogWalkSpeed = 20.f;
 	MovementComp->BrakingDecelerationWalking = 2000.f;
+	MovementComp->GravityScale = 1.5f;
+	MovementComp->GroundFriction = 8.0f;
+
+	MovementComp->bCanWalkOffLedges = true;
+	MovementComp->bUseFlatBaseForFloorChecks = true;
+	MovementComp->bMaintainHorizontalGroundVelocity = true;
+	MovementComp->bImpartBaseVelocityX = false;
+	MovementComp->bImpartBaseVelocityY = false;
+	MovementComp->bImpartBaseVelocityZ = false;
 }
 
 void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

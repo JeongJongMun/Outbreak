@@ -11,6 +11,7 @@
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
@@ -177,25 +178,37 @@ ACharacterPlayer::ACharacterPlayer()
 	CurrentSlotIndex = -1;
 }
 
+void ACharacterPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACharacterPlayer, PlayerData);
+	DOREPLIFETIME(ACharacterPlayer, PlayerType);
+}
+
 void ACharacterPlayer::InitCharacterData()
 {
 	Super::InitCharacterData();
-
-	const AOutBreakGameState* GameState = Cast<AOutBreakGameState>(UGameplayStatics::GetGameState(GetWorld()));
-	if (!GameState)
+	
+	if (HasAuthority())
 	{
-		UE_LOG(LogTemp, Error, TEXT("[%s] GameState is null!"), CURRENT_CONTEXT);
-		return;
-	}
-	ACharacterSpawnManager* SpawnManager = GameState->GetSpawnManager();
-	if (!SpawnManager)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[%s] SpawnManager is null!"), CURRENT_CONTEXT);
-		return;
-	}
+		const AOutBreakGameState* GameState = Cast<AOutBreakGameState>(UGameplayStatics::GetGameState(GetWorld()));
+		if (!GameState)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[%s] GameState is null!"), CURRENT_CONTEXT);
+			return;
+		}
+		ACharacterSpawnManager* SpawnManager = GameState->GetSpawnManager();
+		if (!SpawnManager)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[%s] SpawnManager is null!"), CURRENT_CONTEXT);
+			return;
+		}
 
-	const FPlayerData* Data = SpawnManager->GetPlayerData(PlayerType);
-	PlayerData = *Data;
+		const FPlayerData* Data = SpawnManager->GetPlayerData(PlayerType);
+		PlayerData = *Data;
+	}
+	
 	CurrentHealth = PlayerData.MaxHealth;
 	CurrentExtraHealth = 0;
 }

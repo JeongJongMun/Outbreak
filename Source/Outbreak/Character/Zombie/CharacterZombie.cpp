@@ -64,9 +64,14 @@ void ACharacterZombie::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ZombieAI = Cast<AZombieAI>(GetController());
-	if (ZombieAI)
+	if (HasAuthority())
 	{
+		ZombieAI = Cast<AZombieAI>(GetController());
+		if (!ZombieAI)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[%s] ZombieAI is null!"), CURRENT_CONTEXT);
+			return;
+		}
 		ZombieAI->InitializeZombieAI(this);
 	}
 }
@@ -144,7 +149,7 @@ void ACharacterZombie::Multicast_PlayAnimation_Implementation(EZombieStateType I
 
 void ACharacterZombie::ChangeZombieState(const EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer)
 {
-	if (ZombieAI->StateMachine.IsValid())
+	if (HasAuthority() && ZombieAI->StateMachine.IsValid())
 	{
 		ZombieAI->StateMachine->ChangeState(NewState, TargetPlayer);
 	}
@@ -248,6 +253,9 @@ void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)
 
 void ACharacterZombie::OnAttackEnd()
 {
+	if (!HasAuthority())
+		return;
+	
 	// TODO : 자동으로 공격 데미지 계산하는 구조로 개선
 	const int32 FinalDamage = static_cast<int32>(ZombieData.AttackDamage * AttackDamageMultiplier);
 	const FVector Start = GetActorLocation();
@@ -277,5 +285,6 @@ void ACharacterZombie::OnAttackEnd()
 		}
 	}
 
-	ChangeZombieState(EZombieStateType::Chase, ZombieAI->GetCurrentTargetCharacter());
+	const TObjectPtr<ACharacterPlayer> Target = ZombieAI->GetCurrentTargetCharacter();
+	ChangeZombieState(EZombieStateType::Chase, Target);
 }

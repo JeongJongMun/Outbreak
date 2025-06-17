@@ -82,11 +82,11 @@ EZombieStateType AZombieAI::GetCurrentState() const
 
 void AZombieAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	const TObjectPtr<ACharacterPlayer> TargetPlayer = Cast<ACharacterPlayer>(Actor);
-	CurrentTargetCharacter = TargetPlayer;
-	
 	if (Stimulus.WasSuccessfullySensed())
 	{
+		const TObjectPtr<ACharacterPlayer> TargetPlayer = Cast<ACharacterPlayer>(Actor);
+		CurrentTargetCharacter = TargetPlayer;
+		
 		if (GetCurrentState() == EZombieStateType::Idle || GetCurrentState() == EZombieStateType::Wander)
 		{
 			StateMachine->ChangeState(EZombieStateType::Alert, TargetPlayer);

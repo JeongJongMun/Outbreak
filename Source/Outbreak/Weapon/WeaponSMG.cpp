@@ -88,24 +88,7 @@ void AWeaponSMG::StartFire()
     }
 
     PlayLocalEffects();
-    ServerMakeShot();
-    bool bAutoFire = false;
-    if (auto* OwnerChar = Cast<ACharacterPlayer>(GetOwner()))
-    {
-        bAutoFire = OwnerChar->GetFireMode();
-    }
-
-    //연속발사 코드 
-    if (bAutoFire)
-    {
-        GetWorldTimerManager().SetTimer(
-            TimerHandle_TimeBetweenShots,
-            this,
-            &AWeaponSMG::ServerMakeShot,
-            WeaponData.FireFrequency,
-            true
-        );
-    }
+    ServerStartFire();
 }
 
 void AWeaponSMG::InitializeWeaponData(FWeaponData* InData)
@@ -115,27 +98,76 @@ void AWeaponSMG::InitializeWeaponData(FWeaponData* InData)
 
 void AWeaponSMG::StopFire()
 {
-    GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+    ServerStopFire();
+
+    //GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
 void AWeaponSMG::MakeShot()
 {
-    if (bIsReloading)
-        return;
-
-    if (WeaponData.CurrentAmmo <= 0)
+    if (bIsReloading || WeaponData.CurrentAmmo <= 0)
     {
-        StopFire();
-        Reload();
+        ServerStopFire();
+        if (WeaponData.CurrentAmmo <= 0) Reload();
         return;
     }
 
+    //MakeShot();
     WeaponData.CurrentAmmo--;
 
-    //ApplyCameraShake();
-    //UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
+    //linetrace on server
+    AActor* MyOwner = GetOwner();
+    if (!MyOwner) return;
+    APlayerController* PC = Cast<APlayerController>(MyOwner->GetInstigatorController());
+    if (!PC) return;
 
-    
+    FVector ViewLocation;
+    FRotator ViewRotation;
+    PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
+
+    const float HalfRad = FMath::DegreesToRadians(WeaponData.BulletSpread * 0.5f);
+    FVector ShotDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
+    FVector TraceEnd = ViewLocation + ShotDirection * WeaponData.TraceMaxDistance;
+
+    FHitResult Hit;
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(MyOwner);
+    Params.AddIgnoredActor(this);
+    Params.bReturnPhysicalMaterial = true;
+
+    bool bHit = GetWorld()->LineTraceSingleByChannel(
+        Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
+
+    FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+    FVector EndPoint = bHit ? Hit.ImpactPoint : TraceEnd;
+
+    ClientShotRay(MuzzleLoc, bHit, Hit.ImpactPoint);
+
+    //서버에서 데미지 판정.
+    if (bHit)
+    {
+        // 이거 RPC 안되고 있었음. 
+        DrawDebugSphere(
+            GetWorld(),
+            Hit.ImpactPoint,
+            6.0f,
+            12,
+            FColor::Yellow
+        );
+
+        AActor* HitActor = Hit.GetActor();
+        if (HitActor && HitActor->IsA(ACharacterZombie::StaticClass()))
+        {
+            UGameplayStatics::ApplyPointDamage(
+                HitActor,
+                10.0f,
+                GetActorForwardVector(),
+                Hit,
+                PC,
+                this,
+                UDamageType::StaticClass());
+        }
+    }
 }
 
 bool AWeaponSMG::IsReloading()
@@ -193,98 +225,34 @@ void AWeaponSMG::BeginPlay()
 void AWeaponSMG::PlayLocalEffects()
 {
     UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
+    NotifyAmmoUpdate();
     ApplyCameraShake();
 }
-bool AWeaponSMG::ServerMakeShot_Validate()
-{
-    return WeaponData.CurrentAmmo > 0 && !bIsReloading;
-}
 
+// RPC Implementation
 
-void AWeaponSMG::ServerMakeShot_Implementation()
+void AWeaponSMG::ServerStartFire_Implementation()
 {
-    //MakeShot();
-    WeaponData.CurrentAmmo--;
+    //for immediate one shot
+    MakeShot();
     
-    AActor* MyOwner = GetOwner();
-    if (!MyOwner) return;
-
-    APlayerController* PC = Cast<APlayerController>(MyOwner->GetInstigatorController());
-    if (!PC) return;
-
-    FVector ViewLocation;
-    FRotator ViewRotation;
-    PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
-
-    const float HalfRad = FMath::DegreesToRadians(WeaponData.BulletSpread * 0.5f);
-    FVector ShotDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
-    FVector TraceEnd = ViewLocation + ShotDirection * WeaponData.TraceMaxDistance;
-
-    FHitResult Hit;
-    FCollisionQueryParams Params;
-    Params.AddIgnoredActor(MyOwner);
-    Params.AddIgnoredActor(this);
-    Params.bReturnPhysicalMaterial = true;
-
-    bool bHit = GetWorld()->LineTraceSingleByChannel(
-        Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
-
-    FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
-    FVector EndPoint = bHit ? Hit.ImpactPoint : TraceEnd;
-
-    /*
-    DrawDebugLine(
-        GetWorld(),
-        MuzzleLoc,
-        EndPoint,
-        FColor::Cyan,
-        false,
-        2.0f,
-        SDPG_World,
-        2.5f
+    GetWorldTimerManager().SetTimer(
+        TimerHandle_TimeBetweenShots,
+        this,
+        &AWeaponSMG::MakeShot,
+        WeaponData.FireFrequency,
+        true
     );
-    */
-    //서버에서 데미지 판정.
-    if (bHit)
-    {
-        DrawDebugSphere(
-            GetWorld(),
-            Hit.ImpactPoint,
-            6.0f,
-            12,
-            FColor::Yellow
-        );
+}
+void AWeaponSMG::ServerStopFire_Implementation()
+{
+    GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 
-        AActor* HitActor = Hit.GetActor();
-        if (HitActor && HitActor->IsA(ACharacterZombie::StaticClass()))
-        {
-            UGameplayStatics::ApplyPointDamage(
-                HitActor,
-                10.0f,
-                GetActorForwardVector(),
-                Hit,
-                PC,
-                this,
-                UDamageType::StaticClass());
-        }
-    }
-
-    // 플레이어 이름 얻기
-    FString CallerName = TEXT("Unknown");
-    if (PC && PC->PlayerState)
-    {
-        CallerName = PC->PlayerState->GetPlayerName();
-    }
-
-    // 로그 출력
-    UE_LOG(LogTemp, Log, TEXT(">> ServerMakeShot called by %s"), *CallerName);
-
-    ClientShotRay(TraceEnd, bHit, Hit.ImpactPoint);
-    MultiCastShot(Cast<APlayerController>(GetOwner()->GetInstigatorController()));
 }
 
 void AWeaponSMG::ClientShotRay_Implementation(const FVector& TraceEnd, bool bHit, const FVector& ImpactPoint)
 {
+    UE_LOG(LogTemp, Log, TEXT("clientshotray"));
     FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
     FVector EndPoint = bHit ? ImpactPoint : TraceEnd;
     DrawDebugLine(
@@ -299,7 +267,6 @@ void AWeaponSMG::ClientShotRay_Implementation(const FVector& TraceEnd, bool bHit
     );
 
     PlayLocalEffects();
-
 }
 
 void AWeaponSMG::MultiCastShot_Implementation(AController* ShooterController)

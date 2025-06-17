@@ -36,15 +36,19 @@ void AOutBreakGameState::BeginPlay()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnManager = GetWorld()->SpawnActor<ACharacterSpawnManager>(ACharacterSpawnManager::StaticClass(), SpawnParams);
 
-	UClass* SpawnerClass = StaticLoadClass(
-		AActor::StaticClass(),
-		nullptr,
-		TEXT("/Script/Engine.Blueprint'/Game/SSS/Blueprints/BP_SwarmSpawner.BP_SwarmSpawner_C'")
-	);
-	
-	if (SpawnerClass)
+	if (HasAuthority())
 	{
-		GetWorld()->SpawnActor<AActor>(SpawnerClass, FVector::ZeroVector, FRotator::ZeroRotator);
+		UClass* SpawnerClass = StaticLoadClass(
+			AActor::StaticClass(),
+			nullptr,
+			TEXT("/Script/Engine.Blueprint'/Game/SSS/Blueprints/BP_SwarmSpawner.BP_SwarmSpawner_C'")
+		);
+
+		if (SpawnerClass)
+		{
+			GetWorld()->SpawnActor<AActor>(SpawnerClass, FVector::ZeroVector, FRotator::ZeroRotator);
+		}
+
 	}
 }
 

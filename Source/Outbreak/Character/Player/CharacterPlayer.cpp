@@ -55,7 +55,11 @@ ACharacterPlayer::ACharacterPlayer()
 	PlayerIconSprite->SetRelativeLocation(FVector(0.f, 0.f, 2000.f));
 	PlayerIconSprite->SetRelativeRotation(FRotator(-180.f, -180.f, -90.f));
 	PlayerIconSprite->SetRelativeScale3D(FVector(0.5f));
-	PlayerIconSprite->SetOwnerNoSee(true);
+	PlayerIconSprite->SetHiddenInGame(true);
+	PlayerIconSprite->SetVisibility(true);
+	PlayerIconSprite->bOwnerNoSee = true;
+	PlayerIconSprite->bOnlyOwnerSee = false;
+	
 	static ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerIconAsset(TEXT("/Game/UI/MiniMap/PlayerIcon_Sprite.PlayerIcon_Sprite"));
 	if (PlayerIconAsset.Succeeded())
 	{
@@ -70,7 +74,10 @@ ACharacterPlayer::ACharacterPlayer()
 	PlayerNameText->SetVerticalAlignment(EVRTA_TextCenter);
 	PlayerNameText->SetWorldSize(200.f); // 텍스트 크기
 	PlayerNameText->SetTextRenderColor(FColor::White);
-	PlayerNameText->SetOwnerNoSee(true);
+	PlayerNameText->SetHiddenInGame(true);
+	PlayerNameText->SetVisibility(true);
+	PlayerNameText->bOwnerNoSee = true;
+	PlayerNameText->bOnlyOwnerSee = false;
 	
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> FirstPersonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Pack/SkeletalMeshes/Arms/SK_fps_armRig.SK_fps_armRig'"));

@@ -24,6 +24,7 @@ class OUTBREAK_API ACharacterPlayer : public ACharacterBase, public IGenericTeam
 // --------------------
 public:
 	ACharacterPlayer();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	bool IsCrouching() const;
@@ -87,9 +88,12 @@ protected:
 // Variables
 // --------------------
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
+	UPROPERTY(Replicated)
 	FPlayerData PlayerData;
+	
+	UPROPERTY(Replicated)
 	EPlayerType PlayerType = EPlayerType::Player1;
+	
 	FGenericTeamId TeamId = 0;
 
 	// Weapon

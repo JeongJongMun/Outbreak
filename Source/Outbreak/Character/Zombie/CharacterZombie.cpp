@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/Util/EnumHelper.h"
@@ -38,24 +39,36 @@ ACharacterZombie::ACharacterZombie()
 	}
 }
 
+void ACharacterZombie::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACharacterZombie, ZombieData);
+}
+
 void ACharacterZombie::InitCharacterData()
 {
 	Super::InitCharacterData();
-
-	const AOutBreakGameState* GameState = Cast<AOutBreakGameState>(UGameplayStatics::GetGameState(GetWorld()));
-	if (!GameState)
+	
+	if (HasAuthority())
 	{
-		UE_LOG(LogTemp, Error, TEXT("[%s] GameState is null!"), CURRENT_CONTEXT);
-		return;
+		const AOutBreakGameState* GameState = Cast<AOutBreakGameState>(UGameplayStatics::GetGameState(GetWorld()));
+		if (!GameState)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[%s] GameState is null!"), CURRENT_CONTEXT);
+			return;
+		}
+		ACharacterSpawnManager* SpawnManager = GameState->GetSpawnManager();
+		if (!SpawnManager)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[%s] SpawnManager is null!"), CURRENT_CONTEXT);
+			return;
+		}
+		const FZombieData* Data = SpawnManager->GetZombieData(ZombieSubType);
+		ZombieData = *Data;
+		
 	}
-	ACharacterSpawnManager* SpawnManager = GameState->GetSpawnManager();
-	if (!SpawnManager)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[%s] SpawnManager is null!"), CURRENT_CONTEXT);
-		return;
-	}
-	const FZombieData* Data = SpawnManager->GetZombieData(ZombieSubType);
-	ZombieData = *Data;
+	
 	CurrentHealth = ZombieData.MaxHealth;
 	CurrentExtraHealth = 0;
 }

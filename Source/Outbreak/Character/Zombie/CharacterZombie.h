@@ -18,6 +18,7 @@ class OUTBREAK_API ACharacterZombie : public ACharacterBase
 // --------------------
 public:
 	ACharacterZombie();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnAttackEnd();
 	FZombieData* GetZombieData() { return &ZombieData; }
 	void PlayAnimation(EZombieStateType InStateType);
@@ -49,7 +50,7 @@ protected:
 	EZombieType ZombieType = EZombieType::None;
 	EZombieSubType ZombieSubType = EZombieSubType::None;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterData")
+	UPROPERTY(Replicated)
 	FZombieData ZombieData;
 
 	UPROPERTY()

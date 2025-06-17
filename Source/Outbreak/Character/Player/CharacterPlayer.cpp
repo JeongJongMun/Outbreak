@@ -54,8 +54,9 @@ ACharacterPlayer::ACharacterPlayer()
 	PlayerIconSprite->SetupAttachment(GetCapsuleComponent());
 	PlayerIconSprite->SetRelativeLocation(FVector(0.f, 0.f, 2000.f));
 	PlayerIconSprite->SetRelativeRotation(FRotator(-180.f, -180.f, -90.f));
-	PlayerIconSprite->SetRelativeScale3D(FVector(0.5f));
-	PlayerIconSprite->SetOwnerNoSee(true);
+	PlayerIconSprite->SetRelativeScale3D(FVector(0.5f));       
+	PlayerIconSprite->SetVisibility(true);
+	PlayerIconSprite->bVisibleInSceneCaptureOnly = true;
 	static ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerIconAsset(TEXT("/Game/UI/MiniMap/PlayerIcon_Sprite.PlayerIcon_Sprite"));
 	if (PlayerIconAsset.Succeeded())
 	{
@@ -68,10 +69,11 @@ ACharacterPlayer::ACharacterPlayer()
 	PlayerNameText->SetRelativeRotation(FRotator(90.f, 180.f, 0.f));
 	PlayerNameText->SetHorizontalAlignment(EHTA_Center);
 	PlayerNameText->SetVerticalAlignment(EVRTA_TextCenter);
-	PlayerNameText->SetWorldSize(200.f); // 텍스트 크기
+	PlayerNameText->SetWorldSize(200.f); 
 	PlayerNameText->SetTextRenderColor(FColor::White);
-	PlayerNameText->SetOwnerNoSee(true);
-	
+	PlayerNameText->SetVisibility(true);
+	PlayerNameText->bVisibleInSceneCaptureOnly = true;
+
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> FirstPersonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Pack/SkeletalMeshes/Arms/SK_fps_armRig.SK_fps_armRig'"));
 	if (FirstPersonMeshRef.Succeeded())

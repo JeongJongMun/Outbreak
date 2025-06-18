@@ -230,6 +230,7 @@ void ACharacterPlayer::InitCharacterData()
 void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+	GetMesh()->SetOwnerNoSee(true);
 	if (IsLocallyControlled())
 	{
 		SetCharacterControl(CurrentCharacterControlType);
@@ -241,6 +242,10 @@ void ACharacterPlayer::BeginPlay()
 		{
 			TopViewCamera->SetActive(false);
 		}
+	}
+	else
+	{
+		GunMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("weapon_socket_TP"));
 	}
 	AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(GetPlayerState());
 	if (PS && PlayerNameText)

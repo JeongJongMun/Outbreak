@@ -39,26 +39,6 @@ ACharacterBase::ACharacterBase()
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
 	GetMesh()->SetHiddenInGame(false);
-	
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DefaultMesh(TEXT("/Game/FPSAnimationPack/Demo/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny"));
-	if (DefaultMesh.Succeeded())
-	{
-		GetMesh()->SetSkeletalMesh(DefaultMesh.Object);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] Failed to load default zombie mesh"), CURRENT_CONTEXT);
-	}
-
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Blueprints/ABP/ABP_Move.ABP_Move_C"));
-	if (AnimInstanceClassRef.Class)
-	{
-		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] Failed to load AnimInstance"), CURRENT_CONTEXT);
-	}
 }
 
 float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

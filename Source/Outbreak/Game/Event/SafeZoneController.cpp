@@ -66,30 +66,35 @@ void ASafeZoneController::OnEndZoneEnter(UPrimitiveComponent* OverlappedComp, AA
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	if(!HasAuthority()) return;	
+
 	if (ACharacter* Character = Cast<ACharacter>(OtherActor))
 	{
-		UE_LOG(LogTemp, Log, TEXT("[SafeZone] 캐릭터 %s 종료 존에 진입"), *Character->GetName());
-
-		PlayersInEndZone.Add(Character); // 들어온 캐릭터 목록에 추가
-
-		int32 TotalPlayers = UGameplayStatics::GetNumPlayerControllers(GetWorld());
-
-		if (PlayersInEndZone.Num() == TotalPlayers)
+		if(Character->GetController() && Character->GetController()->IsPlayerController())
 		{
-			if (InGameModeRef && InGameModeRef->IsMatchInProgress())
+			UE_LOG(LogTemp, Log, TEXT("[SafeZone] 캐릭터 %s 종료 존에 진입"), *Character->GetName());
+
+			PlayersInEndZone.Add(Character); // 들어온 캐릭터 목록에 추가
+
+			int32 TotalPlayers = UGameplayStatics::GetNumPlayerControllers(GetWorld());
+
+			if (PlayersInEndZone.Num() == TotalPlayers)
 			{
-			if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
-			{
-				if (GS->SpawnerInstance)
+				if (InGameModeRef && InGameModeRef->IsMatchInProgress())
 				{
-					GS->SpawnerInstance->Destroy();
-					UE_LOG(LogTemp, Warning, TEXT("Spawner is Deleted!"))
+					if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
+					{
+						if (GS->SpawnerInstance)
+						{
+							GS->SpawnerInstance->Destroy();
+							UE_LOG(LogTemp, Warning, TEXT("Spawner is Deleted!"))
+						}
+					}
+					InGameModeRef->EndMatch();
+					InGameModeRef->ProceedToNextLevel();
 				}
 			}
-				InGameModeRef->EndMatch();
-				InGameModeRef->ProceedToNextLevel();
-			}
-		}
+		}		
 	}
 }
 

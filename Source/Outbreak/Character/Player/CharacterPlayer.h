@@ -47,7 +47,8 @@ protected:
 	virtual void SetupCollision() override;
 	virtual void SetupMovement() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	virtual void Die() override;
+	virtual void OnDie() override;
+	
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 	void SetCharacterControl(EPlayerControlType NewCharacterControlType);
 	void ToggleCameraMode();

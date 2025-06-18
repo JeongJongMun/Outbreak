@@ -124,10 +124,24 @@ bool ACharacterBase::IsDead() const
 
 void ACharacterBase::Die()
 {
+	if (!HasAuthority())
+		return;
+
+	bIsDead = true;
+}
+
+void ACharacterBase::OnRep_Die()
+{
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-    
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	OnDie();
+}
+
+void ACharacterBase::OnDie()
+{
+	// Implement in derived classes
 }
 
 float ACharacterBase::GetDamageMultiplier(const EPhysicalSurface SurfaceType)
@@ -229,6 +243,7 @@ void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ACharacterBase, CurrentHealth);
+	DOREPLIFETIME(ACharacterBase, bIsDead);
 
 }
 void ACharacterBase::Tick(float DeltaTime)

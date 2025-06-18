@@ -19,7 +19,6 @@ public:
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-
 	UFUNCTION()
 	virtual void OnRep_CurrentHealth();
 
@@ -31,6 +30,11 @@ protected:
 	virtual void SetPhysicalAsset(ECharacterType InCharacterType, ECharacterBodyType InBodyType);
 	virtual bool IsDead() const;
 	virtual void Die();
+
+	UFUNCTION()
+	void OnRep_Die();
+	virtual void OnDie();
+	
 	virtual void Tick(float DeltaTime) override;
 	virtual float GetDamageMultiplier(EPhysicalSurface SurfaceType);
 	virtual void ApplyDamage(int32 DamageAmount);
@@ -44,6 +48,9 @@ public:
 	float AttackDamageMultiplier = 1.0f;
 	
 protected:
+	UPROPERTY(ReplicatedUsing = OnRep_Die)
+	uint8 bIsDead = false;
+	
 	ECharacterType CharacterType = ECharacterType::None;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
@@ -57,4 +64,6 @@ protected:
 	float LimbsDamageMultiplier = 0.7f;
 
 	float CurrentAnimationSectionLength = 0.0f;
+
+private:
 };

@@ -593,9 +593,9 @@ void ACharacterPlayer::SetupCollision()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	auto* MeshComp = GetMesh();
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	MeshComp->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
-	MeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	MeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	MeshComp->bOwnerNoSee = true;
 	// MeshComp->SetHiddenInGame(true);
 }

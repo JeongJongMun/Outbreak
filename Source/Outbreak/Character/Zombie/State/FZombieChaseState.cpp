@@ -27,8 +27,9 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 		else
 			MovementComp->MaxWalkSpeed = ZombieData->MaxWalkSpeed;
 	}
-	
-	float AcceptanceRadius = ZombieData->AttackRange;
+
+	// TODO: AcceptanceRadius랑 AttackRange 조정
+	const float AcceptanceRadius = ZombieData->AttackRange / 2.0f;
 
 	const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
 	const TObjectPtr<UPathFollowingComponent> PathFollowingComp = ZombieAI->GetPathFollowingComponent();

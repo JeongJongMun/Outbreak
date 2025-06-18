@@ -8,6 +8,7 @@
 #include "Outbreak/Game/InGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
+#include "Outbreak/Game/OutBreakGameState.h"
 
 
 ASafeZoneController::ASafeZoneController()
@@ -75,10 +76,16 @@ void ASafeZoneController::OnEndZoneEnter(UPrimitiveComponent* OverlappedComp, AA
 
 		if (PlayersInEndZone.Num() == TotalPlayers)
 		{
-			// TODO : 좀비 AI 및 스폰 비활성화 코드 작성
-			// 컷씬 추가시 즉시 비활성화
 			if (InGameModeRef && InGameModeRef->IsMatchInProgress())
 			{
+			if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
+			{
+				if (GS->SpawnerInstance)
+				{
+					GS->SpawnerInstance->Destroy();
+					UE_LOG(LogTemp, Warning, TEXT("Spawner is Deleted!"))
+				}
+			}
 				InGameModeRef->EndMatch();
 				InGameModeRef->ProceedToNextLevel();
 			}
@@ -108,8 +115,6 @@ void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, A
 		PlayersInStartZone.Remove(Character);
 		if (PlayersInStartZone.Num() == 0)
 		{
-			// TODO : 좀비 AI 및 스폰 활성화 코드 작성
-			// 단, 컷씬 추가시 활성화 시간을 컷씬 종료시에 해야함
 			if (CutsceneManager && !CutsceneManager->bHasPlayedCutscene)
 			{
 				if (InvisibleWall)

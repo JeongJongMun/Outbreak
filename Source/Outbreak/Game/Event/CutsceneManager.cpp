@@ -107,6 +107,7 @@ void UCutsceneManager::OnCutSceneFinished()
 		if (AOutBreakGameState* GS = WorldRef->GetGameState<AOutBreakGameState>())
 		{
 			GS->SetObjectiveMessage(TEXT(""));
+			GS->SpawnerSetup();
 		}
 	}
 	if (APlayerController* PC2 = UGameplayStatics::GetPlayerController(WorldRef, 0))

@@ -34,7 +34,11 @@ AWeaponAR::AWeaponAR()
     {
         WeaponDataTable = DT_WeaponData.Object;
     }
-    
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> FireEffect(TEXT("/Game/MuzzleFlash/MuzzleFlash/Niagara/NS_MuzzleFlash.NS_MuzzleFlash"));
+    if (FireEffect.Succeeded())
+    {
+        NiagaraMuzzleFlash = FireEffect.Object;
+    }
 }
 void AWeaponAR::Reload()
 {
@@ -204,6 +208,7 @@ void AWeaponAR::MakeShot()
     PlayMuzzleEffect();
     NotifyAmmoUpdate();
 }
+
 
 void AWeaponAR::InitializeWeaponData(FWeaponData* InData)
 {

@@ -345,6 +345,10 @@ void ACharacterPlayer::ToggleCameraMode()
 		FirstPersonCamera->SetActive(false);
 		FirstPersonCamera -> SetRelativeRotation(FRotator(-10.f,0.f,0.f));
 		GetMesh()->SetOwnerNoSee(false);
+		GunMesh->AttachToComponent(
+	GetMesh(),FAttachmentTransformRules::KeepRelativeTransform,
+	TEXT("weapon_socket_TP"));
+		FirstPersonMesh->SetHiddenInGame(true);
 		TopViewCamera->SetActive(true);
 	}
 	else
@@ -352,6 +356,10 @@ void ACharacterPlayer::ToggleCameraMode()
 		CurrentCameraMode = ECameraMode::FPS;
 		TopViewCamera->SetActive(false);
 		GetMesh()->SetOwnerNoSee(true);
+		GunMesh->AttachToComponent(
+	FirstPersonMesh,FAttachmentTransformRules::KeepRelativeTransform,
+	TEXT("weapon_socket_l"));
+		FirstPersonMesh->SetHiddenInGame(false);
 		FirstPersonCamera->SetActive(true);
 	}
 }

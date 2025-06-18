@@ -288,9 +288,6 @@ void ACharacterZombie::OnAttackEnd()
 
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
-
-	// TODO : Delete DebugLine
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
 	
 	FHitResult Hit;
 	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
@@ -298,15 +295,7 @@ void ACharacterZombie::OnAttackEnd()
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor && HitActor->IsA(ACharacterPlayer::StaticClass()))
 		{
-			UGameplayStatics::ApplyPointDamage(
-				HitActor,
-				FinalDamage,
-				GetActorForwardVector(),
-				Hit,
-				GetController(),
-				this,
-				UDamageType::StaticClass()
-			);
+			UGameplayStatics::ApplyDamage(HitActor, FinalDamage, GetController(), this, UDamageType::StaticClass());
 		}
 	}
 

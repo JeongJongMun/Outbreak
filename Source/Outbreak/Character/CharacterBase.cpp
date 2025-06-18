@@ -53,12 +53,15 @@ float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, 
 		const FHitResult& HitResult = PointDamageEvent->HitInfo;
 		const UPhysicalMaterial* PhysMat = HitResult.PhysMaterial.Get();
 
-		const float DamageMultiplier = GetDamageMultiplier(PhysMat->SurfaceType);
-		const int32 FinalDamage = FMath::RoundToInt(DamageAmount * DamageMultiplier);
-		ApplyDamage(FinalDamage);
-		ApplyHitEffects(FinalDamage, PhysMat->SurfaceType);
+		if (PhysMat)
+		{
+			const float DamageMultiplier = GetDamageMultiplier(PhysMat->SurfaceType);
+			const int32 FinalDamage = FMath::RoundToInt(DamageAmount * DamageMultiplier);
+			ApplyDamage(FinalDamage);
+			ApplyHitEffects(FinalDamage, PhysMat->SurfaceType);
 
-		return FinalDamage;
+			return FinalDamage;
+		}
 	}
 	
 	ApplyDamage(DamageAmount);
@@ -121,10 +124,24 @@ bool ACharacterBase::IsDead() const
 
 void ACharacterBase::Die()
 {
+	if (!HasAuthority())
+		return;
+
+	bIsDead = true;
+}
+
+void ACharacterBase::OnRep_Die()
+{
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-    
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	OnDie();
+}
+
+void ACharacterBase::OnDie()
+{
+	// Implement in derived classes
 }
 
 float ACharacterBase::GetDamageMultiplier(const EPhysicalSurface SurfaceType)
@@ -226,6 +243,7 @@ void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ACharacterBase, CurrentHealth);
+	DOREPLIFETIME(ACharacterBase, bIsDead);
 
 }
 void ACharacterBase::Tick(float DeltaTime)

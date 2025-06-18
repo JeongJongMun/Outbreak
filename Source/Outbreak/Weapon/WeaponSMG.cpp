@@ -16,8 +16,6 @@ AWeaponSMG::AWeaponSMG()
     
     MuzzleSocketName = TEXT("Muzzle_SMG");
 
-    WeaponData.CurrentAmmo = WeaponData.MagazineCapacity;
-
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshObj(
         TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/SMG02/SK_weapon_SMG_02.SK_weapon_SMG_02"));
     if (WeaponMeshObj.Succeeded())
@@ -35,6 +33,11 @@ AWeaponSMG::AWeaponSMG()
     if (DT_WeaponData.Succeeded())
     {
         WeaponDataTable = DT_WeaponData.Object;
+    }
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> FireEffect(TEXT("/Game/MuzzleFlash/MuzzleFlash/Niagara/NS_MuzzleFlash.NS_MuzzleFlash"));
+    if (FireEffect.Succeeded())
+    {
+        NiagaraMuzzleFlash = FireEffect.Object;
     }
 }
 void AWeaponSMG::Reload()
@@ -94,6 +97,7 @@ void AWeaponSMG::StartFire()
 void AWeaponSMG::InitializeWeaponData(FWeaponData* InData)
 {
     WeaponData = *InData;
+    WeaponData.CurrentAmmo = WeaponData.MagazineCapacity;
 }
 
 void AWeaponSMG::StopFire()
@@ -226,6 +230,7 @@ void AWeaponSMG::PlayLocalEffects()
 {
     UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
     NotifyAmmoUpdate();
+    PlayMuzzleEffect();
     ApplyCameraShake();
 }
 
@@ -279,5 +284,21 @@ void AWeaponSMG::MultiCastShot_Implementation(AController* ShooterController)
     }
     //전체 클라이언트에게 들려줘야 하는 사운드.
     UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
+
+}
+
+void AWeaponSMG::PlayMuzzleEffect()
+{
+    FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
+    UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+        NiagaraMuzzleFlash, 
+        WeaponMesh,                     
+        TEXT("Muzzle_SMG"),
+        FVector::ZeroVector,
+        FRotator(MuzzleRot.Pitch, MuzzleRot.Yaw + 90.0f, MuzzleRot.Roll),
+        EAttachLocation::SnapToTarget,
+        true,   
+        true   
+    );
 
 }

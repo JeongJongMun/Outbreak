@@ -24,6 +24,7 @@ protected:
 	void MakeShot();
 	void FinishReload();
 	void NotifyAmmoUpdate() override;
+	void PlayMuzzleEffect();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
 	FWeaponData WeaponData;

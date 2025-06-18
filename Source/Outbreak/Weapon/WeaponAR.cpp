@@ -16,7 +16,7 @@ AWeaponAR::AWeaponAR()
     
     MuzzleSocketName = TEXT("Muzzle_AR");
 
-    WeaponData.CurrentAmmo = WeaponData.MagazineCapacity;
+
     
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshObj(
         TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));
@@ -120,17 +120,6 @@ void AWeaponAR::MakeShot()
     ApplyCameraShake();
     UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
     FVector MuzzleLoc = WeaponMesh->GetSocketLocation(MuzzleSocketName);
-    // FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
-    // UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
-    //     NiagaraMuzzleFlash, 
-    //     WeaponMesh,                     
-    //     TEXT("Muzzle_SMG"),
-    //     FVector::ZeroVector,
-    //     FRotator(MuzzleRot.Pitch, MuzzleRot.Yaw, MuzzleRot.Roll),
-    //     EAttachLocation::SnapToTarget,
-    //     true,   
-    //     true   
-    // );
 
     AActor* MyOwner = GetOwner();
     if (!MyOwner)
@@ -218,6 +207,7 @@ void AWeaponAR::MakeShot()
 void AWeaponAR::InitializeWeaponData(FWeaponData* InData)
 {
     WeaponData = *InData;
+    WeaponData.CurrentAmmo = WeaponData.MagazineCapacity;
 }
 
 bool AWeaponAR::IsReloading()
@@ -264,6 +254,22 @@ void AWeaponAR::BeginPlay()
     {
         UE_LOG(LogTemp, Warning, TEXT("[WeaponAR] WeaponDataTable이 에디터에 연결되지 않았습니다."));
     }
+}
+
+void AWeaponAR::PlayMuzzleEffect()
+{
+    FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
+    UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+        NiagaraMuzzleFlash, 
+        WeaponMesh,                     
+        TEXT("Muzzle_AR"),
+        FVector::ZeroVector,
+        FRotator(MuzzleRot.Pitch, MuzzleRot.Yaw + 90.0f, MuzzleRot.Roll),
+        EAttachLocation::SnapToTarget,
+        true,   
+        true   
+    );
+
 }
 
 

@@ -164,7 +164,7 @@ void AWeaponSMG::MakeShot()
         {
             UGameplayStatics::ApplyPointDamage(
                 HitActor,
-                10.0f,
+                40.0f,
                 GetActorForwardVector(),
                 Hit,
                 PC,

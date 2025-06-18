@@ -193,7 +193,7 @@ void AWeaponAR::MakeShot()
         {
             UGameplayStatics::ApplyPointDamage(
                 HitActor,
-                10.0f,
+                50.0f,
                 GetActorForwardVector(),
                 Hit,
                 PC,
@@ -201,6 +201,7 @@ void AWeaponAR::MakeShot()
                 UDamageType::StaticClass());
         }
     }
+    PlayMuzzleEffect();
     NotifyAmmoUpdate();
 }
 

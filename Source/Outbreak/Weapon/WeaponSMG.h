@@ -41,6 +41,7 @@ protected:
 
 	void PlayLocalEffects();
 
+	void PlayMuzzleEffect();
 
 
 

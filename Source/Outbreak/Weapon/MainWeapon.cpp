@@ -10,13 +10,7 @@ AMainWeapon::AMainWeapon()
 	PrimaryActorTick.bCanEverTick = false;
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	RootComponent = WeaponMesh;
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> FireEffect(
-	TEXT("/Game/MuzzleFlash/MuzzleFlash/Niagara/NS_MuzzleFlash.NS_MuzzleFlash")
-);
-	if (FireEffect.Succeeded())
-	{
-		NiagaraMuzzleFlash = FireEffect.Object;
-	}
+
 	
 	
 }

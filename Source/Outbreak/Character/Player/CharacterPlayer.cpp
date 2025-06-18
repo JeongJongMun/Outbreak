@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpectatorPawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
@@ -322,18 +323,19 @@ void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	EnhancedInputComponent->BindAction(SwapSlot2,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnPressedSlot2);
 }
 
-void ACharacterPlayer::Die()
+void ACharacterPlayer::OnDie()
 {
-	Super::Die();
+	Super::OnDie();
 	
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetMesh()->SetSimulatePhysics(true);
-    
+	if (GetMesh())
+	{
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetSimulatePhysics(true);
+	}
+	
 	DetachFromControllerPendingDestroy();
-	
-	// TODO : Implement player death logic
-	UE_LOG(LogTemp, Warning, TEXT("############# Player Die #############"));
 }
+
 
 void ACharacterPlayer::ToggleCameraMode()
 {
@@ -598,9 +600,9 @@ void ACharacterPlayer::SetupCollision()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	auto* MeshComp = GetMesh();
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	MeshComp->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
-	MeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	MeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	MeshComp->bOwnerNoSee = true;
 	// MeshComp->SetHiddenInGame(true);
 }

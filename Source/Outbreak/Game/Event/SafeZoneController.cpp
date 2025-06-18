@@ -8,6 +8,7 @@
 #include "Outbreak/Game/InGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
+#include "Outbreak/Game/OutBreakGameState.h"
 
 
 ASafeZoneController::ASafeZoneController()
@@ -65,24 +66,35 @@ void ASafeZoneController::OnEndZoneEnter(UPrimitiveComponent* OverlappedComp, AA
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	if(!HasAuthority()) return;	
+
 	if (ACharacter* Character = Cast<ACharacter>(OtherActor))
 	{
-		UE_LOG(LogTemp, Log, TEXT("[SafeZone] 캐릭터 %s 종료 존에 진입"), *Character->GetName());
-
-		PlayersInEndZone.Add(Character); // 들어온 캐릭터 목록에 추가
-
-		int32 TotalPlayers = UGameplayStatics::GetNumPlayerControllers(GetWorld());
-
-		if (PlayersInEndZone.Num() == TotalPlayers)
+		if(Character->GetController() && Character->GetController()->IsPlayerController())
 		{
-			// TODO : 좀비 AI 및 스폰 비활성화 코드 작성
-			// 컷씬 추가시 즉시 비활성화
-			if (InGameModeRef && InGameModeRef->IsMatchInProgress())
+			UE_LOG(LogTemp, Log, TEXT("[SafeZone] 캐릭터 %s 종료 존에 진입"), *Character->GetName());
+
+			PlayersInEndZone.Add(Character); // 들어온 캐릭터 목록에 추가
+
+			int32 TotalPlayers = UGameplayStatics::GetNumPlayerControllers(GetWorld());
+
+			if (PlayersInEndZone.Num() == TotalPlayers)
 			{
-				InGameModeRef->EndMatch();
-				InGameModeRef->ProceedToNextLevel();
+				if (InGameModeRef && InGameModeRef->IsMatchInProgress())
+				{
+					if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
+					{
+						if (GS->SpawnerInstance)
+						{
+							GS->SpawnerInstance->Destroy();
+							UE_LOG(LogTemp, Warning, TEXT("Spawner is Deleted!"))
+						}
+					}
+					InGameModeRef->EndMatch();
+					InGameModeRef->ProceedToNextLevel();
+				}
 			}
-		}
+		}		
 	}
 }
 
@@ -108,8 +120,6 @@ void ASafeZoneController::OnStartZoneExit(UPrimitiveComponent* OverlappedComp, A
 		PlayersInStartZone.Remove(Character);
 		if (PlayersInStartZone.Num() == 0)
 		{
-			// TODO : 좀비 AI 및 스폰 활성화 코드 작성
-			// 단, 컷씬 추가시 활성화 시간을 컷씬 종료시에 해야함
 			if (CutsceneManager && !CutsceneManager->bHasPlayedCutscene)
 			{
 				if (InvisibleWall)

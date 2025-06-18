@@ -228,15 +228,3 @@ void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ACharacterBase, CurrentHealth);
 
 }
-void ACharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (Controller)
-	{
-
-		FRotator ControlRot = Controller->GetControlRotation();
-		FRotator MeshRotation = FRotator(0.0f, ControlRot.Yaw, 0.0f);
-		GetMesh()->SetWorldRotation(MeshRotation);
-	}
-}

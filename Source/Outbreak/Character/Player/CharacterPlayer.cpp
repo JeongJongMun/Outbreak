@@ -24,10 +24,10 @@ ACharacterPlayer::ACharacterPlayer()
 	CharacterType = ECharacterType::Player;
 	PlayerType = EPlayerType::Player1;
 
-
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	FirstPersonCamera -> SetupAttachment(GetCapsuleComponent());
-	FirstPersonCamera -> SetRelativeLocation(FVector(20, 0, BaseEyeHeight));
+	FirstPersonCamera -> SetupAttachment(RootComponent);
+	FirstPersonCamera -> SetRelativeLocation(FVector(0, 0, BaseEyeHeight));
+	FirstPersonCamera -> SetWorldRotation(FRotator(0, 90.0f, 0));
 	FirstPersonCamera -> bUsePawnControlRotation = true;
 
 	TopViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TopViewCamera"));
@@ -79,7 +79,7 @@ ACharacterPlayer::ACharacterPlayer()
 	{
 		GetMesh()->SetSkeletalMesh(DefaultMesh.Object);
 	}
-
+	GetMesh()->SetOwnerNoSee(true);
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Blueprints/ABP/ABP_Move.ABP_Move_C"));
 	if (AnimInstanceClassRef.Class)
 	{
@@ -93,12 +93,14 @@ ACharacterPlayer::ACharacterPlayer()
 		FirstPersonMesh->SetSkeletalMesh(FirstPersonMeshRef.Object);
 	}
 	FirstPersonMesh->SetupAttachment(FirstPersonCamera);
-	FirstPersonMesh->SetRelativeLocation(FVector(20.f, 10.f, -20.f));
-	FirstPersonMesh->SetRelativeRotation(FRotator(0.f,-90.f,0.f));
+	FirstPersonMesh->SetRelativeLocation(FVector(15.f, 15.f, -20.f));
+	FirstPersonMesh->SetRelativeRotation(FRotator(0.0f,270.0f,0.0f));
 	FirstPersonMesh->SetOnlyOwnerSee(true);
 	FirstPersonMesh->bCastDynamicShadow = false;
 	FirstPersonMesh->CastShadow = false;
+	
 
+	
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
 	GunMesh->SetupAttachment(
 		FirstPersonMesh,
@@ -339,12 +341,15 @@ void ACharacterPlayer::ToggleCameraMode()
 	{
 		CurrentCameraMode = ECameraMode::TopView;
 		FirstPersonCamera->SetActive(false);
+		FirstPersonCamera -> SetRelativeRotation(FRotator(-10.f,0.f,0.f));
+		GetMesh()->SetOwnerNoSee(false);
 		TopViewCamera->SetActive(true);
 	}
 	else
 	{
 		CurrentCameraMode = ECameraMode::FPS;
 		TopViewCamera->SetActive(false);
+		GetMesh()->SetOwnerNoSee(true);
 		FirstPersonCamera->SetActive(true);
 	}
 }
@@ -533,7 +538,7 @@ void ACharacterPlayer::Look(const FInputActionValue& Value)
 	FVector2D LookAxis = Value.Get<FVector2D>();
 	FRotator CameraRotation = FirstPersonCamera->GetComponentRotation();
 	FRotator TargetRotation = FRotator(0.f, CameraRotation.Yaw, 0.f);
-	GetMesh()->SetWorldRotation(TargetRotation);
+
 	AddControllerYawInput(LookAxis.X);
 	AddControllerPitchInput(LookAxis.Y);
 }

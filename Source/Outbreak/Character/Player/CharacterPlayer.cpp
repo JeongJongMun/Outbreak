@@ -106,11 +106,10 @@ ACharacterPlayer::ACharacterPlayer()
 	FirstPersonMesh->CastShadow = false;
 	
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
-	GunMesh->SetupAttachment(
-		FirstPersonMesh,
-		TEXT("weapon_socket_l"));
+	GunMesh->SetupAttachment(FirstPersonMesh,TEXT("weapon_socket_l"));
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
+	GunMesh->SetOnlyOwnerSee(false);
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SmgMesh(TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/SMG02/SK_weapon_SMG_02.SK_weapon_SMG_02"));
 	if (SmgMesh.Object)
@@ -258,6 +257,7 @@ void ACharacterPlayer::BeginPlay()
 	else
 	{
 		GunMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("weapon_socket_TP"));
+		GunMesh->SetRelativeRotation(FRotator(0.0f, 65.f, -27.0f));
 	}
 
 	WeaponInventory.Add(AWeaponAR::StaticClass());
@@ -297,10 +297,8 @@ void ACharacterPlayer::BeginPlay()
 		TimerHandle,
 		FTimerDelegate::CreateLambda([this]()
 		{
-			if (!IsLocallyControlled())
-				return;
-		
 			SwapToSlot(EInventorySlotType::SecondMainWeapon);
+			ChangeArm();
 		}),
 		0.2f,
 		false
@@ -492,15 +490,10 @@ void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotIndex)
 		NewWeapon->SetActorHiddenInGame(false);
 		NewWeapon->SetActorEnableCollision(true);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No weapon found in slot %d"), NewSlotIndex);
-	}
 
 	CurrentWeapon = NewWeapon;
 	CurrentSlotIndex = NewSlotIndex;
-
-	ChangeArm();
+	
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->NotifyAmmoUpdate();

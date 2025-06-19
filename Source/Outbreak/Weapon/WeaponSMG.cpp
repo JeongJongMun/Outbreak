@@ -73,6 +73,11 @@ void AWeaponSMG::Reload()
     if (bIsReloading || WeaponData.CurrentAmmo == WeaponData.MagazineCapacity || WeaponData.TotalAmmo <= 0)
         return;
 
+    if (!HasAuthority())
+    {
+        ServerReload();
+    }
+
     bIsReloading = true;
     StopFire();
 
@@ -151,9 +156,21 @@ void AWeaponSMG::ServerStartFire_Implementation()
     );
 }
 
+void AWeaponSMG::ServerReload_Implementation()
+{
+    Reload();
+}
+
 void AWeaponSMG::MakeShot()
 {
+    if (bIsReloading || WeaponData.CurrentAmmo <= 0)
+    {
+        StopFire();
+        return;
+    }
+    
     WeaponData.CurrentAmmo--;
+    
     MultiCastShot();
 
     AActor* MyOwner = GetOwner();

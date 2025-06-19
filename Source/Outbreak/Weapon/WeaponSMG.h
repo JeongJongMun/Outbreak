@@ -16,17 +16,12 @@ public:
 	virtual void StopFire() override;
 	virtual void Reload() override;
 	virtual void InitializeWeaponData(FWeaponData* InData) override;
-	bool IsReloading() const { return bIsReloading; }
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	void MakeShot();
-
-	void FinishReload();
 	virtual void NotifyAmmoUpdate() override;
-
+	
 	UFUNCTION(Server,Reliable)
 	void ServerStartFire();
 
@@ -35,7 +30,12 @@ protected:
 	
 	UFUNCTION(NetMulticast,Unreliable)
 	void MultiCastShot();
+
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
 	
+	void MakeShot();
+	void FinishReload();
 	void PlayMuzzleEffect();
 
 protected:

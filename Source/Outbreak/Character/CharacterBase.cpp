@@ -100,7 +100,15 @@ float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, 
 }
 void ACharacterBase::OnRep_CurrentHealth()
 {
-	// Change Player UI HP
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_CurrentHealth called! Health: %d"), CurrentHealth);
+
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		{
+			HUD->DisplayCurrentHealth(CurrentHealth);
+		}
+	}
 }
 
 
@@ -116,15 +124,7 @@ void ACharacterBase::BeginPlay()
 
 void ACharacterBase::InitCharacterData()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_CurrentHealth called! Health: %d"), CurrentHealth);
-
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
-	{
-		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
-		{
-			HUD->DisplayCurrentHealth(CurrentHealth);
-		}
-	}
+	// Implement in derived classes
 }
 
 void ACharacterBase::SetPhysicalAsset(const ECharacterType InCharacterType, const ECharacterBodyType InBodyType)

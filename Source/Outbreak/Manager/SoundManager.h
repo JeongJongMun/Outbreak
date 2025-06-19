@@ -29,6 +29,12 @@ public:
 	void SetSFXVolume(float InVolume);
 	float GetSFXVolume() const { return SFXVolume; }
 
+
+	UPROPERTY()
+	UAudioComponent* BGMComponent;
+
+	void PlayPersistentBGM(USoundBase* BGM);
+
 private:
 	float BGMVolume = 0.5f;
 	float SFXVolume = 0.5f;

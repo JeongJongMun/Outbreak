@@ -34,12 +34,9 @@ protected:
 	void ServerStopFire();
 	
 	UFUNCTION(NetMulticast,Unreliable)
-	void MultiCastShot(AController* ShooterController);
-
-	void PlayLocalEffects();
-
+	void MultiCastShot();
+	
 	void PlayMuzzleEffect();
-
 
 protected:
 	UPROPERTY(Replicated)

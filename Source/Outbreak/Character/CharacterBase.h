@@ -29,6 +29,8 @@ protected:
 	virtual void SetupMovement();
 	virtual void SetPhysicalAsset(ECharacterType InCharacterType, ECharacterBodyType InBodyType);
 	virtual bool IsDead() const;
+	virtual void StartMoveSoundTimer();
+	virtual void PlayMoveSound();
 
 	UFUNCTION()
 	virtual void OnRep_Die();
@@ -64,5 +66,12 @@ protected:
 
 	float CurrentAnimationSectionLength = 0.0f;
 
-private:
+	FTimerHandle MoveSoundTimerHandle;
+	bool bIsMoving = false;
+	
+	UPROPERTY()
+	TArray<TObjectPtr<USoundBase>> WalkSounds;
+	
+	UPROPERTY()
+	TArray<TObjectPtr<USoundBase>> SprintSounds;
 };

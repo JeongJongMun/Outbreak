@@ -69,4 +69,12 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponTypeTextBlock;
+
+private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MiniMap", meta=(AllowPrivateAccess = "true"))
+	UTextureRenderTarget2D* RenderTarget;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MiniMap", meta=(AllowPrivateAccess = "true"))
+	UMaterialInterface* MiniMapMaterial;
+	
 };

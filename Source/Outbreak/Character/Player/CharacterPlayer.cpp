@@ -312,6 +312,8 @@ void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACharacterPlayer::Move);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ACharacterPlayer::StopMove);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Canceled, this, &ACharacterPlayer::StopMove);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACharacterPlayer::Look);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacterPlayer::Jump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacterPlayer::StopJumping);
@@ -420,7 +422,7 @@ void ACharacterPlayer::SetCharacterControl(EPlayerControlType NewCharacterContro
 void ACharacterPlayer::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
-	    
+	
 	if (Controller && MovementVector != FVector2D::ZeroVector)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -431,6 +433,50 @@ void ACharacterPlayer::Move(const FInputActionValue& Value)
 
 		AddMovementInput(ForwardDirection, MovementVector.Y);  // W/S
 		AddMovementInput(RightDirection, MovementVector.X);    // A/D
+
+		if (!bIsMoving)
+		{
+			bIsMoving = true;
+			StartMoveSoundTimer();
+		}
+	}
+}
+
+void ACharacterPlayer::StopMove()
+{
+	if (bIsMoving)
+	{
+		bIsMoving = false;
+		GetWorld()->GetTimerManager().ClearTimer(MoveSoundTimerHandle);
+	}
+}
+
+void ACharacterPlayer::StartMoveSoundTimer()
+{
+	const float StepInterval = bIsSprinting ? 0.2f : 0.4f;
+
+	GetWorld()->GetTimerManager().SetTimer(
+		MoveSoundTimerHandle,
+		this,
+		&ACharacterPlayer::PlayMoveSound,
+		StepInterval,
+		true
+	);	
+}
+
+void ACharacterPlayer::PlayMoveSound()
+{
+	if (!IsLocallyControlled()) return;
+
+	if (bIsSprinting)
+	{
+		const int32 RandomIndex = FMath::RandRange(0, SprintSounds.Num() - 1);
+		UGameplayStatics::PlaySoundAtLocation(this, SprintSounds[RandomIndex], GetActorLocation());
+	}
+	else
+	{
+		const int32 RandomIndex = FMath::RandRange(0, WalkSounds.Num() - 1);
+		UGameplayStatics::PlaySoundAtLocation(this, WalkSounds[RandomIndex], GetActorLocation());
 	}
 }
 

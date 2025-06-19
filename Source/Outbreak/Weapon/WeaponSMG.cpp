@@ -6,6 +6,7 @@
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/UI/OB_HUD.h"
 #include "Net/UnrealNetwork.h"
+#include "NiagaraFunctionLibrary.h"
 
 AWeaponSMG::AWeaponSMG()
 {

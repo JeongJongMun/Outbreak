@@ -47,7 +47,8 @@ protected:
 	virtual void SetupCollision() override;
 	virtual void SetupMovement() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	virtual void Die() override;
+	virtual void OnRep_Die() override;
+	
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 	void SetCharacterControl(EPlayerControlType NewCharacterControlType);
 	void ToggleCameraMode();
@@ -75,8 +76,7 @@ protected:
 	UFUNCTION()
 	void EndCrouch();
 
-	UFUNCTION()
-	void SwapToSlot(int32 NewSlotIndex);
+	void SwapToSlot(EInventorySlotType InSlotType);
 	
 	UFUNCTION()
 	void OnPressedSlot1();
@@ -84,9 +84,20 @@ protected:
 	UFUNCTION()
 	void OnPressedSlot2();
 
+private:
+	UFUNCTION(Server, Reliable)
+	void Server_ChangeArm(EInventorySlotType NewSlot);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_ChangeArm(EInventorySlotType NewSlot);
+
 // --------------------
 // Variables
 // --------------------
+public:
+	UPROPERTY()
+	bool bIsCutscenePlaying = false;
+	
 protected:
 	UPROPERTY(Replicated)
 	FPlayerData PlayerData;
@@ -99,7 +110,7 @@ protected:
 	// Weapon
 	TSubclassOf<AMainWeapon> WeaponClass;
 	
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AWeaponBase* CurrentWeapon;
 	
 	bool bIsAutoFire = false;
@@ -108,14 +119,13 @@ protected:
 	USkeletalMesh* ARMesh;
 
 	// Inventory
-	UPROPERTY(EditAnywhere, Category="Inventory")
+	UPROPERTY(Replicated)
 	TArray<TSubclassOf<AWeaponBase>> WeaponInventory;
 	
 	int32 CurrentSlotIndex;
 	
-	UPROPERTY()
-	TArray<AWeaponBase*> WeaponInstances;
-
+	UPROPERTY(Replicated)
+	TArray<TObjectPtr<AWeaponBase>> WeaponInstances;
 	
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -202,8 +212,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
 	TObjectPtr<UTextRenderComponent> PlayerNameText;
-	
-public:
-	UPROPERTY()
-	bool bIsCutscenePlaying = false;
 };

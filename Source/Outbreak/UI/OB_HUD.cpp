@@ -5,11 +5,22 @@
 #include "OB_Widget.h"
 #include "Blueprint/UserWidget.h"
 
+AOB_HUD::AOB_HUD()
+{
+	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetBPClass(TEXT("/Game/UI/WBP_OBWidget"));
+	if (WidgetBPClass.Succeeded())
+	{
+		WidgetClass = WidgetBPClass.Class;
+	}
+}
+
+
+
 void AOB_HUD::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (UClass* WidgetClass = LoadClass<UOB_Widget>(nullptr, TEXT("/Game/UI/WBP_OBWidget.WBP_OBWidget_C")))
+
+	if (WidgetClass)
 		OB_Widget = CreateWidget<UOB_Widget>(GetWorld(), WidgetClass);
 		if (OB_Widget)
 		{

@@ -10,13 +10,7 @@ AMainWeapon::AMainWeapon()
 	PrimaryActorTick.bCanEverTick = false;
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	RootComponent = WeaponMesh;
-
-	
-	
 }
-
-
-
 
 void AMainWeapon::ApplyCameraShake()
 {

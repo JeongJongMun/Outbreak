@@ -12,42 +12,35 @@ class OUTBREAK_API AWeaponSMG : public AMainWeapon
 
 public:
 	AWeaponSMG();
-
 	virtual void StartFire() override;
 	virtual void StopFire() override;
 	virtual void Reload() override;
 	virtual void InitializeWeaponData(FWeaponData* InData) override;
-	bool IsReloading();
+	
 protected:
 	virtual void BeginPlay() override;
-	void MakeShot();
-	void FinishReload();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void NotifyAmmoUpdate() override;
-
+	
 	UFUNCTION(Server,Reliable)
 	void ServerStartFire();
 
 	UFUNCTION(Server, Reliable)
 	void ServerStopFire();
-
-	//UFUNCTION(Server, Unreliable,WithValidation)
-	//void ServerMakeShot();
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void ClientShotRay(const FVector& TraceEnd, bool bHit, const FVector& ImpactPoint);
-
+	
 	UFUNCTION(NetMulticast,Unreliable)
-	void MultiCastShot(AController* ShooterController);
+	void MultiCastShot();
 
-	void PlayLocalEffects();
-
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
+	
+	void MakeShot();
+	void FinishReload();
 	void PlayMuzzleEffect();
 
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
+protected:
+	UPROPERTY(Replicated)
 	FWeaponData WeaponData;
-
 	
 	FTimerHandle TimerHandle_TimeBetweenShots;
 	FTimerHandle ReloadTimerHandle;	

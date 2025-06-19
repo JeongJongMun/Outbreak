@@ -17,15 +17,31 @@ class OUTBREAK_API AOutBreakGameState : public AGameState
 public:
 	AOutBreakGameState();
 	
-	// 서버가 가진 데이터를 클라이언트와 자동으로 동기화 하기 위해 ReplicatedUsing 사용 -> Server RPC 방식
-	// 게임 진행 정보
+// --------------------
+// Getters
+// --------------------
+	
+	FORCEINLINE float GetMatchTime() const { return MatchTime; }
+	FORCEINLINE FString GetCurrentPhase() const { return CurrentPhase; }
+
+	TObjectPtr<ACharacterSpawnManager> GetSpawnManager() const { return SpawnManager; }
+	
+// --------------------
+// Variables
+// --------------------
+	
+public:
+	// --------Spawner--------
+	UPROPERTY()
+	AActor* SpawnerInstance;
+	
+	// --------GameState Info--------
 	UPROPERTY(Replicated)
 	float MatchTime; // 게임 진행 시간
 
 	UPROPERTY(Replicated)
 	FString CurrentPhase; // 현재 페이즈
-
-	// 전체 통계 정보
+	
 	UPROPERTY(ReplicatedUsing = OnRep_TotalZombieKills)
 	int32 TotalZombieKills; // 전체 좀비 킬 수
 
@@ -37,8 +53,7 @@ public:
 
 	UPROPERTY(ReplicatedUsing = OnRep_DownedPlayerCount)
 	int32 DownedPlayerCount; // 기절 상태 플레이어 수
-
-	// 글로벌 UI 메시지
+	
 	UPROPERTY(ReplicatedUsing = OnRep_AnnouncementMessage)
 	FString AnnouncementMessage; // 알림 UI
 
@@ -47,20 +62,26 @@ public:
 
 	UPROPERTY(ReplicatedUsing = OnRep_EventAlertMessage)
 	FString EventAlertMessage; // 경고 UI
-
-	FORCEINLINE float GetMatchTime() const { return MatchTime; }
-	FORCEINLINE FString GetCurrentPhase() const { return CurrentPhase; }
 	
+private:
+	UPROPERTY()
+	ACharacterSpawnManager* SpawnManager;
+	
+// --------------------
+// Functions
+// --------------------
+
+public:
 	UFUNCTION()
 	void SetObjectiveMessage(const FString& NewMessage);
-
-	TObjectPtr<ACharacterSpawnManager> GetSpawnManager() const { return SpawnManager; }
 	
 	UFUNCTION()
 	void AddTotalZombieKill();
 
+	UFUNCTION()
+	void SpawnerSetup();
+	
 protected:
-
 	UFUNCTION()
 	void OnRep_TotalZombieKills();
 
@@ -81,8 +102,4 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EventAlertMessage();
-
-private:
-	UPROPERTY()
-	ACharacterSpawnManager* SpawnManager;
 };

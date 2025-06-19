@@ -53,12 +53,15 @@ float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, 
 		const FHitResult& HitResult = PointDamageEvent->HitInfo;
 		const UPhysicalMaterial* PhysMat = HitResult.PhysMaterial.Get();
 
-		const float DamageMultiplier = GetDamageMultiplier(PhysMat->SurfaceType);
-		const int32 FinalDamage = FMath::RoundToInt(DamageAmount * DamageMultiplier);
-		ApplyDamage(FinalDamage);
-		ApplyHitEffects(FinalDamage, PhysMat->SurfaceType);
+		if (PhysMat)
+		{
+			const float DamageMultiplier = GetDamageMultiplier(PhysMat->SurfaceType);
+			const int32 FinalDamage = FMath::RoundToInt(DamageAmount * DamageMultiplier);
+			ApplyDamage(FinalDamage);
+			ApplyHitEffects(FinalDamage, PhysMat->SurfaceType);
 
-		return FinalDamage;
+			return FinalDamage;
+		}
 	}
 	
 	ApplyDamage(DamageAmount);
@@ -121,9 +124,18 @@ bool ACharacterBase::IsDead() const
 
 void ACharacterBase::Die()
 {
+	if (!HasAuthority())
+		return;
+
+	bIsDead = true;
+	
+	OnRep_Die();
+}
+
+void ACharacterBase::OnRep_Die()
+{
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-    
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
@@ -144,8 +156,6 @@ float ACharacterBase::GetDamageMultiplier(const EPhysicalSurface SurfaceType)
 
 void ACharacterBase::ApplyDamage(int32 DamageAmount)
 {
-	UE_LOG(LogTemp, Log, TEXT("[%s] %s got damage %d, HP %d -> %d "), CURRENT_CONTEXT, *GetName(), DamageAmount, CurrentHealth, CurrentHealth - DamageAmount);
-
 	if (CurrentExtraHealth > 0)
 	{
 		CurrentExtraHealth -= DamageAmount;
@@ -226,17 +236,6 @@ void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ACharacterBase, CurrentHealth);
+	DOREPLIFETIME(ACharacterBase, bIsDead);
 
-}
-void ACharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (Controller)
-	{
-
-		FRotator ControlRot = Controller->GetControlRotation();
-		FRotator MeshRotation = FRotator(0.0f, ControlRot.Yaw, 0.0f);
-		GetMesh()->SetWorldRotation(MeshRotation);
-	}
 }

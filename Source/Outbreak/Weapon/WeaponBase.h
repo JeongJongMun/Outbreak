@@ -22,8 +22,12 @@ public:
 	virtual void InitializeWeaponData(FWeaponData* InData);
 	virtual void NotifyAmmoUpdate();
 	virtual void BeginPlay() override;
-	
+	bool IsReloading() const { return bIsReloading; }
+
+
+protected:
 	UPROPERTY(VisibleAnywhere, Category="Weapon")
-	USkeletalMeshComponent* WeaponMesh; // 무기 메시
+	USkeletalMeshComponent* WeaponMesh;
+	
 	bool bIsReloading = false;
 };

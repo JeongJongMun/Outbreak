@@ -1,22 +1,19 @@
-// WeaponAR.cpp
 #include "WeaponAR.h"
 #include "UObject/ConstructorHelpers.h"
 #include "ARAmmo.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Engine/World.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/UI/OB_HUD.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogWeaponAR, All, All);
 AWeaponAR::AWeaponAR()
 {
     AmmoClass = AARAmmo::StaticClass();
     
     MuzzleSocketName = TEXT("Muzzle_AR");
-
-
     
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshObj(
         TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));
@@ -34,7 +31,11 @@ AWeaponAR::AWeaponAR()
     {
         WeaponDataTable = DT_WeaponData.Object;
     }
-    
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> FireEffect(TEXT("/Game/MuzzleFlash/MuzzleFlash/Niagara/NS_MuzzleFlash.NS_MuzzleFlash"));
+    if (FireEffect.Succeeded())
+    {
+        NiagaraMuzzleFlash = FireEffect.Object;
+    }
 }
 void AWeaponAR::Reload()
 {
@@ -193,7 +194,7 @@ void AWeaponAR::MakeShot()
         {
             UGameplayStatics::ApplyPointDamage(
                 HitActor,
-                10.0f,
+                50.0f,
                 GetActorForwardVector(),
                 Hit,
                 PC,
@@ -201,8 +202,10 @@ void AWeaponAR::MakeShot()
                 UDamageType::StaticClass());
         }
     }
+    PlayMuzzleEffect();
     NotifyAmmoUpdate();
 }
+
 
 void AWeaponAR::InitializeWeaponData(FWeaponData* InData)
 {
@@ -259,7 +262,7 @@ void AWeaponAR::BeginPlay()
 void AWeaponAR::PlayMuzzleEffect()
 {
     FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
-    UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+    UNiagaraFunctionLibrary::SpawnSystemAttached(
         NiagaraMuzzleFlash, 
         WeaponMesh,                     
         TEXT("Muzzle_AR"),

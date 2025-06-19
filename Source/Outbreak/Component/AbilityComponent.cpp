@@ -79,8 +79,8 @@ void UAbilityComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UpdateCooldowns(DeltaTime);
-	UpdateDurations(DeltaTime);
+	// UpdateCooldowns(DeltaTime);
+	// UpdateDurations(DeltaTime);
 }
 
 void UAbilityComponent::UpdateCooldowns(float DeltaTime)

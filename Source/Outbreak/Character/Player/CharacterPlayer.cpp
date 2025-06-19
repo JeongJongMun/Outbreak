@@ -86,7 +86,7 @@ ACharacterPlayer::ACharacterPlayer()
 		GetMesh()->SetSkeletalMesh(DefaultMesh.Object);
 	}
 	GetMesh()->SetOwnerNoSee(true);
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Blueprints/ABP/ABP_Move.ABP_Move_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Animations/3rdPersonAnim/ABP_Move.ABP_Move_C"));
 	if (AnimInstanceClassRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
@@ -439,21 +439,21 @@ void ACharacterPlayer::ChangeArm()
 
 	if (CurrentWeapon->GetClass() == AWeaponAR::StaticClass())
 	{
-		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/AR02/ABP_Arms_AR02.ABP_Arms_AR02_C"));
-		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/AR02/ABP_AR02.ABP_AR02_C"));
+		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/ARAnim/Arm/ABP_Arms_AR02.ABP_Arms_AR02_C"));
+		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/ARAnim/Gun/ABP_AR02.ABP_AR02_C"));
 		GunMesh->SetSkeletalMesh(ARMesh);
 		
 	}
 	else if (CurrentWeapon->GetClass() == AWeaponSMG::StaticClass())
 	{
-		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/MP2/ABP_Arms_MP2.ABP_Arms_MP2_C"));
-		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/SMG02/ABP_SMG02.ABP_SMG02_C"));
+		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/SMGAnim/Arm/ABP_Arms_MP2.ABP_Arms_MP2_C"));
+		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/SMGAnim/Gun/ABP_SMG02.ABP_SMG02_C"));
 		GunMesh->SetSkeletalMesh(SMGMesh);
 	}
 	else
 	{
-		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/MP2/ABP_Arms_MP2.ABP_Arms_MP2_C"));
-		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/SMG02/ABP_SMG02.ABP_SMG02_C"));
+		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/SMGAnim/Arm/ABP_Arms_MP2.ABP_Arms_MP2_C"));
+		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/SMGAnim/Gun/ABP_SMG02.ABP_SMG02_C"));
 	}
 	if (CurrentWeapon)
 	{

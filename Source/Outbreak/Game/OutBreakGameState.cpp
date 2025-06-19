@@ -110,7 +110,6 @@ void AOutBreakGameState::OnRep_TotalZombieKills()
 void AOutBreakGameState::AddTotalZombieKill()
 {
 	TotalZombieKills++;
-	OnRep_TotalZombieKills();
 }
 
 

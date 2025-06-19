@@ -76,7 +76,7 @@ protected:
 	UFUNCTION()
 	void EndCrouch();
 
-	void SwapToSlot(EInventorySlotType InSlotIndex);
+	void SwapToSlot(EInventorySlotType InSlotType);
 	
 	UFUNCTION()
 	void OnPressedSlot1();
@@ -84,9 +84,20 @@ protected:
 	UFUNCTION()
 	void OnPressedSlot2();
 
+private:
+	UFUNCTION(Server, Reliable)
+	void Server_ChangeArm(EInventorySlotType NewSlot);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_ChangeArm(EInventorySlotType NewSlot);
+
 // --------------------
 // Variables
 // --------------------
+public:
+	UPROPERTY()
+	bool bIsCutscenePlaying = false;
+	
 protected:
 	UPROPERTY(Replicated)
 	FPlayerData PlayerData;
@@ -201,8 +212,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
 	TObjectPtr<UTextRenderComponent> PlayerNameText;
-	
-public:
-	UPROPERTY()
-	bool bIsCutscenePlaying = false;
 };

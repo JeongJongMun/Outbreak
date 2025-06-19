@@ -17,6 +17,7 @@
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/UI/OB_HUD.h"
+#include "Outbreak/Util/EnumHelper.h"
 #include "Outbreak/Weapon/WeaponAR.h"
 #include "Outbreak/Weapon/WeaponSMG.h"
 
@@ -300,7 +301,7 @@ void ACharacterPlayer::BeginPlay()
 		}
 	}
 	
-	SwapToSlot(1);
+	SwapToSlot(EInventorySlotType::SecondMainWeapon);
 	ChangeArm();
 }
 
@@ -477,8 +478,10 @@ void ACharacterPlayer::ChangeArm()
 
 }
 
-void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
+void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotIndex)
 {
+	const int32 NewSlotIndex = EnumHelper::EnumToInt(InSlotIndex);
+	
 	if (NewSlotIndex < 0 || NewSlotIndex >= WeaponInstances.Num()) return;
 	if (CurrentSlotIndex == NewSlotIndex) return;
 	
@@ -524,12 +527,12 @@ void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
 
 void ACharacterPlayer::OnPressedSlot1()
 {
-	SwapToSlot(0);
+	SwapToSlot(EInventorySlotType::FirstMainWeapon);
 }
 
 void ACharacterPlayer::OnPressedSlot2()
 {
-	SwapToSlot(1);
+	SwapToSlot(EInventorySlotType::SecondMainWeapon);
 }
 
 void ACharacterPlayer::Look(const FInputActionValue& Value)

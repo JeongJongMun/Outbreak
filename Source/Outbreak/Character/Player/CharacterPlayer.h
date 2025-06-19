@@ -76,8 +76,7 @@ protected:
 	UFUNCTION()
 	void EndCrouch();
 
-	UFUNCTION()
-	void SwapToSlot(int32 NewSlotIndex);
+	void SwapToSlot(EInventorySlotType InSlotIndex);
 	
 	UFUNCTION()
 	void OnPressedSlot1();

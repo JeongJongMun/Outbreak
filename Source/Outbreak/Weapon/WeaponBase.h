@@ -16,6 +16,7 @@ class OUTBREAK_API AWeaponBase : public AActor
 
 public:
 	AWeaponBase();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void StartFire();
 	virtual void StopFire();
 	virtual void Reload();
@@ -28,6 +29,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, Category="Weapon")
 	USkeletalMeshComponent* WeaponMesh;
-	
+
+	UPROPERTY(Replicated)
 	bool bIsReloading = false;
 };

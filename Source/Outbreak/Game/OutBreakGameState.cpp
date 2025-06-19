@@ -12,7 +12,6 @@ AOutBreakGameState::AOutBreakGameState()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	
-	// 오류 방지를 위해 값 초기화
 	TotalZombieKills = 0;
 	AlivePlayerCount = 0;
 	DeadPlayerCount = 0;
@@ -31,6 +30,10 @@ void AOutBreakGameState::BeginPlay()
 	else if (CurrentLevel == TEXT("SecondPhase")) CurrentPhase = "LEVEL 2 : Devastated Village";
 	else if (CurrentLevel == TEXT("ThirdPhase")) CurrentPhase = "LEVEL 3 : Skyscrapers";
 	else if (CurrentLevel == TEXT("LastPhase")) CurrentPhase = "LEVEL 4 : Last Forest";
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnManager = GetWorld()->SpawnActor<ACharacterSpawnManager>(ACharacterSpawnManager::StaticClass(), SpawnParams);
 }
 
 void AOutBreakGameState::Tick(float DeltaTime)
@@ -71,10 +74,6 @@ void AOutBreakGameState::Tick(float DeltaTime)
 
 void AOutBreakGameState::SpawnerSetup()
 {
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnManager = GetWorld()->SpawnActor<ACharacterSpawnManager>(ACharacterSpawnManager::StaticClass(), SpawnParams);
-
 	if (HasAuthority())
 	{
 		UClass* SpawnerClass = StaticLoadClass(

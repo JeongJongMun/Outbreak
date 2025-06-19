@@ -482,6 +482,11 @@ void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotType)
 		NewWeapon->SetActorHiddenInGame(false);
 		NewWeapon->SetActorEnableCollision(true);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] No weapon found for slot index %d"), CURRENT_CONTEXT, NewSlotIndex);
+		return;
+	}
 
 	CurrentWeapon = NewWeapon;
 	CurrentWeapon->NotifyAmmoUpdate();

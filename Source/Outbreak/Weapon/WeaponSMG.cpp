@@ -224,25 +224,24 @@ void AWeaponSMG::MultiCastShot_Implementation()
     const FVector Location = GetActorLocation();
     UGameplayStatics::PlaySoundAtLocation(GetWorld(), WeaponData.ShotSound, Location);
     NotifyAmmoUpdate();
-    PlayMuzzleEffect();
     if (const APawn* OwnerPawn = Cast<APawn>(GetOwner()))
     {
         if (OwnerPawn->IsLocallyControlled())
         {
             ApplyCameraShake();
+            PlayMuzzleEffect();
         }
     }
 }
 
 void AWeaponSMG::PlayMuzzleEffect()
 {
-    FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
     UNiagaraFunctionLibrary::SpawnSystemAttached(
         NiagaraMuzzleFlash, 
         WeaponMesh,                     
         TEXT("Muzzle_SMG"),
         FVector::ZeroVector,
-        FRotator(MuzzleRot.Pitch, MuzzleRot.Yaw + 90.0f, MuzzleRot.Roll),
+        FRotator::ZeroRotator,
         EAttachLocation::SnapToTarget,
         true
     );

@@ -13,6 +13,7 @@ class OUTBREAK_API AOB_HUD : public AHUD
 
 
 public:
+	AOB_HUD();
 	virtual void BeginPlay() override;
 	
 	void DisplayAlivePlayerCount(int32 AlivePlayerCount);
@@ -24,7 +25,9 @@ public:
 	void DisplayWeaponType(FString Type);
 	
 	void SetCutsceneMode(bool bEnable);
-
+protected:
+	UPROPERTY()
+	TSubclassOf<UUserWidget> WidgetClass;
 private:
 	UPROPERTY()
 	class UOB_Widget* OB_Widget;

@@ -26,18 +26,7 @@ void UVibrationAbility::DeactivateAbility()
 void UVibrationAbility::OnVibrationAbility()
 {
 	const FVector Origin = GetOwner()->GetActorLocation();
-
-	// TODO : Delete DebugSphere
-	DrawDebugSphere(
-		GetOwner()->GetWorld(),
-		Origin,
-		VibrationRange,
-		24,
-		FColor::Yellow,
-		false,
-		1.0f
-	);
-
+	
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetOwner()->GetWorld(), ACharacterPlayer::StaticClass(), Actors);
 

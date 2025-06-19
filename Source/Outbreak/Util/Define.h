@@ -6,6 +6,7 @@
 
 #define CURRENT_CONTEXT *FString(__FUNCTION__)
 
+UENUM()
 enum class EInventorySlotType : uint8
 {
 	FirstMainWeapon = 0,

@@ -6,12 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "WeaponBase.h"
 #include "NiagaraSystem.h"       
-#include "NiagaraFunctionLibrary.h"     
 #include "MainWeapon.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class OUTBREAK_API AMainWeapon : public AWeaponBase
 {

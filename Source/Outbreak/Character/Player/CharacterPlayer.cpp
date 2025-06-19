@@ -17,6 +17,7 @@
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/UI/OB_HUD.h"
+#include "Outbreak/Util/EnumHelper.h"
 #include "Outbreak/Weapon/WeaponAR.h"
 #include "Outbreak/Weapon/WeaponSMG.h"
 
@@ -189,8 +190,6 @@ ACharacterPlayer::ACharacterPlayer()
 	}
 	
 	CurrentCharacterControlType = EPlayerControlType::Top;
-	WeaponInventory.SetNum(6);
-	WeaponInstances.SetNum(6);
 	CurrentWeapon = nullptr;
 	CurrentSlotIndex = -1;
 }
@@ -260,48 +259,52 @@ void ACharacterPlayer::BeginPlay()
 	{
 		GunMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("weapon_socket_TP"));
 	}
-	
-	WeaponInventory[0] = AWeaponAR::StaticClass();
-	WeaponInventory[1] = AWeaponSMG::StaticClass();
+
+	WeaponInventory.Add(AWeaponAR::StaticClass());
+	WeaponInventory.Add(AWeaponSMG::StaticClass());
 
 	if (HasAuthority())
 	{
 		for (int32 i = 0; i < WeaponInventory.Num(); ++i)
 		{
-			if (WeaponInventory[i])
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = GetInstigator();
+			SpawnParams.bDeferConstruction = true;  
+			AWeaponBase* NewWeapon = GetWorld()->SpawnActorDeferred<AWeaponBase>(
+				WeaponInventory[i],
+				FTransform::Identity,
+				SpawnParams.Owner,
+				SpawnParams.Instigator,
+				ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+			);
+			if (NewWeapon)
 			{
+				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_socket_l"))); 
+				NewWeapon->SetActorHiddenInGame(true);
+				NewWeapon->SetActorEnableCollision(false);
 
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.Owner = this;
-				SpawnParams.Instigator = GetInstigator();
-				SpawnParams.bDeferConstruction = true;  
-				AWeaponBase* NewWeapon = GetWorld()->SpawnActorDeferred<AWeaponBase>(
-					WeaponInventory[i],
-					FTransform::Identity,
-					SpawnParams.Owner,
-					SpawnParams.Instigator,
-					ESpawnActorCollisionHandlingMethod::AlwaysSpawn
-				);
-				if (NewWeapon)
-				{
-					NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_socket_l"))); 
-					NewWeapon->SetActorHiddenInGame(true);
-					NewWeapon->SetActorEnableCollision(false);
+				UGameplayStatics::FinishSpawningActor(NewWeapon, FTransform::Identity);
 
-					UGameplayStatics::FinishSpawningActor(NewWeapon, FTransform::Identity);
-					
-					WeaponInstances[i] = NewWeapon;
-				}
-			}
-			else
-			{
-				WeaponInstances[i] = nullptr;
+				WeaponInstances.Add(NewWeapon);
 			}
 		}
 	}
-	
-	SwapToSlot(1);
-	ChangeArm();
+
+	// TODO : 땜빵. 리플리케이션 기다리려고 임시로 딜레이 줌.
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		TimerHandle,
+		FTimerDelegate::CreateLambda([this]()
+		{
+			if (!IsLocallyControlled())
+				return;
+		
+			SwapToSlot(EInventorySlotType::SecondMainWeapon);
+		}),
+		0.2f,
+		false
+	);
 }
 
 void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -477,8 +480,10 @@ void ACharacterPlayer::ChangeArm()
 
 }
 
-void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
+void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotIndex)
 {
+	const int32 NewSlotIndex = EnumHelper::EnumToInt(InSlotIndex);
+	
 	if (NewSlotIndex < 0 || NewSlotIndex >= WeaponInstances.Num()) return;
 	if (CurrentSlotIndex == NewSlotIndex) return;
 	
@@ -524,12 +529,12 @@ void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
 
 void ACharacterPlayer::OnPressedSlot1()
 {
-	SwapToSlot(0);
+	SwapToSlot(EInventorySlotType::FirstMainWeapon);
 }
 
 void ACharacterPlayer::OnPressedSlot2()
 {
-	SwapToSlot(1);
+	SwapToSlot(EInventorySlotType::SecondMainWeapon);
 }
 
 void ACharacterPlayer::Look(const FInputActionValue& Value)

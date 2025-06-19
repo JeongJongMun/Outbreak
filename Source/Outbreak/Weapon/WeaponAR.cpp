@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Engine/World.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/UI/OB_HUD.h"
@@ -261,7 +262,7 @@ void AWeaponAR::BeginPlay()
 void AWeaponAR::PlayMuzzleEffect()
 {
     FRotator MuzzleRot = WeaponMesh->GetSocketRotation(MuzzleSocketName);
-    UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+    UNiagaraFunctionLibrary::SpawnSystemAttached(
         NiagaraMuzzleFlash, 
         WeaponMesh,                     
         TEXT("Muzzle_AR"),

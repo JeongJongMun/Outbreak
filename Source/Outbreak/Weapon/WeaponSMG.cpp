@@ -6,6 +6,7 @@
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/UI/OB_HUD.h"
 #include "Net/UnrealNetwork.h"
+#include "NiagaraFunctionLibrary.h"
 
 AWeaponSMG::AWeaponSMG()
 {
@@ -41,18 +42,16 @@ AWeaponSMG::AWeaponSMG()
 void AWeaponSMG::BeginPlay()
 {
     Super::BeginPlay();
+    
     if (!HasAuthority())
         return;
 
-    if (WeaponDataTable)
-    {
-        static const FString ContextString(TEXT("WeaponSMG DataTable Initialization"));
+    static const FString ContextString(TEXT("WeaponSMG DataTable Initialization"));
 
-        FWeaponData* FoundRow = WeaponDataTable->FindRow<FWeaponData>(FName(TEXT("WeaponSMG")), ContextString, /*bWarnIfNotFound=*/ true);
-        if (FoundRow)
-        {
-            InitializeWeaponData(FoundRow);
-        }
+    FWeaponData* FoundRow = WeaponDataTable->FindRow<FWeaponData>(FName(TEXT("WeaponSMG")), ContextString);
+    if (FoundRow)
+    {
+        InitializeWeaponData(FoundRow);
     }
 }
 
@@ -114,14 +113,6 @@ void AWeaponSMG::NotifyAmmoUpdate()
     }
 }
 
-void AWeaponSMG::PlayLocalEffects()
-{
-    UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
-    NotifyAmmoUpdate();
-    PlayMuzzleEffect();
-    ApplyCameraShake();
-}
-
 void AWeaponSMG::StartFire()
 {
     if (bIsReloading)
@@ -135,12 +126,8 @@ void AWeaponSMG::StartFire()
         Reload();
         return;
     }
-
-    if (!HasAuthority())
-    {
-        ServerStartFire();
-        PlayLocalEffects();
-    }
+    
+    ServerStartFire();
 }
 
 void AWeaponSMG::StopFire()
@@ -167,6 +154,7 @@ void AWeaponSMG::ServerStartFire_Implementation()
 void AWeaponSMG::MakeShot()
 {
     WeaponData.CurrentAmmo--;
+    MultiCastShot();
 
     AActor* MyOwner = GetOwner();
     if (!MyOwner) return;
@@ -188,30 +176,24 @@ void AWeaponSMG::MakeShot()
     Params.AddIgnoredActor(this);
     Params.bReturnPhysicalMaterial = true;
 
-    bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
-    
-    if (bHit)
-    {
-        DrawDebugSphere(
-            GetWorld(),
-            Hit.ImpactPoint,
-            6.0f,
-            12,
-            FColor::Yellow
-        );
+    const bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, ViewLocation, TraceEnd, ECC_Visibility, Params);
 
-        AActor* HitActor = Hit.GetActor();
-        if (HitActor && HitActor->IsA(ACharacterZombie::StaticClass()))
-        {
-            UGameplayStatics::ApplyPointDamage(
-                HitActor,
-                40.0f,
-                GetActorForwardVector(),
-                Hit,
-                PC,
-                this,
-                UDamageType::StaticClass());
-        }
+    if (!bHit) return;
+
+    // TODO: VFX
+    DrawDebugSphere(GetWorld(), Hit.ImpactPoint,6.0f,12, FColor::Yellow);
+
+    AActor* HitActor = Hit.GetActor();
+    if (HitActor && HitActor->IsA(ACharacterZombie::StaticClass()))
+    {
+        UGameplayStatics::ApplyPointDamage(
+            HitActor,
+            40.0f,
+            GetActorForwardVector(),
+            Hit,
+            PC,
+            this,
+            UDamageType::StaticClass());
     }
 }
 
@@ -220,13 +202,13 @@ void AWeaponSMG::ServerStopFire_Implementation()
     GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
-void AWeaponSMG::MultiCastShot_Implementation(AController* ShooterController)
+void AWeaponSMG::MultiCastShot_Implementation()
 {
-    APlayerController* LocalPC = Cast<APlayerController>(GetOwner()->GetInstigatorController());
-    if (LocalPC == ShooterController)
-        return;
-    
-    UGameplayStatics::PlaySound2D(GetWorld(), WeaponData.ShotSound);
+    const FVector Location = GetActorLocation();
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), WeaponData.ShotSound, Location);
+    NotifyAmmoUpdate();
+    PlayMuzzleEffect();
+    ApplyCameraShake();
 }
 
 void AWeaponSMG::PlayMuzzleEffect()

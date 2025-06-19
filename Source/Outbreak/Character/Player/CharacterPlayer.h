@@ -76,8 +76,7 @@ protected:
 	UFUNCTION()
 	void EndCrouch();
 
-	UFUNCTION()
-	void SwapToSlot(int32 NewSlotIndex);
+	void SwapToSlot(EInventorySlotType InSlotIndex);
 	
 	UFUNCTION()
 	void OnPressedSlot1();
@@ -109,14 +108,13 @@ protected:
 	USkeletalMesh* ARMesh;
 
 	// Inventory
-	UPROPERTY(Replicated, EditAnywhere, Category="Inventory")
+	UPROPERTY(Replicated)
 	TArray<TSubclassOf<AWeaponBase>> WeaponInventory;
 	
 	int32 CurrentSlotIndex;
 	
 	UPROPERTY(Replicated)
-	TArray<AWeaponBase*> WeaponInstances;
-
+	TArray<TObjectPtr<AWeaponBase>> WeaponInstances;
 	
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")

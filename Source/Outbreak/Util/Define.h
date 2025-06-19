@@ -6,6 +6,14 @@
 
 #define CURRENT_CONTEXT *FString(__FUNCTION__)
 
+enum class EInventorySlotType : uint8
+{
+	FirstMainWeapon = 0,
+	SecondMainWeapon = 1,
+	SubWeapon = 2,
+	Max,
+};
+
 enum class EAvoidanceGroupType : uint8
 {
 	None = 0,

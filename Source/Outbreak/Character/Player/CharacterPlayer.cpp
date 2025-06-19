@@ -366,6 +366,7 @@ void ACharacterPlayer::ToggleCameraMode()
 		FirstPersonCamera->SetActive(true);
 	}
 }
+
 void ACharacterPlayer::OnReload()
 {
 	CurrentWeapon->Reload();
@@ -437,12 +438,13 @@ void ACharacterPlayer::ChangeArm()
 	UClass* ArmAnimClass = nullptr;
 	UClass* WeaponAnimClass = nullptr;
 
+	if (!CurrentWeapon)	return;
+
 	if (CurrentWeapon->GetClass() == AWeaponAR::StaticClass())
 	{
 		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/ARAnim/Arm/ABP_Arms_AR02.ABP_Arms_AR02_C"));
 		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/ARAnim/Gun/ABP_AR02.ABP_AR02_C"));
 		GunMesh->SetSkeletalMesh(ARMesh);
-		
 	}
 	else if (CurrentWeapon->GetClass() == AWeaponSMG::StaticClass())
 	{
@@ -455,25 +457,15 @@ void ACharacterPlayer::ChangeArm()
 		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/SMGAnim/Arm/ABP_Arms_MP2.ABP_Arms_MP2_C"));
 		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/Animations/SMGAnim/Gun/ABP_SMG02.ABP_SMG02_C"));
 	}
-	if (CurrentWeapon)
-	{
-		CurrentWeapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale,TEXT("weapon_l_Socket"));
-	}
-	if (ArmAnimClass)
-	{
-		FirstPersonMesh->SetAnimInstanceClass(ArmAnimClass);
-	}
-
-	if (WeaponAnimClass)
-	{
-		GunMesh->SetAnimInstanceClass(WeaponAnimClass);
-	}
-
+	
+	CurrentWeapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale,TEXT("weapon_l_Socket"));
+	FirstPersonMesh->SetAnimInstanceClass(ArmAnimClass);
+	GunMesh->SetAnimInstanceClass(WeaponAnimClass);
 }
 
-void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotIndex)
+void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotType)
 {
-	const int32 NewSlotIndex = EnumHelper::EnumToInt(InSlotIndex);
+	const int32 NewSlotIndex = EnumHelper::EnumToInt(InSlotType);
 	
 	if (NewSlotIndex < 0 || NewSlotIndex >= WeaponInstances.Num()) return;
 	if (CurrentSlotIndex == NewSlotIndex) return;
@@ -492,36 +484,56 @@ void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotIndex)
 	}
 
 	CurrentWeapon = NewWeapon;
+	CurrentWeapon->NotifyAmmoUpdate();
 	CurrentSlotIndex = NewSlotIndex;
-	
-	if (CurrentWeapon)
-	{
-		CurrentWeapon->NotifyAmmoUpdate();
 
-		FString WeaponType;
-		if (NewSlotIndex == 0) WeaponType = "AR";
-		else if (NewSlotIndex == 1) WeaponType = "SMG";
-		APlayerController* PC = Cast<APlayerController>(GetController());
-		if (PC)
+	FString WeaponType;
+	if (NewSlotIndex == 0) WeaponType = "AR";
+	else if (NewSlotIndex == 1) WeaponType = "SMG";
+	if (const APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
 		{
-			AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD());
-			if (HUD)
-			{
-				HUD->DisplayWeaponType(WeaponType);
-			}
+			HUD->DisplayWeaponType(WeaponType);
 		}
 	}
 }
 
 void ACharacterPlayer::OnPressedSlot1()
 {
-	SwapToSlot(EInventorySlotType::FirstMainWeapon);
+	if (HasAuthority())
+	{
+		Multi_ChangeArm(EInventorySlotType::FirstMainWeapon);
+	}
+	else
+	{
+		Server_ChangeArm(EInventorySlotType::FirstMainWeapon);
+	}
 }
 
 void ACharacterPlayer::OnPressedSlot2()
 {
-	SwapToSlot(EInventorySlotType::SecondMainWeapon);
+	if (HasAuthority())
+	{
+		Multi_ChangeArm(EInventorySlotType::SecondMainWeapon);
+	}
+	else
+	{
+		Server_ChangeArm(EInventorySlotType::SecondMainWeapon);
+	}
 }
+
+void ACharacterPlayer::Server_ChangeArm_Implementation(EInventorySlotType NewSlot)
+{
+	Multi_ChangeArm(NewSlot);
+}
+
+void ACharacterPlayer::Multi_ChangeArm_Implementation(EInventorySlotType NewSlot)
+{
+	SwapToSlot(NewSlot);
+	ChangeArm();
+}
+
 
 void ACharacterPlayer::Look(const FInputActionValue& Value)
 {

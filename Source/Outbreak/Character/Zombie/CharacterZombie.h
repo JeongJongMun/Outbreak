@@ -35,7 +35,7 @@ protected:
 	virtual void InitCharacterData() override;
 	virtual void SetupCollision() override;
 	virtual void SetupMovement() override;
-	virtual void Die() override;
+	virtual void OnRep_Die() override;
 	virtual void SetMesh(ECharacterBodyType MeshType);
 	void ChangeZombieState(EZombieStateType NewState, TObjectPtr<ACharacterPlayer> TargetPlayer = nullptr);
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,class AActor* DamageCauser) override;

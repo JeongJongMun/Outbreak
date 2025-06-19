@@ -180,9 +180,9 @@ void ACharacterZombie::ChangeZombieState(const EZombieStateType NewState, TObjec
 	}
 }
 
-void ACharacterZombie::Die()
+void ACharacterZombie::OnRep_Die()
 {
-	Super::Die();
+	Super::OnRep_Die();
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 

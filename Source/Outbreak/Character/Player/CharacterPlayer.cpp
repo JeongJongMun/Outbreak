@@ -323,9 +323,9 @@ void ACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	EnhancedInputComponent->BindAction(SwapSlot2,ETriggerEvent::Triggered,this,&ACharacterPlayer::OnPressedSlot2);
 }
 
-void ACharacterPlayer::OnDie()
+void ACharacterPlayer::OnRep_Die()
 {
-	Super::OnDie();
+	Super::OnRep_Die();
 	
 	if (GetMesh())
 	{

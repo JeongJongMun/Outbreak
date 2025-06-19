@@ -128,6 +128,8 @@ void ACharacterBase::Die()
 		return;
 
 	bIsDead = true;
+	
+	OnRep_Die();
 }
 
 void ACharacterBase::OnRep_Die()
@@ -135,13 +137,6 @@ void ACharacterBase::OnRep_Die()
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
-	OnDie();
-}
-
-void ACharacterBase::OnDie()
-{
-	// Implement in derived classes
 }
 
 float ACharacterBase::GetDamageMultiplier(const EPhysicalSurface SurfaceType)

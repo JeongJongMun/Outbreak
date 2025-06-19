@@ -14,16 +14,11 @@ void UOB_Widget::NativeConstruct()
 	{
 		return; 
 	}
-	UTextureRenderTarget2D* RenderTarget = LoadObject<UTextureRenderTarget2D>(nullptr, TEXT("/Game/UI/MiniMap/RT_Minimap.RT_Minimap"));
-	if (RenderTarget && MiniMapImage)
+	if (RenderTarget && MiniMapMaterial && MiniMapImage)
 	{
-		UMaterialInterface* MinimapMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/UI/MiniMap/MiniMapMaterial.MiniMapMaterial"));
-		if (MinimapMaterial)
-		{
-			UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(MinimapMaterial, this);
-			DynMat->SetTextureParameterValue("MinimapTexture", Cast<UTexture>(RenderTarget));
-			MiniMapImage->SetBrushFromMaterial(DynMat);
-		}
+		UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(MiniMapMaterial, this);
+		DynMat->SetTextureParameterValue("MinimapTexture", RenderTarget);
+		MiniMapImage->SetBrushFromMaterial(DynMat);
 	}
 }
 

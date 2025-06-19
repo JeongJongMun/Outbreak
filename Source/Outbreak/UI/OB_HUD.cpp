@@ -26,7 +26,6 @@ void AOB_HUD::BeginPlay()
 		{
 			OB_Widget->AddToViewport();
 			OB_Widget->SetVisibility(ESlateVisibility::Visible);
-			OB_Widget->SetObjectiveText(""); // 목표 메시지만 비활성화
 			OB_Widget->SetAnnouncementText(""); 
 		}
 }
@@ -44,15 +43,6 @@ void AOB_HUD::DisplayAlivePlayerCount(int32 AlivePlayerCount)
 	if (OB_Widget)
 	{
 		OB_Widget->SetAlivePlayerCountText(AlivePlayerCount);
-		OB_Widget->SetVisibility(ESlateVisibility::Visible);
-	}
-}
-
-void AOB_HUD::DisplayObjectiveMessage(const FString& Message)
-{
-	if (OB_Widget)
-	{
-		OB_Widget->SetObjectiveText(Message);
 		OB_Widget->SetVisibility(ESlateVisibility::Visible);
 	}
 }

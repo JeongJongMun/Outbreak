@@ -19,7 +19,6 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual void NativeConstruct() override;
 	
-	void SetObjectiveText(const FString& Text);
 	void SetMatchTimeText(float Time);
 	void SetCurrentPhaseText(FString Phase);
 	void SetAlivePlayerCountText(int32 Count);
@@ -49,9 +48,6 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* AlivePlayerCountTextBlock;
-	
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* ObjectiveTextBlock;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* AnnouncementTextBlock;

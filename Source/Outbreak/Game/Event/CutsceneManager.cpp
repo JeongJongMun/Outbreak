@@ -16,12 +16,10 @@ void UCutsceneManager::Init(UWorld* InWorld)
 	WorldRef = InWorld;
 }
 
-void UCutsceneManager::PlayCutscene(ULevelSequence* Sequence, const FString& InObjectiveMessage)
+void UCutsceneManager::PlayCutscene(ULevelSequence* Sequence)
 {
 	if (!WorldRef || !Sequence) return;
-
-	PendingObjectiveMessage = InObjectiveMessage;
-
+	
 	FMovieSceneSequencePlaybackSettings Settings;
 	Settings.bAutoPlay = false;
 
@@ -53,34 +51,7 @@ void UCutsceneManager::PlayCutscene(ULevelSequence* Sequence, const FString& InO
 			}
 		}
 		Player->OnFinished.AddDynamic(this, &UCutsceneManager::OnCutSceneFinished);
-		float ShowTime = 1.0f;
-		FTimerHandle MessageTimer;
-		WorldRef->GetTimerManager().SetTimer(
-			MessageTimer,
-			this,
-			&UCutsceneManager::OnShowObjectiveMessage,
-			ShowTime,
-			false
-			);
 		Player->Play();
-	}
-}
-
-void UCutsceneManager::OnShowObjectiveMessage()
-{
-	if (WorldRef && WorldRef->GetAuthGameMode() != nullptr)
-	{
-		if (AOutBreakGameState* GS = WorldRef->GetGameState<AOutBreakGameState>())
-		{
-			GS->SetObjectiveMessage(PendingObjectiveMessage);
-		}
-	}
-	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldRef, 0))
-	{
-		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
-		{
-			HUD->SetCutsceneMode(true);
-		}
 	}
 }
 
@@ -106,7 +77,6 @@ void UCutsceneManager::OnCutSceneFinished()
 	{
 		if (AOutBreakGameState* GS = WorldRef->GetGameState<AOutBreakGameState>())
 		{
-			GS->SetObjectiveMessage(TEXT(""));
 			GS->SpawnerSetup();
 		}
 	}

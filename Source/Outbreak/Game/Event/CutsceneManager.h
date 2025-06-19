@@ -15,18 +15,13 @@ class OUTBREAK_API UCutsceneManager : public UObject
 public:
 	void Init(UWorld* InWorld);
 
-	void PlayCutscene(ULevelSequence* Sequence, const FString& InObjectiveMessage);
+	void PlayCutscene(ULevelSequence* Sequence);
 
 	bool bHasPlayedCutscene = false;
 
 private:
 	UPROPERTY()
 	UWorld* WorldRef;
-
-	FString PendingObjectiveMessage;
-
-	UFUNCTION()
-	void OnShowObjectiveMessage();
 
 	UFUNCTION()
 	void OnCutSceneFinished();

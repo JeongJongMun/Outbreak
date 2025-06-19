@@ -100,8 +100,6 @@ float ACharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, 
 }
 void ACharacterBase::OnRep_CurrentHealth()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_CurrentHealth called! Health: %d"), CurrentHealth);
-
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
 		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))

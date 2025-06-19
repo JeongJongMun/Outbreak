@@ -48,7 +48,9 @@ void UOB_Widget::SetCutsceneMode(bool bEnable)
 		TotalZombieKillsTextBlock,
 		ZombieKillsTextBlock,
 		AmmoTextBlock,
-		WeaponTypeTextBlock
+		WeaponTypeTextBlock,
+		HealthBar,
+		CurrentHealthTextBlock
 	};
 	for (UWidget* Widget : WidgetsToToggle)
 	{
@@ -90,14 +92,6 @@ void UOB_Widget::SetAlivePlayerCountText(int32 Count)
 	{
 		FString CountText = FString::Printf(TEXT("Alive Player : %d"), Count);
 		AlivePlayerCountTextBlock->SetText(FText::FromString(CountText));
-	}
-}
-
-void UOB_Widget::SetObjectiveText(const FString& Text)
-{
-	if (ObjectiveTextBlock)
-	{
-		ObjectiveTextBlock->SetText(FText::FromString(Text));
 	}
 }
 
@@ -148,6 +142,8 @@ void UOB_Widget::SetWeaponTypeText(FString Type)
 
 void UOB_Widget::SetCurrentHealth(int32 CurrentHealth, float HealthPercent)
 {
+	UE_LOG(LogTemp, Warning, TEXT("SetCurrentHealth: Health=%d, Percent=%.2f"), CurrentHealth, HealthPercent);
+
 	if (HealthBar)
 	{
 		HealthBar->SetPercent(HealthPercent);

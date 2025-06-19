@@ -71,10 +71,7 @@ private:
 // Functions
 // --------------------
 
-public:
-	UFUNCTION()
-	void SetObjectiveMessage(const FString& NewMessage);
-	
+public:	
 	UFUNCTION()
 	void AddTotalZombieKill();
 

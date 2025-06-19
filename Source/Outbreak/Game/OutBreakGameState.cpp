@@ -157,21 +157,7 @@ void AOutBreakGameState::OnRep_AnnouncementMessage()
 
 void AOutBreakGameState::OnRep_ObjectMessage()
 {
-	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
-	{
-		if (PC->IsLocalController())
-		{
-			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
-			{
-				HUD->DisplayObjectiveMessage(ObjectiveMessage);
-			}
-		}
-	}
-}
-void AOutBreakGameState::SetObjectiveMessage(const FString& NewMessage)
-{
-	ObjectiveMessage = NewMessage;
-	OnRep_ObjectMessage();
+	
 }
 
 void AOutBreakGameState::OnRep_EventAlertMessage()

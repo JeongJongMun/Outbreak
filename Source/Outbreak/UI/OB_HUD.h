@@ -18,7 +18,6 @@ public:
 	virtual void BeginPlay() override;
 	
 	void DisplayAlivePlayerCount(int32 AlivePlayerCount);
-	void DisplayObjectiveMessage(const FString& Message);
 	void DisplayAnnouncementMessage(const FString& Message);
 	void DisplayTotalZombieKills(int32 TotalZombieKills);
 	void DisplayZombieKills(int32 ZombieKills);

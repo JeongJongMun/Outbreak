@@ -187,18 +187,21 @@ void ACharacterZombie::OnRep_Die()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	ChangeZombieState(EZombieStateType::Die);
-
-	if (AController* Killer = LastDamagePlayer)
+	if (HasAuthority())
 	{
-		if (AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(Killer->PlayerState))
+		if (AController* Killer = LastDamagePlayer)
 		{
-			PS->AddZombieKill();
+			if (AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(Killer->PlayerState))
+			{
+				PS->AddZombieKill();
+			}
+		}
+		if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
+		{
+			GS->AddTotalZombieKill();
 		}
 	}
-	if (AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
-	{
-		GS->AddTotalZombieKill();
-	}
+	
 }
 
 float ACharacterZombie::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

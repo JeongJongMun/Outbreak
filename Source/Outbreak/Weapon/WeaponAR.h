@@ -13,20 +13,34 @@ class OUTBREAK_API AWeaponAR : public AMainWeapon
 	GENERATED_BODY()
 public:
 	AWeaponAR();
-	
 	virtual void StartFire() override;
 	virtual void StopFire() override;
 	virtual void Reload() override;
 	virtual void InitializeWeaponData(FWeaponData* InData) override;
-	bool IsReloading();
+	
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void NotifyAmmoUpdate() override;
+
+	UFUNCTION(Server,Reliable)
+	void ServerStartFire();
+
+	UFUNCTION(Server, Reliable)
+	void ServerStopFire();
+	
+	UFUNCTION(NetMulticast,Unreliable)
+	void MultiCastShot();
+
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
+	
 	void MakeShot();
 	void FinishReload();
-	void NotifyAmmoUpdate() override;
 	void PlayMuzzleEffect();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
+protected:
+	UPROPERTY(Replicated)
 	FWeaponData WeaponData;
 	
 	FTimerHandle TimerHandle_TimeBetweenShots;

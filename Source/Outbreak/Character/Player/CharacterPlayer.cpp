@@ -86,7 +86,7 @@ ACharacterPlayer::ACharacterPlayer()
 		GetMesh()->SetSkeletalMesh(DefaultMesh.Object);
 	}
 	GetMesh()->SetOwnerNoSee(true);
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Animations/3rdPersonAnim/ABP_Move.ABP_Move"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Animations/3rdPersonAnim/ABP_Move.ABP_Move_C"));
 	if (AnimInstanceClassRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);

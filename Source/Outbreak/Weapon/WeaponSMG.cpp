@@ -26,7 +26,6 @@ AWeaponSMG::AWeaponSMG()
     {
         WeaponData.ShotSound = ShotSoundObj.Object; 
     }
-
     static ConstructorHelpers::FObjectFinder<UDataTable> DT_WeaponData(TEXT("/Script/Engine.DataTable'/Game/Data/WeaponDataTable.WeaponDataTable'"));
     if (DT_WeaponData.Succeeded())
     {
@@ -106,6 +105,8 @@ void AWeaponSMG::FinishReload()
 
 void AWeaponSMG::NotifyAmmoUpdate()
 {
+    Super::NotifyAmmoUpdate();
+
     const ACharacterPlayer* OwnerCharacter = Cast<ACharacterPlayer>(GetOwner());
     if (!OwnerCharacter) return;
 

@@ -202,6 +202,7 @@ void ACharacterPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ACharacterPlayer, WeaponInventory);
 	DOREPLIFETIME(ACharacterPlayer, WeaponInstances);
 	DOREPLIFETIME(ACharacterPlayer, CurrentWeapon);
+	DOREPLIFETIME(ACharacterPlayer, bIsSprinting);
 }
 
 void ACharacterPlayer::InitCharacterData()
@@ -460,7 +461,14 @@ void ACharacterPlayer::ChangeArm()
 	
 	CurrentWeapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale,TEXT("weapon_l_Socket"));
 	FirstPersonMesh->SetAnimInstanceClass(ArmAnimClass);
-	GunMesh->SetAnimInstanceClass(WeaponAnimClass);
+	if (!IsLocallyControlled())
+	{
+		GunMesh->SetAnimInstanceClass(UAnimInstance::StaticClass());
+	}
+	else
+	{
+		GunMesh->SetAnimInstanceClass(WeaponAnimClass);
+	}
 }
 
 void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotType)
@@ -481,6 +489,11 @@ void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotType)
 	{
 		NewWeapon->SetActorHiddenInGame(false);
 		NewWeapon->SetActorEnableCollision(true);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] No weapon found for slot index %d"), CURRENT_CONTEXT, NewSlotIndex);
+		return;
 	}
 
 	CurrentWeapon = NewWeapon;
@@ -544,16 +557,25 @@ void ACharacterPlayer::Look(const FInputActionValue& Value)
 	AddControllerYawInput(LookAxis.X);
 	AddControllerPitchInput(LookAxis.Y);
 }
+
+void ACharacterPlayer::Server_SetSprinting_Implementation(bool bNewSprinting)
+{
+	bIsSprinting = bNewSprinting;
+	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? SprintSpeed : WalkSpeed;
+}
+
 void ACharacterPlayer::StartSprinting()
 {
 	bIsSprinting = true;
 	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+	Server_SetSprinting(true);
 }
 
 void ACharacterPlayer::StopSprinting()
 {
 	bIsSprinting = false;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	Server_SetSprinting(false);
 }
 void ACharacterPlayer::BeginCrouch()
 {

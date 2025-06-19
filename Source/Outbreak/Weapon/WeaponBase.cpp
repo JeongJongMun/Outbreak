@@ -1,10 +1,18 @@
 // WeaponBase.cpp
 #include "WeaponBase.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AWeaponBase::AWeaponBase()
 {
 	bReplicates = true;
+}
+
+void AWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWeaponBase, bIsReloading);
 }
 
 void AWeaponBase::StartFire()

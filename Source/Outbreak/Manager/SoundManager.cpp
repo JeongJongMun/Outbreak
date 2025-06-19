@@ -2,7 +2,7 @@
 
 
 #include "SoundManager.h"
-
+#include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 void USoundManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -45,4 +45,24 @@ void USoundManager::SetBGMVolume(const float InVolume)
 void USoundManager::SetSFXVolume(const float InVolume)
 {
 	SFXVolume = FMath::Clamp(InVolume, 0.0f, 1.0f);
+}
+
+void USoundManager::PlayPersistentBGM(USoundBase* BGM)
+{
+
+	if (!GetWorld() || GetWorld()->IsNetMode(NM_DedicatedServer) || !BGM)
+		return;
+
+	if (BGMComponent && BGMComponent->IsPlaying())
+	{
+		BGMComponent->Stop();
+	}
+
+	BGMComponent = UGameplayStatics::SpawnSound2D(GetWorld(), BGM, BGMVolume, 1.0f, 0.0f, nullptr, false, true);
+	if (BGMComponent)
+	{
+		BGMComponent->bIsUISound = false;
+		BGMComponent->bAutoDestroy = false;
+		BGMComponent->Play();
+	}
 }

@@ -28,6 +28,12 @@ public:
 	UFUNCTION(NetMulticast,Reliable)
 	void Multicast_PlayAnimation(EZombieStateType InStateType);
 
+	virtual void StartMoveSoundTimer() override;
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayMoveSound();
+	
+	void ClearMoveSoundTimer() { GetWorld()->GetTimerManager().ClearTimer(MoveSoundTimerHandle); }
 
 protected:
 	virtual void BeginPlay() override;

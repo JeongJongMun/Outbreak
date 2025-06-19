@@ -453,6 +453,10 @@ void ACharacterPlayer::StopMove()
 
 void ACharacterPlayer::StartMoveSoundTimer()
 {
+	Super::StartMoveSoundTimer();
+
+	PlayMoveSound();
+	
 	const float StepInterval = bIsSprinting ? 0.2f : 0.4f;
 
 	GetWorld()->GetTimerManager().SetTimer(
@@ -466,17 +470,19 @@ void ACharacterPlayer::StartMoveSoundTimer()
 
 void ACharacterPlayer::PlayMoveSound()
 {
+	Super::PlayMoveSound();
+	
 	if (!IsLocallyControlled()) return;
 
 	if (bIsSprinting)
 	{
 		const int32 RandomIndex = FMath::RandRange(0, SprintSounds.Num() - 1);
-		UGameplayStatics::PlaySoundAtLocation(this, SprintSounds[RandomIndex], GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, SprintSounds[RandomIndex], GetActorLocation(), 0.5f);
 	}
 	else
 	{
 		const int32 RandomIndex = FMath::RandRange(0, WalkSounds.Num() - 1);
-		UGameplayStatics::PlaySoundAtLocation(this, WalkSounds[RandomIndex], GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, WalkSounds[RandomIndex], GetActorLocation(), 0.5f);
 	}
 }
 

@@ -201,7 +201,25 @@ void ACharacterZombie::OnRep_Die()
 			GS->AddTotalZombieKill();
 		}
 	}
+}
+
+void ACharacterZombie::StartMoveSoundTimer()
+{
+	Super::StartMoveSoundTimer();
 	
+	GetWorld()->GetTimerManager().SetTimer(
+		MoveSoundTimerHandle,
+		this,
+		&ACharacterZombie::Multicast_PlayMoveSound,
+		0.3f,
+		true
+	);	
+}
+
+void ACharacterZombie::Multicast_PlayMoveSound_Implementation()
+{
+	const int32 RandomIndex = FMath::RandRange(0, SprintSounds.Num() - 1);
+	UGameplayStatics::PlaySoundAtLocation(this, SprintSounds[RandomIndex], GetActorLocation(), 0.3f);
 }
 
 float ACharacterZombie::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

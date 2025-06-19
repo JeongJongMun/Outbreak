@@ -52,6 +52,7 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 	});
 	
 	ZombieAI->MoveToActor(CurrentTargetPlayer, AcceptanceRadius, true);
+	Owner->StartMoveSoundTimer();
 }
 
 void FZombieChaseState::Execute(EZombieStateType CurrentState, float DeltaTime)
@@ -65,4 +66,5 @@ void FZombieChaseState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPl
 
 	const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
 	ZombieAI->GetPathFollowingComponent()->OnRequestFinished.Remove(DelegateHandle);
+	Owner->ClearMoveSoundTimer();
 }

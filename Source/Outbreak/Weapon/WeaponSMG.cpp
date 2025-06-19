@@ -172,7 +172,7 @@ void AWeaponSMG::MakeShot()
     WeaponData.CurrentAmmo--;
     
     MultiCastShot();
-
+    
     AActor* MyOwner = GetOwner();
     if (!MyOwner) return;
     
@@ -225,7 +225,13 @@ void AWeaponSMG::MultiCastShot_Implementation()
     UGameplayStatics::PlaySoundAtLocation(GetWorld(), WeaponData.ShotSound, Location);
     NotifyAmmoUpdate();
     PlayMuzzleEffect();
-    ApplyCameraShake();
+    if (const APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+    {
+        if (OwnerPawn->IsLocallyControlled())
+        {
+            ApplyCameraShake();
+        }
+    }
 }
 
 void AWeaponSMG::PlayMuzzleEffect()

@@ -77,6 +77,11 @@ void ACharacterZombie::InitCharacterData()
 			return;
 		}
 		const FZombieData* Data = SpawnManager->GetZombieData(ZombieSubType);
+		if (!Data)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[%s] No Zombie data found for type: %d"), CURRENT_CONTEXT, (int32)ZombieSubType);
+			return;
+		}
 		ZombieData = *Data;
 		
 	}

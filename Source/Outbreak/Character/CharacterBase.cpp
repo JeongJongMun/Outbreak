@@ -9,6 +9,7 @@
 #include "PhysicsEngine/PhysicsAsset.h"
 
 #include "Net/UnrealNetwork.h"
+#include "Outbreak/UI/OB_HUD.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -115,7 +116,15 @@ void ACharacterBase::BeginPlay()
 
 void ACharacterBase::InitCharacterData()
 {
-	// Implement in derived classes
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_CurrentHealth called! Health: %d"), CurrentHealth);
+
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		{
+			HUD->DisplayCurrentHealth(CurrentHealth);
+		}
+	}
 }
 
 void ACharacterBase::SetPhysicalAsset(const ECharacterType InCharacterType, const ECharacterBodyType InBodyType)

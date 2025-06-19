@@ -98,3 +98,13 @@ void AOB_HUD::DisplayWeaponType(FString Type)
 		OB_Widget->SetWeaponTypeText(Type);
 	}
 }
+
+void AOB_HUD::DisplayCurrentHealth(int32 CurrentHealth)
+{
+	if (OB_Widget)
+	{
+		// TODO : PlayerData 에서 MaxHealth 가져오기
+		float Percent = (float)CurrentHealth / 100.0f;
+		OB_Widget->SetCurrentHealth(CurrentHealth, Percent);
+	}
+}

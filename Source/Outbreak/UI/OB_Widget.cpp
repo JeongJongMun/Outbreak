@@ -3,6 +3,7 @@
 #include "OB_Widget.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Components/ProgressBar.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 
@@ -144,5 +145,19 @@ void UOB_Widget::SetWeaponTypeText(FString Type)
 		WeaponTypeTextBlock->SetText(FText::FromString(TypeStr));
 	}
 }
+
+void UOB_Widget::SetCurrentHealth(int32 CurrentHealth, float HealthPercent)
+{
+	if (HealthBar)
+	{
+		HealthBar->SetPercent(HealthPercent);
+	}	
+	if (CurrentHealthTextBlock)
+	{
+		FString HealthStr = FString::Printf(TEXT("%d / 100"), CurrentHealth);
+		CurrentHealthTextBlock->SetText(FText::FromString(HealthStr));
+	}
+}
+
 
 

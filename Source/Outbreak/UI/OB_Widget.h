@@ -26,15 +26,13 @@ public:
 	void SetAnnouncementText(FString AnnouncementText);
 	void SetTotalZombieKillsText(int32 TotalKills);
 	void SetZombieKillsText(int32 Kills);
-	
+	void SetAmmoText(int32 currentAmmo, int32 TotalAmmo);
+	void SetWeaponTypeText(FString Type);
+	void SetCurrentHealth(int32 CurrentHealth, float HealthPercent);
 	
 	void SetCutsceneMode(bool bEnable);
 
-	UFUNCTION()
-	void SetAmmoText(int32 currentAmmo, int32 TotalAmmo);
-
-	UFUNCTION()
-	void SetWeaponTypeText(FString Type);
+	
 	
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -69,6 +67,12 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponTypeTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CurrentHealthTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* HealthBar;
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MiniMap", meta=(AllowPrivateAccess = "true"))

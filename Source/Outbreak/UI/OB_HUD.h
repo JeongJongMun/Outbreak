@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "Outbreak/Util/Define.h"
 #include "OB_HUD.generated.h"
 
 UCLASS()
@@ -23,11 +24,15 @@ public:
 	void DisplayZombieKills(int32 ZombieKills);
 	void DisplayAmmo(int32 CurrentAmmo, int32 TotalAmmo);
 	void DisplayWeaponType(FString Type);
+	void DisplayCurrentHealth(int32 CurrentHealth);
 	
 	void SetCutsceneMode(bool bEnable);
 protected:
 	UPROPERTY()
 	TSubclassOf<UUserWidget> WidgetClass;
+
+	UPROPERTY()
+	FPlayerData PlayerData;
 private:
 	UPROPERTY()
 	class UOB_Widget* OB_Widget;

@@ -108,14 +108,13 @@ protected:
 	USkeletalMesh* ARMesh;
 
 	// Inventory
-	UPROPERTY(Replicated, EditAnywhere, Category="Inventory")
+	UPROPERTY(Replicated)
 	TArray<TSubclassOf<AWeaponBase>> WeaponInventory;
 	
 	int32 CurrentSlotIndex;
 	
 	UPROPERTY(Replicated)
-	TArray<AWeaponBase*> WeaponInstances;
-
+	TArray<TObjectPtr<AWeaponBase>> WeaponInstances;
 	
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")

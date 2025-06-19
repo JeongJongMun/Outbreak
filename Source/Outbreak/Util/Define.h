@@ -11,6 +11,7 @@ enum class EInventorySlotType : uint8
 	FirstMainWeapon = 0,
 	SecondMainWeapon = 1,
 	SubWeapon = 2,
+	Max,
 };
 
 enum class EAvoidanceGroupType : uint8

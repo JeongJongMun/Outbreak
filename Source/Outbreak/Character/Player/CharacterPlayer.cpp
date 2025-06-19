@@ -439,12 +439,6 @@ void ACharacterPlayer::ChangeArm()
 	UClass* ArmAnimClass = nullptr;
 	UClass* WeaponAnimClass = nullptr;
 
-	if (!CurrentWeapon)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] CurrentWeapon is null! Cannot change arms."), CURRENT_CONTEXT);
-		return;
-	}
-	
 	if (CurrentWeapon->GetClass() == AWeaponAR::StaticClass())
 	{
 		ArmAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/Arms/AR02/ABP_Arms_AR02.ABP_Arms_AR02_C"));
@@ -464,10 +458,9 @@ void ACharacterPlayer::ChangeArm()
 		WeaponAnimClass = StaticLoadClass(UAnimInstance::StaticClass(), nullptr, TEXT("/Game/FPS_Weapon_Pack/Animation/SMG02/ABP_SMG02.ABP_SMG02_C"));
 	}
 	if (CurrentWeapon)
-			CurrentWeapon->AttachToComponent(
-				FirstPersonMesh, 
-				FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-				TEXT("weapon_l_Socket"));
+	{
+		CurrentWeapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale,TEXT("weapon_l_Socket"));
+	}
 	if (ArmAnimClass)
 	{
 		FirstPersonMesh->SetAnimInstanceClass(ArmAnimClass);
@@ -592,7 +585,7 @@ bool ACharacterPlayer::GetFireMode() const
 bool ACharacterPlayer::IsReloading() const
 {
 	if (!CurrentWeapon) return false;
-	return CurrentWeapon -> bIsReloading;
+	return CurrentWeapon->IsReloading();
 }
 
 void ACharacterPlayer::SetupCollision()

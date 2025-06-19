@@ -100,7 +100,7 @@ protected:
 	// Weapon
 	TSubclassOf<AMainWeapon> WeaponClass;
 	
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AWeaponBase* CurrentWeapon;
 	
 	bool bIsAutoFire = false;
@@ -109,12 +109,12 @@ protected:
 	USkeletalMesh* ARMesh;
 
 	// Inventory
-	UPROPERTY(EditAnywhere, Category="Inventory")
+	UPROPERTY(Replicated, EditAnywhere, Category="Inventory")
 	TArray<TSubclassOf<AWeaponBase>> WeaponInventory;
 	
 	int32 CurrentSlotIndex;
 	
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<AWeaponBase*> WeaponInstances;
 
 	

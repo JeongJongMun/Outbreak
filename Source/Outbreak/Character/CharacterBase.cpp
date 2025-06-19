@@ -156,8 +156,6 @@ float ACharacterBase::GetDamageMultiplier(const EPhysicalSurface SurfaceType)
 
 void ACharacterBase::ApplyDamage(int32 DamageAmount)
 {
-	UE_LOG(LogTemp, Log, TEXT("[%s] %s got damage %d, HP %d -> %d "), CURRENT_CONTEXT, *GetName(), DamageAmount, CurrentHealth, CurrentHealth - DamageAmount);
-
 	if (CurrentExtraHealth > 0)
 	{
 		CurrentExtraHealth -= DamageAmount;

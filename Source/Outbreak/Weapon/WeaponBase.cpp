@@ -4,7 +4,7 @@
 
 AWeaponBase::AWeaponBase()
 {
-	
+	bReplicates = true;
 }
 
 void AWeaponBase::StartFire()

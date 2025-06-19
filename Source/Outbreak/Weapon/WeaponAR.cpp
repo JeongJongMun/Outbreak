@@ -1,4 +1,3 @@
-// WeaponAR.cpp
 #include "WeaponAR.h"
 #include "UObject/ConstructorHelpers.h"
 #include "ARAmmo.h"
@@ -9,14 +8,11 @@
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/UI/OB_HUD.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogWeaponAR, All, All);
 AWeaponAR::AWeaponAR()
 {
     AmmoClass = AARAmmo::StaticClass();
     
     MuzzleSocketName = TEXT("Muzzle_AR");
-
-
     
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshObj(
         TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));

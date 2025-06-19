@@ -25,6 +25,7 @@ ACharacterPlayer::ACharacterPlayer()
 	CharacterType = ECharacterType::Player;
 	PlayerType = EPlayerType::Player1;
 
+	// ----- Camara Component
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera -> SetupAttachment(RootComponent);
 	FirstPersonCamera -> SetRelativeLocation(FVector(0, 0, BaseEyeHeight));
@@ -36,7 +37,8 @@ ACharacterPlayer::ACharacterPlayer()
 	TopViewCamera->SetRelativeLocation(FVector(0.f, 0.f, 800.f));
 	TopViewCamera->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
 	TopViewCamera->bUsePawnControlRotation = false;
-	
+
+	// ----- MiniMap
 	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("SceneCapture2D"));
 	SceneCapture->ProjectionType = ECameraProjectionMode::Type::Orthographic;
 	SceneCapture->OrthoWidth = 4000.f;
@@ -51,6 +53,7 @@ ACharacterPlayer::ACharacterPlayer()
 		SceneCapture->TextureTarget = RenderTargetRef.Object;
 	}
 
+	// ----- UI
 	PlayerIconSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("PlayerIconSprite"));
 	PlayerIconSprite->SetupAttachment(GetCapsuleComponent());
 	PlayerIconSprite->SetRelativeLocation(FVector(0.f, 0.f, 2000.f));
@@ -74,7 +77,8 @@ ACharacterPlayer::ACharacterPlayer()
 	PlayerNameText->SetTextRenderColor(FColor::White);
 	PlayerNameText->SetVisibility(true);
 	PlayerNameText->bVisibleInSceneCaptureOnly = true;
-
+	
+	// ----- Mesh
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DefaultMesh(TEXT("/Game/FPSAnimationPack/Demo/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny"));
 	if (DefaultMesh.Succeeded())
 	{
@@ -100,8 +104,6 @@ ACharacterPlayer::ACharacterPlayer()
 	FirstPersonMesh->bCastDynamicShadow = false;
 	FirstPersonMesh->CastShadow = false;
 	
-
-	
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMesh"));
 	GunMesh->SetupAttachment(
 		FirstPersonMesh,
@@ -109,14 +111,24 @@ ACharacterPlayer::ACharacterPlayer()
 	GunMesh->bCastDynamicShadow = false;
 	GunMesh->CastShadow = false;
 
-	// Input Mapping Context
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SmgMesh(TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/SMG02/SK_weapon_SMG_02.SK_weapon_SMG_02"));
+	if (SmgMesh.Object)
+	{
+		SMGMesh = SmgMesh.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ArMesh(TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));
+	if (ArMesh.Object)
+	{
+		ARMesh = ArMesh.Object;
+	}
+
+	// ----- Input
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Inputs/IMC_Player.IMC_Player'"));
 	if (InputMappingContextRef.Object)
 	{
 		InputMappingContext = InputMappingContextRef.Object;
 	}
 
-	// Input
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Inputs/IA_Jump.IA_Jump'"));
 	if (InputActionJumpRef.Object)
 	{
@@ -175,18 +187,6 @@ ACharacterPlayer::ACharacterPlayer()
 	{
 		SwapSlot2 = InputActionSwap2.Object;
 	}
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SMGMeshobj(
-	TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/SMG02/SK_weapon_SMG_02.SK_weapon_SMG_02"));
-	if (SMGMeshobj.Object)
-	{
-		SMGMesh = SMGMeshobj.Object;
-	}
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ARMeshObj(
-	TEXT("/Game/FPS_Weapon_Pack/SkeletalMeshes/AR2/SM_weapon_AR2.SM_weapon_AR2"));
-	if (ARMeshObj.Object)
-	{
-		ARMesh = ARMeshObj.Object;
-	}
 	
 	CurrentCharacterControlType = EPlayerControlType::Top;
 	WeaponInventory.SetNum(6);
@@ -201,6 +201,9 @@ void ACharacterPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(ACharacterPlayer, PlayerData);
 	DOREPLIFETIME(ACharacterPlayer, PlayerType);
+	DOREPLIFETIME(ACharacterPlayer, WeaponInventory);
+	DOREPLIFETIME(ACharacterPlayer, WeaponInstances);
+	DOREPLIFETIME(ACharacterPlayer, CurrentWeapon);
 }
 
 void ACharacterPlayer::InitCharacterData()
@@ -233,7 +236,14 @@ void ACharacterPlayer::InitCharacterData()
 void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(GetPlayerState()); PS && PlayerNameText)
+	{
+		PlayerNameText->SetText(FText::FromString(PS->PlayerNickname));
+	}
+	
 	GetMesh()->SetOwnerNoSee(true);
+
 	if (IsLocallyControlled())
 	{
 		SetCharacterControl(CurrentCharacterControlType);
@@ -250,50 +260,46 @@ void ACharacterPlayer::BeginPlay()
 	{
 		GunMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("weapon_socket_TP"));
 	}
-	AOutBreakPlayerState* PS = Cast<AOutBreakPlayerState>(GetPlayerState());
-	if (PS && PlayerNameText)
-	{
-		PlayerNameText->SetText(FText::FromString(PS->PlayerNickname));
-	}
 	
-	/// 인벤토리 스왑 디버깅용 코드
 	WeaponInventory[0] = AWeaponAR::StaticClass();
 	WeaponInventory[1] = AWeaponSMG::StaticClass();
-	/// 
-	for (int32 i = 0; i < WeaponInventory.Num(); ++i)
+
+	if (HasAuthority())
 	{
-		if (WeaponInventory[i])
+		for (int32 i = 0; i < WeaponInventory.Num(); ++i)
 		{
-
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = this;
-			SpawnParams.Instigator = GetInstigator();
-			SpawnParams.bDeferConstruction = true;  
-			// 월드에 무기 액터 스폰
-			AWeaponBase* NewWeapon = GetWorld()->SpawnActorDeferred<AWeaponBase>(
-				WeaponInventory[i],
-				FTransform::Identity,
-				SpawnParams.Owner,
-				SpawnParams.Instigator,
-				ESpawnActorCollisionHandlingMethod::AlwaysSpawn
-			);
-			if (NewWeapon)
+			if (WeaponInventory[i])
 			{
-				// 처음에는 모두 비활성 상태로 두거나, 보이지 않게 설정
-				NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_socket_l"))); 
-				NewWeapon->SetActorHiddenInGame(true);
-				NewWeapon->SetActorEnableCollision(false);
 
-				UGameplayStatics::FinishSpawningActor(NewWeapon, FTransform::Identity);
-				
-				WeaponInstances[i] = NewWeapon;
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = this;
+				SpawnParams.Instigator = GetInstigator();
+				SpawnParams.bDeferConstruction = true;  
+				AWeaponBase* NewWeapon = GetWorld()->SpawnActorDeferred<AWeaponBase>(
+					WeaponInventory[i],
+					FTransform::Identity,
+					SpawnParams.Owner,
+					SpawnParams.Instigator,
+					ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+				);
+				if (NewWeapon)
+				{
+					NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_socket_l"))); 
+					NewWeapon->SetActorHiddenInGame(true);
+					NewWeapon->SetActorEnableCollision(false);
+
+					UGameplayStatics::FinishSpawningActor(NewWeapon, FTransform::Identity);
+					
+					WeaponInstances[i] = NewWeapon;
+				}
+			}
+			else
+			{
+				WeaponInstances[i] = nullptr;
 			}
 		}
-		else
-		{
-			WeaponInstances[i] = nullptr;
-		}
 	}
+	
 	SwapToSlot(1);
 	ChangeArm();
 }
@@ -345,9 +351,7 @@ void ACharacterPlayer::ToggleCameraMode()
 		FirstPersonCamera->SetActive(false);
 		FirstPersonCamera -> SetRelativeRotation(FRotator(-10.f,0.f,0.f));
 		GetMesh()->SetOwnerNoSee(false);
-		GunMesh->AttachToComponent(
-	GetMesh(),FAttachmentTransformRules::KeepRelativeTransform,
-	TEXT("weapon_socket_TP"));
+		GunMesh->AttachToComponent(GetMesh(),FAttachmentTransformRules::KeepRelativeTransform,TEXT("weapon_socket_TP"));
 		FirstPersonMesh->SetHiddenInGame(true);
 		TopViewCamera->SetActive(true);
 	}
@@ -356,17 +360,13 @@ void ACharacterPlayer::ToggleCameraMode()
 		CurrentCameraMode = ECameraMode::FPS;
 		TopViewCamera->SetActive(false);
 		GetMesh()->SetOwnerNoSee(true);
-		GunMesh->AttachToComponent(
-	FirstPersonMesh,FAttachmentTransformRules::KeepRelativeTransform,
-	TEXT("weapon_socket_l"));
+		GunMesh->AttachToComponent(FirstPersonMesh,FAttachmentTransformRules::KeepRelativeTransform,TEXT("weapon_socket_l"));
 		FirstPersonMesh->SetHiddenInGame(false);
 		FirstPersonCamera->SetActive(true);
 	}
 }
 void ACharacterPlayer::OnReload()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
-	FString::Printf(TEXT("Reload Pressed")));
 	CurrentWeapon->Reload();
 }
 
@@ -400,15 +400,6 @@ void ACharacterPlayer::OnFireReleased()
 void ACharacterPlayer::OnToggleFireMode()
 {
 	bIsAutoFire = !bIsAutoFire;
-
-	if (GEngine)
-	{
-		const TCHAR* ModeText = bIsAutoFire ? TEXT("Auto Fire") : TEXT("Single Fire");
-		GEngine->AddOnScreenDebugMessage(
-			-1, 2.5f, FColor::Yellow,
-			FString::Printf(TEXT("Fire Mode: %s"), ModeText)
-		);
-	}
 }
 
 void ACharacterPlayer::SetCharacterControl(EPlayerControlType NewCharacterControlType)
@@ -444,6 +435,12 @@ void ACharacterPlayer::ChangeArm()
 {
 	UClass* ArmAnimClass = nullptr;
 	UClass* WeaponAnimClass = nullptr;
+
+	if (!CurrentWeapon)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] CurrentWeapon is null! Cannot change arms."), CURRENT_CONTEXT);
+		return;
+	}
 	
 	if (CurrentWeapon->GetClass() == AWeaponAR::StaticClass())
 	{
@@ -482,14 +479,6 @@ void ACharacterPlayer::ChangeArm()
 
 void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1, 2.5f, FColor::Yellow,
-			FString::Printf(TEXT("Selected Slot: %d"), NewSlotIndex)
-		);
-	}
-	
 	if (NewSlotIndex < 0 || NewSlotIndex >= WeaponInstances.Num()) return;
 	if (CurrentSlotIndex == NewSlotIndex) return;
 	
@@ -505,13 +494,13 @@ void ACharacterPlayer::SwapToSlot(int32 NewSlotIndex)
 		NewWeapon->SetActorHiddenInGame(false);
 		NewWeapon->SetActorEnableCollision(true);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No weapon found in slot %d"), NewSlotIndex);
+	}
 
 	CurrentWeapon = NewWeapon;
 	CurrentSlotIndex = NewSlotIndex;
-	GEngine->AddOnScreenDebugMessage(
-		-1, 2.5f, FColor::Yellow,
-		FString::Printf(TEXT("Selected Slot: %d"), CurrentWeapon)
-	);
 
 	ChangeArm();
 	if (CurrentWeapon)

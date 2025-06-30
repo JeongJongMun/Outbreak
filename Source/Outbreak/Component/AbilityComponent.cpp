@@ -12,25 +12,6 @@ UAbilityComponent::UAbilityComponent()
 void UAbilityComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	InitializeAbilities();
-}
-
-void UAbilityComponent::InitializeAbilities()
-{
-	for (TObjectPtr Ability : AbilityArray)
-	{
-		if (!Ability) continue;
-
-		Ability->SetOwnerCharacter(Cast<ACharacterBase>(GetOwner()));
-		AbilityMap.Add(Ability->GetAbilityType(), Ability);
-
-		if (const TObjectPtr<UPassiveAbilityObject> Passive = Cast<UPassiveAbilityObject>(Ability))
-		{
-			Passive->UseAbility();
-		}
-	}
-	
-	BIsInit = true;
 }
 
 bool UAbilityComponent::TryUseAbility(const EAbilityType Type) const
@@ -45,13 +26,19 @@ bool UAbilityComponent::TryUseAbility(const EAbilityType Type) const
 	return false;
 }
 
-void UAbilityComponent::AddAbility(UBaseAbilityObject* NewAbility)
+void UAbilityComponent::AddAbility(const TObjectPtr<UBaseAbilityObject>& NewAbility)
 {
-	if (!NewAbility) return;
+	if (!UObjectHelper::IsUObjectValid(NewAbility))
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] NewAbility is not valid."), CURRENT_CONTEXT);
+		return;
+	}
 
-	AbilityArray.Add(NewAbility);
+	const EAbilityType Type = NewAbility->GetAbilityType();
+
 	NewAbility->SetOwnerCharacter(Cast<ACharacterBase>(GetOwner()));
-	AbilityMap.Add(NewAbility->GetAbilityType(), NewAbility);
+	AbilityArray.Add(NewAbility);
+	AbilityMap.Add(Type, NewAbility);
 
 	if (const TObjectPtr<UPassiveAbilityObject> Passive = Cast<UPassiveAbilityObject>(NewAbility))
 	{
@@ -74,6 +61,8 @@ TObjectPtr<UBaseAbilityObject> UAbilityComponent::GetAbility(const EAbilityType 
 	{
 		return AbilityMap[Type];
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[%s] Ability of type %s not found."), CURRENT_CONTEXT, *EnumHelper::EnumToString(Type));
 	return nullptr;
 }
 
@@ -81,9 +70,6 @@ void UAbilityComponent::TickComponent(const float DeltaTime, const ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (!BIsInit)
-		return;
-	
 	UpdateCooldowns(DeltaTime);
 	UpdateDurations(DeltaTime);
 }

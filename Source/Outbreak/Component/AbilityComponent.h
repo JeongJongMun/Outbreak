@@ -13,12 +13,10 @@ class OUTBREAK_API UAbilityComponent : public UActorComponent
 public:
 	UAbilityComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	void InitializeAbilities();
-
+	
 	bool TryUseAbility(EAbilityType Type) const;
 
-	void AddAbility(class UBaseAbilityObject* NewAbility);
+	void AddAbility(const TObjectPtr<class UBaseAbilityObject>& NewAbility);
 	void RemoveAbility(EAbilityType Type);
 
 	TObjectPtr<UBaseAbilityObject> GetAbility(EAbilityType Type) const;
@@ -35,6 +33,4 @@ private:
 
 	void UpdateCooldowns(float DeltaTime);
 	void UpdateDurations(float DeltaTime);
-
-	bool BIsInit = false;
 };

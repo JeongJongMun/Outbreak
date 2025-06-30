@@ -12,9 +12,4 @@ ASpecialZombie::ASpecialZombie()
 void ASpecialZombie::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (AbilityComponent)
-	{
-		AbilityComponent->InitializeAbilities();
-	}
 }

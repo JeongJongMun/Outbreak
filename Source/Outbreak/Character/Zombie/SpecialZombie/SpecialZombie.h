@@ -21,6 +21,6 @@ protected:
 	virtual void BeginPlay() override;
 
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UAbilityComponent> AbilityComponent;
 };

@@ -27,9 +27,14 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	TArray<TObjectPtr<UBaseAbilityObject>> Abilities;
+	UPROPERTY(VisibleAnywhere)
+	TArray<TObjectPtr<UBaseAbilityObject>> AbilityArray;
+	
+	UPROPERTY(VisibleAnywhere)
 	TMap<EAbilityType, TObjectPtr<UBaseAbilityObject>> AbilityMap;
 
 	void UpdateCooldowns(float DeltaTime);
 	void UpdateDurations(float DeltaTime);
+
+	bool BIsInit = false;
 };

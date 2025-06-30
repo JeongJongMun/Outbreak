@@ -38,8 +38,10 @@ protected:
 	virtual void DeactivateAbility();
 
 protected:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<ACharacterBase> Owner;
+	
 	EAbilityActivationType ActivationType = EAbilityActivationType::None;
 	EAbilityType AbilityType = EAbilityType::None;
 	FString AbilityName = TEXT("Unnamed Ability");
-	TObjectPtr<ACharacterBase> Owner;
 };

@@ -1,8 +1,8 @@
 #include "AbilityComponent.h"
-
 #include "Outbreak/Ability/ActiveAbilityObject.h"
 #include "Outbreak/Ability/PassiveAbilityObject.h"
 #include "Outbreak/Character/CharacterBase.h"
+#include "Outbreak/Util/UObjectHelper.h"
 
 UAbilityComponent::UAbilityComponent()
 {
@@ -17,23 +17,25 @@ void UAbilityComponent::BeginPlay()
 
 void UAbilityComponent::InitializeAbilities()
 {
-	for (UBaseAbilityObject* Ability : Abilities)
+	for (TObjectPtr Ability : AbilityArray)
 	{
 		if (!Ability) continue;
 
 		Ability->SetOwnerCharacter(Cast<ACharacterBase>(GetOwner()));
 		AbilityMap.Add(Ability->GetAbilityType(), Ability);
 
-		if (UPassiveAbilityObject* Passive = Cast<UPassiveAbilityObject>(Ability))
+		if (const TObjectPtr<UPassiveAbilityObject> Passive = Cast<UPassiveAbilityObject>(Ability))
 		{
 			Passive->UseAbility();
 		}
 	}
+	
+	BIsInit = true;
 }
 
 bool UAbilityComponent::TryUseAbility(const EAbilityType Type) const
 {
-	if (UActiveAbilityObject* Ability = Cast<UActiveAbilityObject>(GetAbility(Type)))
+	if (const TObjectPtr<UActiveAbilityObject> Ability = Cast<UActiveAbilityObject>(GetAbility(Type)))
 	{
 		if (Ability->CanUseAbility())
 		{
@@ -47,21 +49,21 @@ void UAbilityComponent::AddAbility(UBaseAbilityObject* NewAbility)
 {
 	if (!NewAbility) return;
 
-	Abilities.Add(NewAbility);
+	AbilityArray.Add(NewAbility);
 	NewAbility->SetOwnerCharacter(Cast<ACharacterBase>(GetOwner()));
 	AbilityMap.Add(NewAbility->GetAbilityType(), NewAbility);
 
-	if (UPassiveAbilityObject* Passive = Cast<UPassiveAbilityObject>(NewAbility))
+	if (const TObjectPtr<UPassiveAbilityObject> Passive = Cast<UPassiveAbilityObject>(NewAbility))
 	{
 		Passive->UseAbility();
 	}
 }
 
-void UAbilityComponent::RemoveAbility(EAbilityType Type)
+void UAbilityComponent::RemoveAbility(const EAbilityType Type)
 {
 	if (const TObjectPtr<UBaseAbilityObject> Ability = GetAbility(Type))
 	{
-		Abilities.Remove(Ability);
+		AbilityArray.Remove(Ability);
 		AbilityMap.Remove(Type);
 	}
 }
@@ -75,19 +77,22 @@ TObjectPtr<UBaseAbilityObject> UAbilityComponent::GetAbility(const EAbilityType 
 	return nullptr;
 }
 
-void UAbilityComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UAbilityComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// UpdateCooldowns(DeltaTime);
-	// UpdateDurations(DeltaTime);
+	if (!BIsInit)
+		return;
+	
+	UpdateCooldowns(DeltaTime);
+	UpdateDurations(DeltaTime);
 }
 
-void UAbilityComponent::UpdateCooldowns(float DeltaTime)
+void UAbilityComponent::UpdateCooldowns(const float DeltaTime)
 {
-	for (TObjectPtr Ability : Abilities)
+	for (TObjectPtr Ability : AbilityArray)
 	{
-		if (!Ability || !IsValid(Ability))
+		if (!UObjectHelper::IsUObjectValid(Ability))
 		{
 			UE_LOG(LogTemp, Error, TEXT("[%s] Ability is not valid."), CURRENT_CONTEXT);
 			continue;
@@ -100,11 +105,11 @@ void UAbilityComponent::UpdateCooldowns(float DeltaTime)
 	}
 }
 
-void UAbilityComponent::UpdateDurations(float DeltaTime)
+void UAbilityComponent::UpdateDurations(const float DeltaTime)
 {
-	for (UBaseAbilityObject* Ability : Abilities)
+	for (TObjectPtr Ability : AbilityArray)
 	{
-		if (!Ability || !IsValid(Ability))
+		if (!UObjectHelper::IsUObjectValid(Ability))
 		{
 			UE_LOG(LogTemp, Error, TEXT("[%s] Ability is not valid."), CURRENT_CONTEXT);
 			continue;

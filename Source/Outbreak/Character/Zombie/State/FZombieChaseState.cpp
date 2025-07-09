@@ -31,7 +31,7 @@ void FZombieChaseState::Enter(EZombieStateType PreviousState, const TObjectPtr<A
 	// TODO: AcceptanceRadius랑 AttackRange 조정
 	const float AcceptanceRadius = ZombieData->AttackRange / 2.0f;
 
-	const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
+	const TObjectPtr<AZombieAIComponent> ZombieAI = Owner->GetZombieAI();
 	const TObjectPtr<UPathFollowingComponent> PathFollowingComp = ZombieAI->GetPathFollowingComponent();
 	if (PathFollowingComp)
 	{
@@ -64,7 +64,7 @@ void FZombieChaseState::Exit(EZombieStateType NextState, TObjectPtr<ACharacterPl
 {
 	Super::Exit(NextState, TargetPlayer);
 
-	const TObjectPtr<AZombieAI> ZombieAI = Owner->GetZombieAI();
+	const TObjectPtr<AZombieAIComponent> ZombieAI = Owner->GetZombieAI();
 	ZombieAI->GetPathFollowingComponent()->OnRequestFinished.Remove(DelegateHandle);
 	Owner->ClearMoveSoundTimer();
 }

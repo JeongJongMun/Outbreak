@@ -4,7 +4,6 @@
 #include "OutBreakGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
-#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "Outbreak/UI/OBHUD.h"
 
 AOutBreakGameState::AOutBreakGameState()

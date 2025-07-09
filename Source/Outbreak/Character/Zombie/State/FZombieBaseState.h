@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ZombieAI.h"
+#include "Outbreak/Character/Player/CharacterPlayer.h"
+#include "Outbreak/Character/Zombie/CharacterZombie.h"
 #include "Outbreak/Core/TStateMachine.h"
 
 class OUTBREAK_API FZombieBaseState : public TState<EZombieStateType, ACharacterPlayer>

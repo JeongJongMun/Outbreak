@@ -4,24 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "FZombieStateMachine.h"
 #include "Outbreak/Character/Player/CharacterPlayer.h"
+#include "Outbreak/Character/Zombie/State/FZombieStateMachine.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISenseConfig_Damage.h"
 #include "Perception/AISenseConfig_Hearing.h"
-#include "ZombieAI.generated.h"
+#include "ZombieAIComponent.generated.h"
 
 struct FAIStimulus;
 enum class EZombieStateType : uint8;
 
 UCLASS()
-class OUTBREAK_API AZombieAI : public AAIController
+class OUTBREAK_API AZombieAIComponent : public AAIController
 {
 	GENERATED_BODY()
 
 public:
-	AZombieAI();
+	AZombieAIComponent();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }

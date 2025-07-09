@@ -4,8 +4,8 @@
 #include "CoreMinimal.h"
 #include "Outbreak/Character/CharacterBase.h"
 #include "Outbreak/Character/Player/CharacterPlayer.h"
+#include "Outbreak/Component/ZombieAIComponent.h"
 #include "Outbreak/Util/Define.h"
-#include "State/ZombieAI.h"
 #include "CharacterZombie.generated.h"
 
 UCLASS()
@@ -22,7 +22,7 @@ public:
 	virtual void OnAttackEnd();
 	FZombieData* GetZombieData() { return &ZombieData; }
 	void PlayAnimation(EZombieStateType InStateType);
-	TObjectPtr<AZombieAI> GetZombieAI() const { return ZombieAI; }
+	TObjectPtr<AZombieAIComponent> GetZombieAI() const { return ZombieAI; }
 	float GetCurrentAnimationSectionLength() const { return CurrentAnimationSectionLength; }
 
 	UFUNCTION(NetMulticast,Reliable)
@@ -73,5 +73,5 @@ protected:
 	int FatMeshCount = 6;
 	
 private:
-	TObjectPtr<AZombieAI> ZombieAI;
+	TObjectPtr<AZombieAIComponent> ZombieAI;
 };

@@ -3,8 +3,9 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "CharacterSpawnManager.h"
-#include "CharacterZombie.h"
 #include "CharacterFactory.generated.h"
+
+class ACharacterBase;
 
 UCLASS()
 class OUTBREAK_API UCharacterFactory : public UObject

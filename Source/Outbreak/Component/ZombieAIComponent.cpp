@@ -1,19 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "ZombieAI.h"
+#include "ZombieAIComponent.h"
 
-#include "FZombieAlertState.h"
-#include "FZombieAttackState.h"
-#include "FZombieChaseState.h"
-#include "FZombieDieState.h"
-#include "FZombieIdleState.h"
-#include "FZombieStateMachine.h"
-#include "FZombieWanderState.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
+#include "Outbreak/Character/Zombie/State/FZombieAlertState.h"
+#include "Outbreak/Character/Zombie/State/FZombieAttackState.h"
+#include "Outbreak/Character/Zombie/State/FZombieChaseState.h"
+#include "Outbreak/Character/Zombie/State/FZombieDieState.h"
+#include "Outbreak/Character/Zombie/State/FZombieIdleState.h"
+#include "Outbreak/Character/Zombie/State/FZombieWanderState.h"
 #include "Outbreak/Util/Define.h"
 
-AZombieAI::AZombieAI()
+AZombieAIComponent::AZombieAIComponent()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -29,14 +27,14 @@ AZombieAI::AZombieAI()
 	AIPerception->SetDominantSense(SightConfig->GetSenseImplementation());
 }
 
-void AZombieAI::BeginPlay()
+void AZombieAIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AZombieAI::OnTargetPerceptionUpdated);
+	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AZombieAIComponent::OnTargetPerceptionUpdated);
 }
 
-void AZombieAI::Tick(float DeltaTime)
+void AZombieAIComponent::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
@@ -46,7 +44,7 @@ void AZombieAI::Tick(float DeltaTime)
 	}
 }
 
-void AZombieAI::InitializeZombieAI(ACharacterZombie* InZombie)
+void AZombieAIComponent::InitializeZombieAI(ACharacterZombie* InZombie)
 {
 	OwnerZombie = InZombie;
 
@@ -71,7 +69,7 @@ void AZombieAI::InitializeZombieAI(ACharacterZombie* InZombie)
 	StateMachine->ChangeState(EZombieStateType::Idle);
 }
 
-EZombieStateType AZombieAI::GetCurrentState() const
+EZombieStateType AZombieAIComponent::GetCurrentState() const
 {
 	if (StateMachine.IsValid())
 	{
@@ -80,7 +78,7 @@ EZombieStateType AZombieAI::GetCurrentState() const
 	return EZombieStateType::None;
 }
 
-void AZombieAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
+void AZombieAIComponent::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{

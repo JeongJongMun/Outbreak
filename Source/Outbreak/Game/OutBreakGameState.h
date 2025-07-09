@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
-#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
+#include "Outbreak/Manager/CharacterSpawnManager.h"
 #include "OutBreakGameState.generated.h"
 
 UCLASS()

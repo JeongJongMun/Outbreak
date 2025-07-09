@@ -1,23 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterZombie.h"
-#include "CharacterSpawnManager.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
-#include "Outbreak/Util/EnumHelper.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
-#include "State/FZombieIdleState.h"
 
 ACharacterZombie::ACharacterZombie()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
 	CharacterType = ECharacterType::Zombie;
-	AIControllerClass = AZombieAI::StaticClass();
+	AIControllerClass = AZombieAIComponent::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DefaultMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/ZombieMegaBundle/Mesh_UE5/UE5_Skeleton/Body/SKM_Body_Afro_UE5.SKM_Body_Afro_UE5'"));
@@ -96,7 +93,7 @@ void ACharacterZombie::BeginPlay()
 
 	if (HasAuthority())
 	{
-		ZombieAI = Cast<AZombieAI>(GetController());
+		ZombieAI = Cast<AZombieAIComponent>(GetController());
 		if (!ZombieAI)
 		{
 			UE_LOG(LogTemp, Error, TEXT("[%s] ZombieAI is null!"), CURRENT_CONTEXT);

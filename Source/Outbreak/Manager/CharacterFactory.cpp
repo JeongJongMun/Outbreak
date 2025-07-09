@@ -1,11 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterFactory.h"
-#include "NormalZombie/FatZombie.h"
-#include "NormalZombie/RunnerZombie.h"
-#include "NormalZombie/WalkerZombie.h"
+
+#include "Outbreak/Character/Zombie/NormalZombie/FatZombie.h"
+#include "Outbreak/Character/Zombie/NormalZombie/RunnerZombie.h"
+#include "Outbreak/Character/Zombie/NormalZombie/WalkerZombie.h"
+#include "Outbreak/Character/Zombie/SpecialZombie/GymRatZombie.h"
 #include "Outbreak/Util/EnumHelper.h"
-#include "SpecialZombie/GymRatZombie.h"
 
 UCharacterFactory::UCharacterFactory()
 {

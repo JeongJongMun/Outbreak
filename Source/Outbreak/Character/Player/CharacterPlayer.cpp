@@ -12,7 +12,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
-#include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
 #include "Outbreak/Game/Gear/Weapon/WeaponAR.h"

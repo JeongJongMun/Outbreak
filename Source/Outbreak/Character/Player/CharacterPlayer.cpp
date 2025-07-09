@@ -10,16 +10,15 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/SpectatorPawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 #include "Outbreak/Game/OutBreakPlayerState.h"
-#include "Outbreak/UI/OB_HUD.h"
+#include "Outbreak/Game/Gear/Weapon/WeaponAR.h"
+#include "Outbreak/Game/Gear/Weapon/WeaponSMG.h"
+#include "Outbreak/UI/OBHUD.h"
 #include "Outbreak/Util/EnumHelper.h"
-#include "Outbreak/Weapon/WeaponAR.h"
-#include "Outbreak/Weapon/WeaponSMG.h"
 
 ACharacterPlayer::ACharacterPlayer()
 {
@@ -557,7 +556,7 @@ void ACharacterPlayer::SwapToSlot(EInventorySlotType InSlotType)
 	else if (NewSlotIndex == 1) WeaponType = "SMG";
 	if (const APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		if (AOBHUD* HUD = Cast<AOBHUD>(PC->GetHUD()))
 		{
 			HUD->DisplayWeaponType(WeaponType);
 		}

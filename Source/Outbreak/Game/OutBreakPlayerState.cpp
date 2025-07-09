@@ -3,7 +3,7 @@
 
 #include "OutBreakPlayerState.h"
 #include "Net/UnrealNetwork.h"
-#include "Outbreak/UI/OB_HUD.h"
+#include "Outbreak/UI/OBHUD.h"
 
 AOutBreakPlayerState::AOutBreakPlayerState()
 {
@@ -38,7 +38,7 @@ void AOutBreakPlayerState::OnRep_ZombieKills()
 	{
 		if (PC->IsLocalController() && PC->PlayerState == this)
 		{
-			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			if (AOBHUD* HUD = Cast<AOBHUD>(PC->GetHUD()))
 			{
 				HUD->DisplayZombieKills(ZombieKills);
 			}

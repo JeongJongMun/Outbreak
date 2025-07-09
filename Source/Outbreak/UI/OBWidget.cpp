@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "OB_Widget.h"
+#include "OBWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Outbreak/Game/OutBreakGameState.h"
 
-void UOB_Widget::NativeConstruct()
+void UOBWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
@@ -23,7 +23,7 @@ void UOB_Widget::NativeConstruct()
 	}
 }
 
-void UOB_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+void UOBWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 	if (const AOutBreakGameState* GS = GetWorld()->GetGameState<AOutBreakGameState>())
@@ -33,7 +33,7 @@ void UOB_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 }
 	
-void UOB_Widget::SetCutsceneMode(bool bEnable)
+void UOBWidget::SetCutsceneMode(bool bEnable)
 {
 	ESlateVisibility NewVisibility = bEnable ? ESlateVisibility::Hidden : ESlateVisibility::Visible;
 
@@ -63,7 +63,7 @@ void UOB_Widget::SetCutsceneMode(bool bEnable)
 
 
 
-void UOB_Widget::SetMatchTimeText(float Time)
+void UOBWidget::SetMatchTimeText(float Time)
 {
 	if (MatchTimeTextBlock)
 	{
@@ -77,7 +77,7 @@ void UOB_Widget::SetMatchTimeText(float Time)
 	
 }
 
-void UOB_Widget::SetCurrentPhaseText(FString Phase)
+void UOBWidget::SetCurrentPhaseText(FString Phase)
 {
 	if (PhaseTextBlock)
 	{
@@ -86,7 +86,7 @@ void UOB_Widget::SetCurrentPhaseText(FString Phase)
 	}
 }
 
-void UOB_Widget::SetAlivePlayerCountText(int32 Count)
+void UOBWidget::SetAlivePlayerCountText(int32 Count)
 {
 	if (AlivePlayerCountTextBlock)
 	{
@@ -95,7 +95,7 @@ void UOB_Widget::SetAlivePlayerCountText(int32 Count)
 	}
 }
 
-void UOB_Widget::SetAnnouncementText(FString AnnouncementText)
+void UOBWidget::SetAnnouncementText(FString AnnouncementText)
 {
 	if (AnnouncementTextBlock)
 	{
@@ -104,7 +104,7 @@ void UOB_Widget::SetAnnouncementText(FString AnnouncementText)
 	}
 }
 
-void UOB_Widget::SetTotalZombieKillsText(int32 TotalKills)
+void UOBWidget::SetTotalZombieKillsText(int32 TotalKills)
 {
 	if (TotalZombieKillsTextBlock)
 	{
@@ -113,7 +113,7 @@ void UOB_Widget::SetTotalZombieKillsText(int32 TotalKills)
 	}
 }
 
-void UOB_Widget::SetZombieKillsText(int32 Kills)
+void UOBWidget::SetZombieKillsText(int32 Kills)
 {
 	if (ZombieKillsTextBlock)
 	{
@@ -122,7 +122,7 @@ void UOB_Widget::SetZombieKillsText(int32 Kills)
 	}
 }
 
-void UOB_Widget::SetAmmoText(int32 CurrentAmmo, int32 TotalAmmo)
+void UOBWidget::SetAmmoText(int32 CurrentAmmo, int32 TotalAmmo)
 {
 	if (AmmoTextBlock)
 	{
@@ -131,7 +131,7 @@ void UOB_Widget::SetAmmoText(int32 CurrentAmmo, int32 TotalAmmo)
 	}
 }
 
-void UOB_Widget::SetWeaponTypeText(FString Type)
+void UOBWidget::SetWeaponTypeText(FString Type)
 {
 	if (WeaponTypeTextBlock)
 	{
@@ -140,7 +140,7 @@ void UOB_Widget::SetWeaponTypeText(FString Type)
 	}
 }
 
-void UOB_Widget::SetCurrentHealth(int32 CurrentHealth, float HealthPercent)
+void UOBWidget::SetCurrentHealth(int32 CurrentHealth, float HealthPercent)
 {
 	UE_LOG(LogTemp, Warning, TEXT("SetCurrentHealth: Health=%d, Percent=%.2f"), CurrentHealth, HealthPercent);
 

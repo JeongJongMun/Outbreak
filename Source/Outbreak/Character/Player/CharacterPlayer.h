@@ -9,9 +9,9 @@
 #include "PaperSpriteComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Outbreak/Character/CharacterBase.h"
+#include "Outbreak/Game/Gear/Weapon/MainWeapon.h"
+#include "Outbreak/Game/Gear/Weapon/WeaponBase.h"
 #include "Outbreak/Util/Define.h"
-#include "Outbreak/Weapon/MainWeapon.h"
-#include "Outbreak/Weapon/WeaponBase.h"
 #include "CharacterPlayer.generated.h"
 
 UCLASS()

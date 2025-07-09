@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "OB_HUD.h"
-#include "OB_Widget.h"
+#include "OBHUD.h"
+#include "OBWidget.h"
 #include "Blueprint/UserWidget.h"
 
-AOB_HUD::AOB_HUD()
+AOBHUD::AOBHUD()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetBPClass(TEXT("/Game/UI/WBP_OBWidget"));
 	if (WidgetBPClass.Succeeded())
@@ -16,12 +16,12 @@ AOB_HUD::AOB_HUD()
 
 
 
-void AOB_HUD::BeginPlay()
+void AOBHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
 	if (WidgetClass)
-		OB_Widget = CreateWidget<UOB_Widget>(GetWorld(), WidgetClass);
+		OB_Widget = CreateWidget<UOBWidget>(GetWorld(), WidgetClass);
 		if (OB_Widget)
 		{
 			OB_Widget->AddToViewport();
@@ -30,7 +30,7 @@ void AOB_HUD::BeginPlay()
 		}
 }
 
-void AOB_HUD::SetCutsceneMode(bool bEnable)
+void AOBHUD::SetCutsceneMode(bool bEnable)
 {
 	if (OB_Widget)
 	{
@@ -38,7 +38,7 @@ void AOB_HUD::SetCutsceneMode(bool bEnable)
 	}
 }
 
-void AOB_HUD::DisplayAlivePlayerCount(int32 AlivePlayerCount)
+void AOBHUD::DisplayAlivePlayerCount(int32 AlivePlayerCount)
 {
 	if (OB_Widget)
 	{
@@ -47,7 +47,7 @@ void AOB_HUD::DisplayAlivePlayerCount(int32 AlivePlayerCount)
 	}
 }
 
-void AOB_HUD::DisplayAnnouncementMessage(const FString& Message)
+void AOBHUD::DisplayAnnouncementMessage(const FString& Message)
 {
 	if (OB_Widget)
 	{
@@ -56,7 +56,7 @@ void AOB_HUD::DisplayAnnouncementMessage(const FString& Message)
 	}
 }
 
-void AOB_HUD::DisplayTotalZombieKills(int32 TotalKills)
+void AOBHUD::DisplayTotalZombieKills(int32 TotalKills)
 {
 	if (OB_Widget)
 	{
@@ -65,7 +65,7 @@ void AOB_HUD::DisplayTotalZombieKills(int32 TotalKills)
 	}
 }
 
-void AOB_HUD::DisplayZombieKills(int32 Kills)
+void AOBHUD::DisplayZombieKills(int32 Kills)
 {
 	if (OB_Widget)
 	{
@@ -73,7 +73,7 @@ void AOB_HUD::DisplayZombieKills(int32 Kills)
 		OB_Widget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
-void AOB_HUD::DisplayAmmo(int32 CurrentAmmo, int32 TotalAmmo)
+void AOBHUD::DisplayAmmo(int32 CurrentAmmo, int32 TotalAmmo)
 {
 	if (OB_Widget)
 	{
@@ -81,7 +81,7 @@ void AOB_HUD::DisplayAmmo(int32 CurrentAmmo, int32 TotalAmmo)
 	}
 }
 
-void AOB_HUD::DisplayWeaponType(FString Type)
+void AOBHUD::DisplayWeaponType(FString Type)
 {
 	if (OB_Widget)
 	{
@@ -89,7 +89,7 @@ void AOB_HUD::DisplayWeaponType(FString Type)
 	}
 }
 
-void AOB_HUD::DisplayCurrentHealth(int32 CurrentHealth)
+void AOBHUD::DisplayCurrentHealth(int32 CurrentHealth)
 {
 	if (OB_Widget)
 	{

@@ -9,7 +9,7 @@
 #include "PhysicsEngine/PhysicsAsset.h"
 
 #include "Net/UnrealNetwork.h"
-#include "Outbreak/UI/OB_HUD.h"
+#include "Outbreak/UI/OBHUD.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -102,7 +102,7 @@ void ACharacterBase::OnRep_CurrentHealth()
 {
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+		if (AOBHUD* HUD = Cast<AOBHUD>(PC->GetHUD()))
 		{
 			HUD->DisplayCurrentHealth(CurrentHealth);
 		}

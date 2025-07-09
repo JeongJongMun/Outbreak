@@ -4,7 +4,7 @@
 #include "Engine/Engine.h"
 #include "TimerManager.h"
 #include "Outbreak/Character/Zombie/CharacterZombie.h"
-#include "Outbreak/UI/OB_HUD.h"
+#include "Outbreak/UI/OBHUD.h"
 #include "Net/UnrealNetwork.h"
 #include "NiagaraFunctionLibrary.h"
 
@@ -113,7 +113,7 @@ void AWeaponSMG::NotifyAmmoUpdate()
     const APlayerController* PC = Cast<APlayerController>(OwnerCharacter->GetController());
     if (!PC) return;
 
-    if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+    if (AOBHUD* HUD = Cast<AOBHUD>(PC->GetHUD()))
     {
         HUD->DisplayAmmo(WeaponData.CurrentAmmo, WeaponData.TotalAmmo);
     }

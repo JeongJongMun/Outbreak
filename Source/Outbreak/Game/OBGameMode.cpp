@@ -6,7 +6,7 @@
 #include "OutBreakPlayerState.h"
 #include "Outbreak/Character/Player/CharacterPlayer.h"
 #include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
-#include "Outbreak/UI/OB_HUD.h"
+#include "Outbreak/UI/OBHUD.h"
 
 AOBGameMode::AOBGameMode()
 {

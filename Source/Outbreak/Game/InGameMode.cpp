@@ -9,13 +9,13 @@
 #include "GameFramework/PlayerController.h"
 #include "Containers/Set.h"
 #include "Outbreak/Character/Player/CharacterPlayer.h"
-#include "Outbreak/UI/OB_HUD.h"
+#include "Outbreak/UI/OBHUD.h"
 
 
 AInGameMode::AInGameMode()
 {
 	DefaultPawnClass = ACharacterPlayer::StaticClass();
-	HUDClass = AOB_HUD::StaticClass();
+	HUDClass = AOBHUD::StaticClass();
 	GameStateClass = AOutBreakGameState::StaticClass();
 	PlayerStateClass = AOutBreakPlayerState::StaticClass();
 

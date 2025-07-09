@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Outbreak/Ability/BaseAbility.h"
+#include "Outbreak/Game/Ability/BaseAbility.h"
 #include "AbilityComponent.generated.h"
 
 UCLASS()

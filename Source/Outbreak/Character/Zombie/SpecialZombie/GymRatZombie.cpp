@@ -2,10 +2,9 @@
 
 
 #include "GymRatZombie.h"
-
-#include "Outbreak/Ability/DamageEnhanceAbility.h"
-#include "Outbreak/Ability/VibrationAbility.h"
 #include "Outbreak/Component/AbilityComponent.h"
+#include "Outbreak/Game/Ability/DamageEnhanceAbility.h"
+#include "Outbreak/Game/Ability/VibrationAbility.h"
 
 AGymRatZombie::AGymRatZombie()
 {

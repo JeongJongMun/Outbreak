@@ -5,7 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Outbreak/Character/Zombie/CharacterSpawnManager.h"
-#include "Outbreak/UI/OB_HUD.h"
+#include "Outbreak/UI/OBHUD.h"
 
 AOutBreakGameState::AOutBreakGameState()
 {
@@ -98,7 +98,7 @@ void AOutBreakGameState::OnRep_TotalZombieKills()
 	{
 		if (PC->IsLocalController())
 		{
-			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			if (AOBHUD* HUD = Cast<AOBHUD>(PC->GetHUD()))
 			{
 				HUD->DisplayTotalZombieKills(TotalZombieKills);
 			}
@@ -120,7 +120,7 @@ void AOutBreakGameState::OnRep_AlivePlayerCount()
 	{
 		if (PC->IsLocalController())
 		{
-			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			if (AOBHUD* HUD = Cast<AOBHUD>(PC->GetHUD()))
 			{
 				HUD->DisplayAlivePlayerCount(AlivePlayerCount);
 			}	
@@ -147,7 +147,7 @@ void AOutBreakGameState::OnRep_AnnouncementMessage()
 	{
 		if (PC->IsLocalController())
 		{
-			if (AOB_HUD* HUD = Cast<AOB_HUD>(PC->GetHUD()))
+			if (AOBHUD* HUD = Cast<AOBHUD>(PC->GetHUD()))
 			{
 				HUD->DisplayAnnouncementMessage(ObjectiveMessage);
 			}

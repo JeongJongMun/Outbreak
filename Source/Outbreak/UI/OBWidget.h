@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "OB_Widget.generated.h"
+#include "OBWidget.generated.h"
 
 class UTextBlock;
 class UImage;
 
 UCLASS()
-class OUTBREAK_API UOB_Widget : public UUserWidget
+class OUTBREAK_API UOBWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

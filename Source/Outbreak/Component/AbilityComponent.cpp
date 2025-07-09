@@ -1,7 +1,7 @@
 #include "AbilityComponent.h"
-#include "Outbreak/Ability/ActiveAbilityObject.h"
-#include "Outbreak/Ability/PassiveAbilityObject.h"
 #include "Outbreak/Character/CharacterBase.h"
+#include "Outbreak/Game/Ability/ActiveAbilityObject.h"
+#include "Outbreak/Game/Ability/PassiveAbilityObject.h"
 #include "Outbreak/Util/UObjectHelper.h"
 
 UAbilityComponent::UAbilityComponent()

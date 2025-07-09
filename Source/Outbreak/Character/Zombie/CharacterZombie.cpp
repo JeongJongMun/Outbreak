@@ -5,8 +5,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
-#include "Outbreak/Game/OutBreakGameState.h"
-#include "Outbreak/Game/OutBreakPlayerState.h"
+#include "Outbreak/Game/Framework/OutBreakGameState.h"
+#include "Outbreak/Game/Framework/OutBreakPlayerState.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
 
 ACharacterZombie::ACharacterZombie()

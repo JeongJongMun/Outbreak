@@ -1,22 +1,22 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CutsceneManager.h"
+#include "CutsceneController.h"
 #include "Outbreak/UI/OBHUD.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Outbreak/Game/OutBreakGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Outbreak/Character/Player/CharacterPlayer.h"
+#include "Outbreak/Game/Framework/OutBreakGameState.h"
 
-void UCutsceneManager::Init(UWorld* InWorld)
+void UCutsceneController::Init(UWorld* InWorld)
 {
 	WorldRef = InWorld;
 }
 
-void UCutsceneManager::PlayCutscene(ULevelSequence* Sequence)
+void UCutsceneController::PlayCutscene(ULevelSequence* Sequence)
 {
 	if (!WorldRef || !Sequence) return;
 	
@@ -50,12 +50,12 @@ void UCutsceneManager::PlayCutscene(ULevelSequence* Sequence)
 				}
 			}
 		}
-		Player->OnFinished.AddDynamic(this, &UCutsceneManager::OnCutSceneFinished);
+		Player->OnFinished.AddDynamic(this, &UCutsceneController::OnCutSceneFinished);
 		Player->Play();
 	}
 }
 
-void UCutsceneManager::OnCutSceneFinished()
+void UCutsceneController::OnCutSceneFinished()
 {
 	APlayerController* PC = UGameplayStatics::GetPlayerController(WorldRef, 0);
 	if (PC && PC->IsLocalController())

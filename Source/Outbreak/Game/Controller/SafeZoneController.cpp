@@ -4,11 +4,11 @@
 #include "SafeZoneController.h"
 #include "Components/BoxComponent.h"
 #include "Engine/World.h"
-#include "CutsceneManager.h"
-#include "Outbreak/Game/InGameMode.h"
+#include "CutsceneController.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
-#include "Outbreak/Game/OutBreakGameState.h"
+#include "Outbreak/Game/Framework/InGameMode.h"
+#include "Outbreak/Game/Framework/OutBreakGameState.h"
 #include "Outbreak/Manager/SoundManager.h"
 
 ASafeZoneController::ASafeZoneController()
@@ -57,7 +57,7 @@ void ASafeZoneController::BeginPlay()
 
 	}
 	InGameModeRef = Cast<AInGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	CutsceneManager = NewObject<UCutsceneManager>();
+	CutsceneManager = NewObject<UCutsceneController>();
 	CutsceneManager->AddToRoot();
 	CutsceneManager->Init(GetWorld());
 }

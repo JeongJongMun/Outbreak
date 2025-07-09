@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CutsceneManager.h"
-#include "InvisibleWall.h"
+#include "CutsceneController.h"
 #include "GameFramework/Actor.h"
 #include "LevelSequence.h"
+#include "Outbreak/Game/Actors/InvisibleWall.h"
 #include "SafeZoneController.generated.h"
 
 
@@ -60,7 +60,7 @@ private:
 	AInvisibleWall* InvisibleWall;
 	
 	UPROPERTY()
-	UCutsceneManager* CutsceneManager;
+	UCutsceneController* CutsceneManager;
 	UPROPERTY(EditAnywhere, Category = "Cutscene")
 	ULevelSequence* CutsceneSequence;
 };

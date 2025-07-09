@@ -4,11 +4,11 @@
 
 #include "LevelSequence.h"
 #include "CoreMinimal.h"
-#include "CutsceneManager.generated.h"
+#include "CutsceneController.generated.h"
 
 
 UCLASS()
-class OUTBREAK_API UCutsceneManager : public UObject
+class OUTBREAK_API UCutsceneController : public UObject
 {
 	GENERATED_BODY()
 	

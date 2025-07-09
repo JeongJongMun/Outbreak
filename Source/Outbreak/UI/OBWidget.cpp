@@ -5,7 +5,7 @@
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Engine/TextureRenderTarget2D.h"
-#include "Outbreak/Game/OutBreakGameState.h"
+#include "Outbreak/Game/Framework/OutBreakGameState.h"
 
 void UOBWidget::NativeConstruct()
 {

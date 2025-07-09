@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "AnimNotify_ZombieAttackEnd.generated.h"
+#include "AnimNotifyZombieAttackEnd.generated.h"
 
 UCLASS()
-class OUTBREAK_API UAnimNotify_ZombieAttackEnd : public UAnimNotify
+class OUTBREAK_API UAnimNotifyZombieAttackEnd : public UAnimNotify
 {
 	GENERATED_BODY()
 

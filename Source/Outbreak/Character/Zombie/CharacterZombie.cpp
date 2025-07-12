@@ -7,6 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Outbreak/Game/Framework/OutBreakGameState.h"
 #include "Outbreak/Game/Framework/OutBreakPlayerState.h"
+#include "Outbreak/Util/EnumHelper.h"
 #include "Outbreak/Util/MeshLoadHelper.h"
 
 ACharacterZombie::ACharacterZombie()
@@ -271,7 +272,7 @@ EZombieAnimationType ACharacterZombie::GetZombieAnimationTypeFromState(const EZo
 
 void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)
 {
-	const FString MeshTypeString = MeshLoadHelper::ZombieMeshTypeToString(MeshType);
+	const FString MeshTypeString = EnumHelper::EnumToString(MeshType);
 	
 	// TODO : Zombie Mesh Data Manage
 	int NormalMesh = 20;
@@ -292,7 +293,7 @@ void ACharacterZombie::SetMesh(const ECharacterBodyType MeshType)
 			break;
 	}
 
-	if (const TObjectPtr<USkeletalMesh> ZombieMesh = MeshLoadHelper::GetRandomZombieMesh(BaseMeshRef, BaseMeshName, MeshTypeString, MeshCount))
+	if (const TObjectPtr<USkeletalMesh> ZombieMesh = MeshLoadHelper::GetRandomZombieMesh(MeshTypeString, MeshCount))
 	{
 		GetMesh()->SetSkeletalMesh(ZombieMesh);
 	}

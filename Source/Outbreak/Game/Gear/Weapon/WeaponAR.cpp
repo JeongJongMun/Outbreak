@@ -33,7 +33,7 @@ AWeaponAR::AWeaponAR()
     {
         WeaponDataTable = DT_WeaponData.Object;
     }
-    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> FireEffect(TEXT("/Game/MuzzleFlash/MuzzleFlash/Niagara/NS_MuzzleFlash.NS_MuzzleFlash"));
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> FireEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/Art/VFX/MuzzleFlash/MuzzleFlash/Niagara/NS_MuzzleFlash.NS_MuzzleFlash'"));
     if (FireEffect.Succeeded())
     {
         NiagaraMuzzleFlash = FireEffect.Object;

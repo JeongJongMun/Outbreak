@@ -65,13 +65,7 @@ protected:
 	UPROPERTY()
 	TMap<EZombieAnimationType, TObjectPtr<UAnimMontage>> AnimMontageMap;
 	TMap<EZombieAnimationType, TArray<FName>> AnimSectionMap;
-	
-	FString BaseMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/Meshes/Character");
-	FString BaseMeshName = TEXT("SKM_Zombie");
-	int NormalMeshCount = 20;
-	int MuscleMeshCount = 6;
-	int FatMeshCount = 6;
-	
+
 private:
 	TObjectPtr<AZombieAIComponent> ZombieAI;
 };

@@ -79,13 +79,13 @@ Config/DefaultEditorPerProjectUserSettings.ini
 # User Defined Settings
 .vscode/*
 .idea/*
-Content/Characters/Mannequins/*
+Content/Characters/*
 Content/Fab/*
 Content/FPS_Weapon_Pack/*
 Content/FPSAnimationPack/*
 Content/Gruesome_Zombie_AnimSet/*
 Content/ZombieMegaBundle/*
-Content/Vefects/*
-Content/MuzzleFlash/*
+Content/ThirdParty/*
+Content/Devs/*
 .svn/*
 Plugins/*

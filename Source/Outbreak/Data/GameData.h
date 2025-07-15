@@ -4,7 +4,7 @@
 #include "StructUtils/InstancedStruct.h"
 #include "GameData.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FSingleEnemyData
 {
 	GENERATED_BODY()
@@ -28,26 +28,22 @@ struct FSingleEnemyData
 	float CapsuleHalfHeight = 0.0f;
 };
 
-USTRUCT()
-struct FWaveData
+USTRUCT(BlueprintType)
+struct FWaveData : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
 	TArray<FSingleEnemyData> Enemies;
-};
-
-USTRUCT()
-struct FWavesData
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	TArray<FWaveData> Waves;
+	
+	FWaveData()
+	{
+		Enemies.Empty();
+	}
 };
 
 USTRUCT(BlueprintType)
-struct FSpawnerSettingDataRow : public FTableRowBase
+struct FSpawnerSettingData : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -84,7 +80,7 @@ struct FSpawnerSettingDataRow : public FTableRowBase
     UPROPERTY(EditAnywhere)
     bool bDebug;
 
-    FSpawnerSettingDataRow()
+    FSpawnerSettingData()
     {
         SpawnDistanceMin = 2000.0f;
         SpawnDistanceMax = 2500.0f;
@@ -101,7 +97,7 @@ struct FSpawnerSettingDataRow : public FTableRowBase
 };
 
 USTRUCT(BlueprintType)
-struct FCharacterBaseDataRow : public FTableRowBase
+struct FCharacterBaseData : public FTableRowBase
 {
 	GENERATED_BODY()
 	
@@ -126,7 +122,7 @@ struct FCharacterBaseDataRow : public FTableRowBase
 	UPROPERTY(VisibleAnywhere)
 	int32 MaxExtraHealth;
 	
-	FCharacterBaseDataRow()
+	FCharacterBaseData()
 	{
 		MaxWalkSpeed = 500.0f;
 		MaxRunSpeed = 1000.0f;
@@ -139,7 +135,7 @@ struct FCharacterBaseDataRow : public FTableRowBase
 };
 
 USTRUCT(BlueprintType)
-struct FPlayerData : public FCharacterBaseDataRow
+struct FPlayerData : public FCharacterBaseData
 {
 	GENERATED_BODY()
 
@@ -161,7 +157,7 @@ struct FPlayerData : public FCharacterBaseDataRow
 };
 
 USTRUCT(BlueprintType)
-struct FZombieData : public FCharacterBaseDataRow
+struct FZombieData : public FCharacterBaseData
 {
 	GENERATED_BODY()
 

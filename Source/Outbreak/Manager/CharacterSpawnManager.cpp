@@ -33,7 +33,8 @@ void ACharacterSpawnManager::BeginPlay()
 	LoadDataTableToMap(ZombieDataTable, ZombieDataMap);
 	LoadDataTableToMap(PlayerDataTable, PlayerDataMap);
 
-	UpdateSetting();
+	UpdateSettingData();
+	UpdateWaveData();
 
 	// Test Spawn
 	FCharacterSpawnParam FatZombieSpawnParam =
@@ -82,7 +83,7 @@ void ACharacterSpawnManager::BeginPlay()
 	// SpawnCharacter(GymZombieSpawnParam);
 }
 
-bool ACharacterSpawnManager::GetSettingDataFromDataTable(const FName InSettingsID, FSpawnerSettingDataRow& OutSetting)
+bool ACharacterSpawnManager::GetSettingDataFromDataTable(const FName InSettingsID, FSpawnerSettingData& OutSetting)
 {
 	if (!SpawnerSettingDataTable)
 	{
@@ -90,7 +91,7 @@ bool ACharacterSpawnManager::GetSettingDataFromDataTable(const FName InSettingsI
 		return false;
 	}
 
-	const FSpawnerSettingDataRow* FoundRow = SpawnerSettingDataTable->FindRow<FSpawnerSettingDataRow>(InSettingsID,TEXT("GetSettingsDataFromDataTable"));
+	const FSpawnerSettingData* FoundRow = SpawnerSettingDataTable->FindRow<FSpawnerSettingData>(InSettingsID,TEXT("GetSettingsDataFromDataTable"));
 
 	if (FoundRow)
 	{
@@ -102,27 +103,78 @@ bool ACharacterSpawnManager::GetSettingDataFromDataTable(const FName InSettingsI
 	return false;
 }
 
+bool ACharacterSpawnManager::GetWaveDataFromDataTable(FName InWaveId, FWaveData& OutWaveData)
+{
+	if (!WaveDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] DataTable is null"), CURRENT_CONTEXT);
+		return false;
+	}
+
+	const FWaveData* FoundRow = WaveDataTable->FindRow<FWaveData>(InWaveId, TEXT("GetWaveDataFromDataTable"));
+
+	if (FoundRow)
+	{
+		OutWaveData = *FoundRow;
+		return true;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[%s] Row '%s' not found in data table"), CURRENT_CONTEXT, *InWaveId.ToString());
+	return false;
+}
+
 void ACharacterSpawnManager::SetSettingId(const FName InSettingId)
 {
 	if (SpawnerSettingId != InSettingId)
 	{
 		SpawnerSettingId = InSettingId;
-		UpdateSetting();
+		UpdateSettingData();
 	}
 }
 
-void ACharacterSpawnManager::UpdateSetting()
+void ACharacterSpawnManager::SetWaveId(FName InWaveId)
 {
-	FSpawnerSettingDataRow NewSettings;
+	if (WaveId != InWaveId)
+	{
+		WaveId = InWaveId;
+		UpdateWaveData();
+	}
+}
+
+void ACharacterSpawnManager::UpdateSettingData()
+{
+	FSpawnerSettingData NewSettings;
 	if (GetSettingDataFromDataTable(SpawnerSettingId, NewSettings))
 	{
-		SpawnerSetting = NewSettings;
+		SpawnerSettingData = NewSettings;
+		ClampSettingDataValues(SpawnerSettingData);
 		UE_LOG(LogTemp, Log, TEXT("[%s] Update Setting Done. : %s"), CURRENT_CONTEXT, *SpawnerSettingId.ToString());
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("[%s] Update Setting Failed : %s"), CURRENT_CONTEXT, *SpawnerSettingId.ToString());
 	}
+}
+
+void ACharacterSpawnManager::UpdateWaveData()
+{
+	FWaveData NewWaveData;
+	if (GetWaveDataFromDataTable(WaveId, NewWaveData))
+	{
+		WaveData = NewWaveData;
+		UE_LOG(LogTemp, Log, TEXT("[%s] Update Wave Done. : %s"), CURRENT_CONTEXT, *WaveId.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] Update Wave Failed : %s"), CURRENT_CONTEXT, *WaveId.ToString());
+	}
+}
+
+void ACharacterSpawnManager::ClampSettingDataValues(FSpawnerSettingData& Setting)
+{
+	Setting.SpawnInterval = FMath::Min(Setting.SpawnInterval, 0.2f);
+	Setting.SpawnDistanceMin = FMath::Clamp(Setting.SpawnDistanceMin, 0.0f, Setting.SpawnDistanceMax);
+	Setting.SpawnDistanceMax = FMath::Max(Setting.SpawnDistanceMax, Setting.SpawnDistanceMin);
 }
 
 FZombieData* ACharacterSpawnManager::GetZombieData(const EZombieSubType Type)

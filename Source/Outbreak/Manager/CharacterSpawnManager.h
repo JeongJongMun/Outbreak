@@ -32,15 +32,22 @@ public:
 	void SpawnCharacter(const FCharacterSpawnParam& InSpawnParam) const;
 	FZombieData* GetZombieData(const EZombieSubType Type);
 	FPlayerData* GetPlayerData(const EPlayerType Type);
+	
 	void SetSettingId(FName InSettingId);
+	void SetWaveId(FName InWaveId);
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
-	bool GetSettingDataFromDataTable(FName InSettingsID, FSpawnerSettingDataRow& OutSetting);
-	FSpawnerSettingDataRow GetCurrentSetting() { return SpawnerSetting; }
-	void UpdateSetting();
+	bool GetSettingDataFromDataTable(FName InSettingsID, FSpawnerSettingData& OutSetting);
+	bool GetWaveDataFromDataTable(FName InWaveId, FWaveData& OutWaveData);
+	FSpawnerSettingData GetCurrentSettingData() { return SpawnerSettingData; }
+	FWaveData GetCurrentWaveData() { return WaveData; }
+	void UpdateSettingData();
+	void UpdateWaveData();
+
+	void ClampSettingDataValues(FSpawnerSettingData& Setting);
 
 	// TODO : Move to utility class
 	template <typename T>
@@ -71,8 +78,14 @@ private:
 	UPROPERTY()
 	TObjectPtr<UDataTable> SpawnerSettingDataTable;
 
-	FSpawnerSettingDataRow SpawnerSetting;
+	UPROPERTY()
+	TObjectPtr<UDataTable> WaveDataTable;
+
+	FSpawnerSettingData SpawnerSettingData;
+	FWaveData WaveData;
+	
 	FName SpawnerSettingId = FName("Default");
+	FName WaveId = FName("0");
 	
 	UPROPERTY()
 	TObjectPtr<class UCharacterFactory> CharacterFactory;
@@ -85,5 +98,4 @@ private:
 	
 	TMap<FString, FZombieData*> ZombieDataMap;
 	TMap<FString, FPlayerData*> PlayerDataMap;
-
 };

@@ -9,6 +9,7 @@
 #include "PaperSpriteComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Outbreak/Character/CharacterBase.h"
+#include "Outbreak/Data/GameData.h"
 #include "Outbreak/Game/Gear/Weapon/MainWeapon.h"
 #include "Outbreak/Game/Gear/Weapon/WeaponBase.h"
 #include "Outbreak/Util/Define.h"

@@ -5,6 +5,7 @@
 #include "Outbreak/Character/CharacterBase.h"
 #include "Outbreak/Character/Player/CharacterPlayer.h"
 #include "Outbreak/Component/ZombieAIComponent.h"
+#include "Outbreak/Data/GameData.h"
 #include "Outbreak/Util/Define.h"
 #include "CharacterZombie.generated.h"
 

@@ -2,6 +2,7 @@
 
 #include "CharacterSpawnManager.h"
 #include "CharacterFactory.h"
+#include "Outbreak/Data/GameData.h"
 #include "Outbreak/Util/EnumHelper.h"
 
 ACharacterSpawnManager::ACharacterSpawnManager()

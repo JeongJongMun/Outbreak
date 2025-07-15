@@ -18,6 +18,12 @@ ACharacterSpawnManager::ACharacterSpawnManager()
 	{
 		PlayerDataTable = PlayerDataTableAsset.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> SpawnSettingDataTableAsset(TEXT("/Script/Engine.DataTable'/Game/Data/DT_SpawnerSetting.DT_SpawnerSetting'"));
+	if (SpawnSettingDataTableAsset.Succeeded())
+	{
+		SpawnerSettingDataTable = SpawnSettingDataTableAsset.Object;
+	}
 }
 
 void ACharacterSpawnManager::BeginPlay()
@@ -26,6 +32,8 @@ void ACharacterSpawnManager::BeginPlay()
 
 	LoadDataTableToMap(ZombieDataTable, ZombieDataMap);
 	LoadDataTableToMap(PlayerDataTable, PlayerDataMap);
+
+	UpdateSetting();
 
 	// Test Spawn
 	FCharacterSpawnParam FatZombieSpawnParam =
@@ -72,6 +80,49 @@ void ACharacterSpawnManager::BeginPlay()
 	// SpawnCharacter(RunnerZombieSpawnParam);
 	// SpawnCharacter(WalkerZombieSpawnParam);
 	// SpawnCharacter(GymZombieSpawnParam);
+}
+
+bool ACharacterSpawnManager::GetSettingDataFromDataTable(const FName InSettingsID, FSpawnerSettingDataRow& OutSetting)
+{
+	if (!SpawnerSettingDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] DataTable is null"), CURRENT_CONTEXT);
+		return false;
+	}
+
+	const FSpawnerSettingDataRow* FoundRow = SpawnerSettingDataTable->FindRow<FSpawnerSettingDataRow>(InSettingsID,TEXT("GetSettingsDataFromDataTable"));
+
+	if (FoundRow)
+	{
+		OutSetting = *FoundRow;
+		return true;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("[%s] Row '%s' not found in data table"), CURRENT_CONTEXT, *InSettingsID.ToString());
+	return false;
+}
+
+void ACharacterSpawnManager::SetSettingId(const FName InSettingId)
+{
+	if (SpawnerSettingId != InSettingId)
+	{
+		SpawnerSettingId = InSettingId;
+		UpdateSetting();
+	}
+}
+
+void ACharacterSpawnManager::UpdateSetting()
+{
+	FSpawnerSettingDataRow NewSettings;
+	if (GetSettingDataFromDataTable(SpawnerSettingId, NewSettings))
+	{
+		SpawnerSetting = NewSettings;
+		UE_LOG(LogTemp, Log, TEXT("[%s] Update Setting Done. : %s"), CURRENT_CONTEXT, *SpawnerSettingId.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] Update Setting Failed : %s"), CURRENT_CONTEXT, *SpawnerSettingId.ToString());
+	}
 }
 
 FZombieData* ACharacterSpawnManager::GetZombieData(const EZombieSubType Type)

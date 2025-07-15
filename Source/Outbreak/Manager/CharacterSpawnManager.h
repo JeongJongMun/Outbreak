@@ -32,11 +32,17 @@ public:
 	void SpawnCharacter(const FCharacterSpawnParam& InSpawnParam) const;
 	FZombieData* GetZombieData(const EZombieSubType Type);
 	FPlayerData* GetPlayerData(const EPlayerType Type);
+	void SetSettingId(FName InSettingId);
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	bool GetSettingDataFromDataTable(FName InSettingsID, FSpawnerSettingDataRow& OutSetting);
+	FSpawnerSettingDataRow GetCurrentSetting() { return SpawnerSetting; }
+	void UpdateSetting();
+
+	// TODO : Move to utility class
 	template <typename T>
 	void LoadDataTableToMap(const TObjectPtr<UDataTable> DataTable, TMap<FString, T*>& OutMap)
 	{
@@ -62,9 +68,21 @@ private:
 // Variables
 // --------------------
 private:
+	UPROPERTY()
+	TObjectPtr<UDataTable> SpawnerSettingDataTable;
+
+	FSpawnerSettingDataRow SpawnerSetting;
+	FName SpawnerSettingId = FName("Default");
+	
+	UPROPERTY()
 	TObjectPtr<class UCharacterFactory> CharacterFactory;
+	
+	UPROPERTY()
 	TObjectPtr<UDataTable> ZombieDataTable;
+	
+	UPROPERTY()
 	TObjectPtr<UDataTable> PlayerDataTable;
+	
 	TMap<FString, FZombieData*> ZombieDataMap;
 	TMap<FString, FPlayerData*> PlayerDataMap;
 
